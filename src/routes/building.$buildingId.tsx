@@ -302,6 +302,27 @@ function BuildingHub() {
       <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
         {/* Sidebar */}
         <aside className="space-y-4">
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              Pinned
+            </h2>
+            <Link
+              to="/building/$buildingId"
+              params={{ buildingId }}
+              search={{ c: "__announcements__" }}
+              className={cn(
+                "flex items-center gap-2 rounded-md px-2.5 py-2 text-sm transition-colors border",
+                selectedChannelId === "__announcements__"
+                  ? "bg-primary/10 text-primary border-primary/20 font-medium"
+                  : "hover:bg-muted text-foreground border-border/60",
+              )}
+            >
+              <Pin className="h-3.5 w-3.5 shrink-0" />
+              <Megaphone className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Official Announcements</span>
+            </Link>
+          </div>
+
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Channels
@@ -343,12 +364,15 @@ function BuildingHub() {
 
         {/* Main */}
         <main className="min-h-[60vh]">
-          {selectedChannelId && me ? (
+          {selectedChannelId === "__announcements__" ? (
+            <AnnouncementsFeed buildingId={buildingId} />
+          ) : selectedChannelId && me ? (
             <ChannelView
               key={selectedChannelId}
               channelId={selectedChannelId}
               meId={me.id}
               channel={channels.find((c) => c.id === selectedChannelId) ?? null}
+              buildingId={buildingId}
             />
           ) : (
             <EmptyState onCreate={() => setShowCreate(true)} />
