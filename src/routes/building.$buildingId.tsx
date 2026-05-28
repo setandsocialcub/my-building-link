@@ -9,6 +9,9 @@ import {
   Users,
   Bell,
   X,
+  Megaphone,
+  Flag,
+  Pin,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -299,6 +302,27 @@ function BuildingHub() {
       <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
         {/* Sidebar */}
         <aside className="space-y-4">
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              Pinned
+            </h2>
+            <Link
+              to="/building/$buildingId"
+              params={{ buildingId }}
+              search={{ c: "__announcements__" }}
+              className={cn(
+                "flex items-center gap-2 rounded-md px-2.5 py-2 text-sm transition-colors border",
+                selectedChannelId === "__announcements__"
+                  ? "bg-primary/10 text-primary border-primary/20 font-medium"
+                  : "hover:bg-muted text-foreground border-border/60",
+              )}
+            >
+              <Pin className="h-3.5 w-3.5 shrink-0" />
+              <Megaphone className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Official Announcements</span>
+            </Link>
+          </div>
+
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Channels
@@ -340,12 +364,15 @@ function BuildingHub() {
 
         {/* Main */}
         <main className="min-h-[60vh]">
-          {selectedChannelId && me ? (
+          {selectedChannelId === "__announcements__" ? (
+            <AnnouncementsFeed buildingId={buildingId} />
+          ) : selectedChannelId && me ? (
             <ChannelView
               key={selectedChannelId}
               channelId={selectedChannelId}
               meId={me.id}
               channel={channels.find((c) => c.id === selectedChannelId) ?? null}
+              buildingId={buildingId}
             />
           ) : (
             <EmptyState onCreate={() => setShowCreate(true)} />
@@ -393,11 +420,14 @@ function ChannelView({
   channelId,
   meId,
   channel,
+  buildingId,
 }: {
   channelId: string;
   meId: string;
   channel: Channel | null;
+  buildingId: string;
 }) {
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [messages, setMessages] = useState<Message[]>([]);
   const [senders, setSenders] = useState<Record<string, Sender>>({});
   const [body, setBody] = useState("");
@@ -530,13 +560,50 @@ function ChannelView({
                 )}
                 <div
                   className={cn(
-                    "max-w-md rounded-2xl px-4 py-2 text-sm",
-                    isMe
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-muted rounded-bl-sm",
+                    "flex items-center gap-1.5 group",
+                    isMe ? "flex-row-reverse" : "flex-row",
                   )}
                 >
-                  {m.body}
+                  <div
+                    className={cn(
+                      "max-w-md rounded-2xl px-4 py-2 text-sm",
+                      isMe
+                        ? "bg-primary text-primary-foreground rounded-br-sm"
+                        : "bg-muted rounded-bl-sm",
+                    )}
+                  >
+                    {m.body}
+                  </div>
+                  {!isMe && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (flagged.has(m.id)) return;
+                        const { error } = await supabase.from("message_flags").insert({
+                          message_id: m.id,
+                          channel_id: channelId,
+                          building_id: buildingId,
+                          reporter_id: meId,
+                        });
+                        if (error && !error.message.toLowerCase().includes("duplicate")) {
+                          toast.error("Could not flag message.");
+                          return;
+                        }
+                        setFlagged((prev) => new Set(prev).add(m.id));
+                        toast.success("Flagged for review by the property manager.");
+                      }}
+                      title={flagged.has(m.id) ? "Already flagged" : "Flag message"}
+                      className={cn(
+                        "h-6 w-6 grid place-content-center rounded-md transition-opacity cursor-pointer",
+                        flagged.has(m.id)
+                          ? "text-destructive opacity-100"
+                          : "text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-muted",
+                      )}
+                      aria-label="Flag message"
+                    >
+                      <Flag className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -730,3 +797,88 @@ function CreateChannelDialog({
     </Dialog>
   );
 }
+
+type Announcement = { id: string; body: string; created_at: string };
+
+function AnnouncementsFeed({ buildingId }: { buildingId: string }) {
+  const [list, setList] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("announcements")
+        .select("id, body, created_at")
+        .eq("building_id", buildingId)
+        .order("created_at", { ascending: false });
+      setList(data ?? []);
+      setLoading(false);
+    })();
+
+    const sub = supabase
+      .channel(`announcements-${buildingId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "announcements",
+          filter: `building_id=eq.${buildingId}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const a = payload.new as Announcement;
+            setList((prev) => [a, ...prev]);
+            toast(`📣 New announcement from your property manager`);
+          } else if (payload.eventType === "DELETE") {
+            setList((prev) => prev.filter((x) => x.id !== (payload.old as any).id));
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(sub);
+    };
+  }, [buildingId]);
+
+  return (
+    <section className="rounded-2xl border border-border bg-card overflow-hidden">
+      <header className="px-5 py-3 border-b border-border flex items-center gap-2 bg-primary/5">
+        <Megaphone className="h-4 w-4 text-primary" />
+        <div className="flex-1 min-w-0">
+          <h2 className="font-semibold truncate">Official Announcements</h2>
+          <p className="text-xs text-muted-foreground">
+            Read-only — posted by your property manager.
+          </p>
+        </div>
+      </header>
+      <div className="p-5 space-y-3 max-h-[calc(100vh-13rem)] overflow-y-auto">
+        {loading ? (
+          <div className="flex justify-center py-8 text-muted-foreground">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : list.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-10">
+            No announcements yet. You'll be notified when your property manager posts one.
+          </p>
+        ) : (
+          list.map((a) => (
+            <article
+              key={a.id}
+              className="rounded-xl border border-border bg-background p-4"
+            >
+              <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
+                <Badge variant="secondary" className="gap-1">
+                  <Megaphone className="h-3 w-3" /> Property Manager
+                </Badge>
+                <span>{new Date(a.created_at).toLocaleString()}</span>
+              </div>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{a.body}</p>
+            </article>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+

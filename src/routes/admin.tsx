@@ -30,6 +30,7 @@ type Building = {
   city: string;
   access_code: string;
   created_at: string;
+  manager_code?: string | null;
 };
 
 function AdminPage() {
@@ -42,9 +43,16 @@ function AdminPage() {
   const load = async () => {
     const { data, error: qErr } = await supabase
       .from("buildings")
-      .select("id, name, city, access_code, created_at")
+      .select("id, name, city, access_code, created_at, property_managers(manager_code)")
       .order("created_at", { ascending: false });
-    if (!qErr && data) setBuildings(data as Building[]);
+    if (!qErr && data) {
+      setBuildings(
+        (data as any[]).map((b) => ({
+          ...b,
+          manager_code: b.property_managers?.[0]?.manager_code ?? null,
+        })),
+      );
+    }
   };
 
   useEffect(() => {
@@ -125,7 +133,8 @@ function AdminPage() {
               <TableRow>
                 <TableHead className="pl-6">Name</TableHead>
                 <TableHead>City</TableHead>
-                <TableHead>Access Code</TableHead>
+                <TableHead>Resident Code</TableHead>
+                <TableHead>Manager Code</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="pr-6 text-right">Actions</TableHead>
               </TableRow>
@@ -134,7 +143,7 @@ function AdminPage() {
               {buildings.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="text-center text-muted-foreground py-10"
                   >
                     No buildings yet. Create your first one above.
@@ -150,10 +159,19 @@ function AdminPage() {
                         {b.access_code}
                       </code>
                     </TableCell>
+                    <TableCell>
+                      {b.manager_code ? (
+                        <code className="px-2 py-1 rounded-md bg-primary/10 text-primary font-mono text-sm tracking-widest">
+                          {b.manager_code}
+                        </code>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(b.created_at).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="pr-6 text-right">
+                    <TableCell className="pr-6 text-right space-x-1">
                       <Button
                         size="sm"
                         variant="ghost"
@@ -161,8 +179,19 @@ function AdminPage() {
                         className="gap-1.5"
                       >
                         <Copy className="h-3.5 w-3.5" />
-                        Copy
+                        Resident
                       </Button>
+                      {b.manager_code && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => copy(b.manager_code!)}
+                          className="gap-1.5"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                          Manager
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

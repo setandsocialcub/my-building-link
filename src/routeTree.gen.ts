@@ -9,11 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$buildingId'
+import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
 
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/manager',
+  path: '/manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -29,6 +36,11 @@ const OnboardingBuildingIdRoute = OnboardingBuildingIdRouteImport.update({
   path: '/onboarding/$buildingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagerBuildingIdRoute = ManagerBuildingIdRouteImport.update({
+  id: '/$buildingId',
+  path: '/$buildingId',
+  getParentRoute: () => ManagerRoute,
+} as any)
 const BuildingBuildingIdRoute = BuildingBuildingIdRouteImport.update({
   id: '/building/$buildingId',
   path: '/building/$buildingId',
@@ -38,20 +50,26 @@ const BuildingBuildingIdRoute = BuildingBuildingIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/manager': typeof ManagerRouteWithChildren
   '/building/$buildingId': typeof BuildingBuildingIdRoute
+  '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/manager': typeof ManagerRouteWithChildren
   '/building/$buildingId': typeof BuildingBuildingIdRoute
+  '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/manager': typeof ManagerRouteWithChildren
   '/building/$buildingId': typeof BuildingBuildingIdRoute
+  '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
 }
 export interface FileRouteTypes {
@@ -59,27 +77,45 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/manager'
     | '/building/$buildingId'
+    | '/manager/$buildingId'
     | '/onboarding/$buildingId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/building/$buildingId' | '/onboarding/$buildingId'
+  to:
+    | '/'
+    | '/admin'
+    | '/manager'
+    | '/building/$buildingId'
+    | '/manager/$buildingId'
+    | '/onboarding/$buildingId'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/manager'
     | '/building/$buildingId'
+    | '/manager/$buildingId'
     | '/onboarding/$buildingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  ManagerRoute: typeof ManagerRouteWithChildren
   BuildingBuildingIdRoute: typeof BuildingBuildingIdRoute
   OnboardingBuildingIdRoute: typeof OnboardingBuildingIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/manager': {
+      id: '/manager'
+      path: '/manager'
+      fullPath: '/manager'
+      preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -101,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingBuildingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manager/$buildingId': {
+      id: '/manager/$buildingId'
+      path: '/$buildingId'
+      fullPath: '/manager/$buildingId'
+      preLoaderRoute: typeof ManagerBuildingIdRouteImport
+      parentRoute: typeof ManagerRoute
+    }
     '/building/$buildingId': {
       id: '/building/$buildingId'
       path: '/building/$buildingId'
@@ -111,9 +154,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ManagerRouteChildren {
+  ManagerBuildingIdRoute: typeof ManagerBuildingIdRoute
+}
+
+const ManagerRouteChildren: ManagerRouteChildren = {
+  ManagerBuildingIdRoute: ManagerBuildingIdRoute,
+}
+
+const ManagerRouteWithChildren =
+  ManagerRoute._addFileChildren(ManagerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  ManagerRoute: ManagerRouteWithChildren,
   BuildingBuildingIdRoute: BuildingBuildingIdRoute,
   OnboardingBuildingIdRoute: OnboardingBuildingIdRoute,
 }
