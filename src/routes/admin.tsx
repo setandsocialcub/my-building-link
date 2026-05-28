@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus } from "lucide-react";
+import { Copy, Plus, LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/admin")({
       { name: "description", content: "Manage buildings and access codes." },
     ],
   }),
-  component: AdminPage,
+  component: AdminGate,
 });
 
 type Building = {
@@ -33,7 +33,90 @@ type Building = {
   manager_code?: string | null;
 };
 
-function AdminPage() {
+type AuthState = "loading" | "signed-out" | "not-admin" | "admin";
+
+function AdminGate() {
+  const [state, setState] = useState<AuthState>("loading");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const check = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return setState("signed-out");
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    setState(roles ? "admin" : "not-admin");
+  };
+
+  useEffect(() => {
+    check();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => check());
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(null);
+    setBusy(true);
+    const { error } = mode === "signup"
+      ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } })
+      : await supabase.auth.signInWithPassword({ email, password });
+    setBusy(false);
+    if (error) setErr(error.message);
+  };
+
+  const signOut = async () => { await supabase.auth.signOut(); };
+
+  if (state === "loading") {
+    return <main className="min-h-screen grid place-items-center text-muted-foreground">Loading…</main>;
+  }
+
+  if (state === "signed-out") {
+    return (
+      <main className="min-h-screen grid place-items-center bg-background px-6">
+        <form onSubmit={onSubmit} className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-sm space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Super Admin</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight">{mode === "signup" ? "Create admin account" : "Sign in"}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">The first account created becomes the admin.</p>
+          </div>
+          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Input type="password" placeholder="Password (min 8 chars)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
+          {err && <p className="text-sm text-destructive">{err}</p>}
+          <Button type="submit" disabled={busy} className="w-full">
+            {busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+          </Button>
+          <button type="button" onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="text-xs text-muted-foreground hover:text-foreground w-full text-center">
+            {mode === "signup" ? "Already have an account? Sign in" : "Need to create the admin account? Sign up"}
+          </button>
+        </form>
+      </main>
+    );
+  }
+
+  if (state === "not-admin") {
+    return (
+      <main className="min-h-screen grid place-items-center bg-background px-6">
+        <div className="max-w-sm text-center space-y-4">
+          <h1 className="text-2xl font-semibold">Access denied</h1>
+          <p className="text-sm text-muted-foreground">This account is not an admin. Only the Super Admin can manage buildings.</p>
+          <Button variant="outline" onClick={signOut} className="gap-2"><LogOut className="h-4 w-4" /> Sign out</Button>
+        </div>
+      </main>
+    );
+  }
+
+  return <AdminPage onSignOut={signOut} />;
+}
+
+function AdminPage({ onSignOut }: { onSignOut: () => void }) {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
@@ -85,16 +168,21 @@ function AdminPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <header className="mb-10">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">
-            Super Admin
-          </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
-            Buildings
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Create properties and share their access codes with residents.
-          </p>
+        <header className="mb-10 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              Super Admin
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
+              Buildings
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Create properties and share their access codes with residents.
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
+            <LogOut className="h-4 w-4" /> Sign out
+          </Button>
         </header>
 
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm mb-10">
