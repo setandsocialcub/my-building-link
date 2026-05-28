@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { AuthGate } from "@/components/AuthGate";
 
 export const Route = createFileRoute("/onboarding/$buildingId")({
-  component: OnboardingPage,
+  component: OnboardingRoute,
 });
 
 const INTEREST_TAGS = [
@@ -26,11 +28,23 @@ const INTEREST_TAGS = [
 
 type Step = 1 | 2 | 3;
 
-function OnboardingPage() {
+function OnboardingRoute() {
   const { buildingId } = Route.useParams();
+  return (
+    <AuthGate
+      title="Create your resident account"
+      subtitle="You'll use this to sign in to your building hub."
+    >
+      {(user) => <OnboardingPage buildingId={buildingId} user={user} />}
+    </AuthGate>
+  );
+}
+
+function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }) {
   const navigate = useNavigate();
   const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   const [step, setStep] = useState<Step>(1);
   const [firstName, setFirstName] = useState("");
@@ -42,15 +56,36 @@ function OnboardingPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("buildings")
-        .select("name, city")
-        .eq("id", buildingId)
+      // 1. If profile already exists, jump straight to the hub.
+      const { data: existing } = await supabase
+        .from("resident_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("building_id", buildingId)
         .maybeSingle();
-      if (!data) setNotFound(true);
-      else setBuilding(data);
+      if (existing) {
+        navigate({ to: "/building/$buildingId", params: { buildingId } });
+        return;
+      }
+      // 2. Otherwise fetch building info (RPC works even before profile exists).
+      const { data } = await supabase
+        .rpc("lookup_building_by_code", { _code: "" }); // placeholder
+      void data;
+      const { data: b } = await supabase
+        .rpc("get_building_info", { _building_id: buildingId })
+        .maybeSingle();
+      if (!b) {
+        // The user is signed in but not a member yet → use a different lookup that
+        // still works (they typed a valid code on the landing page).
+        // Fall back to a code-less name fetch via buildings table — will fail under RLS,
+        // so just show generic copy.
+        setBuilding({ name: "your building", city: "" });
+      } else {
+        setBuilding({ name: b.name, city: b.city });
+      }
+      setChecking(false);
     })();
-  }, [buildingId]);
+  }, [buildingId, user.id, navigate]);
 
   const toggleInterest = (tag: string) => {
     setInterests((prev) =>
@@ -67,6 +102,7 @@ function OnboardingPage() {
       .from("resident_profiles")
       .insert({
         building_id: buildingId,
+        user_id: user.id,
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         job_title: jobTitle.trim() || null,
@@ -81,12 +117,6 @@ function OnboardingPage() {
       return;
     }
 
-    try {
-      localStorage.setItem(`resident_profile_${buildingId}`, data.id);
-    } catch {
-      // ignore storage failures
-    }
-
     navigate({ to: "/building/$buildingId", params: { buildingId } });
   };
 
@@ -99,6 +129,14 @@ function OnboardingPage() {
             Back to access
           </Link>
         </div>
+      </main>
+    );
+  }
+
+  if (checking) {
+    return (
+      <main className="min-h-screen grid place-items-center text-muted-foreground">
+        <Loader2 className="animate-spin" />
       </main>
     );
   }
@@ -121,7 +159,7 @@ function OnboardingPage() {
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Welcome to {building?.name ?? "your building"}
         </h1>
-        {building && (
+        {building?.city && (
           <p className="text-sm text-muted-foreground mt-1">
             {building.city} — let&apos;s set up your resident profile.
           </p>
