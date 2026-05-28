@@ -1,0 +1,1 @@
+ALTER FUNCTION public.generate_building_access_code() SET search_path = public;
