@@ -36,9 +36,7 @@ function LandingPage() {
     }
     setLoading(true);
     const { data, error: qErr } = await supabase
-      .from("buildings")
-      .select("id, name")
-      .eq("access_code", trimmed)
+      .rpc("lookup_building_by_code", { _code: trimmed })
       .maybeSingle();
     setLoading(false);
 
