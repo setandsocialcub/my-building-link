@@ -797,3 +797,88 @@ function CreateChannelDialog({
     </Dialog>
   );
 }
+
+type Announcement = { id: string; body: string; created_at: string };
+
+function AnnouncementsFeed({ buildingId }: { buildingId: string }) {
+  const [list, setList] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("announcements")
+        .select("id, body, created_at")
+        .eq("building_id", buildingId)
+        .order("created_at", { ascending: false });
+      setList(data ?? []);
+      setLoading(false);
+    })();
+
+    const sub = supabase
+      .channel(`announcements-${buildingId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "announcements",
+          filter: `building_id=eq.${buildingId}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const a = payload.new as Announcement;
+            setList((prev) => [a, ...prev]);
+            toast(`📣 New announcement from your property manager`);
+          } else if (payload.eventType === "DELETE") {
+            setList((prev) => prev.filter((x) => x.id !== (payload.old as any).id));
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(sub);
+    };
+  }, [buildingId]);
+
+  return (
+    <section className="rounded-2xl border border-border bg-card overflow-hidden">
+      <header className="px-5 py-3 border-b border-border flex items-center gap-2 bg-primary/5">
+        <Megaphone className="h-4 w-4 text-primary" />
+        <div className="flex-1 min-w-0">
+          <h2 className="font-semibold truncate">Official Announcements</h2>
+          <p className="text-xs text-muted-foreground">
+            Read-only — posted by your property manager.
+          </p>
+        </div>
+      </header>
+      <div className="p-5 space-y-3 max-h-[calc(100vh-13rem)] overflow-y-auto">
+        {loading ? (
+          <div className="flex justify-center py-8 text-muted-foreground">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : list.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-10">
+            No announcements yet. You'll be notified when your property manager posts one.
+          </p>
+        ) : (
+          list.map((a) => (
+            <article
+              key={a.id}
+              className="rounded-xl border border-border bg-background p-4"
+            >
+              <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
+                <Badge variant="secondary" className="gap-1">
+                  <Megaphone className="h-3 w-3" /> Property Manager
+                </Badge>
+                <span>{new Date(a.created_at).toLocaleString()}</span>
+              </div>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{a.body}</p>
+            </article>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
