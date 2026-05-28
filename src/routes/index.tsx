@@ -48,6 +48,14 @@ function LandingPage() {
       setError("Invalid access code. Please check with your building manager.");
       return;
     }
+    try {
+      sessionStorage.setItem(
+        `building:${data.id}`,
+        JSON.stringify({ name: data.name, city: data.city, code: trimmed }),
+      );
+    } catch {
+      // ignore storage failures
+    }
     navigate({ to: "/onboarding/$buildingId", params: { buildingId: data.id } });
   };
 
