@@ -347,6 +347,7 @@ export type Database = {
           id: string
           manager_code: string
           name: string
+          user_id: string | null
         }
         Insert: {
           building_id: string
@@ -354,6 +355,7 @@ export type Database = {
           id?: string
           manager_code?: string
           name?: string
+          user_id?: string | null
         }
         Update: {
           building_id?: string
@@ -361,6 +363,7 @@ export type Database = {
           id?: string
           manager_code?: string
           name?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -381,6 +384,7 @@ export type Database = {
           interest_tags: string[]
           job_title: string | null
           last_name: string
+          user_id: string
         }
         Insert: {
           building_id: string
@@ -390,6 +394,7 @@ export type Database = {
           interest_tags?: string[]
           job_title?: string | null
           last_name: string
+          user_id: string
         }
         Update: {
           building_id?: string
@@ -399,6 +404,7 @@ export type Database = {
           interest_tags?: string[]
           job_title?: string | null
           last_name?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -470,14 +476,43 @@ export type Database = {
       }
     }
     Functions: {
+      channel_building: { Args: { _channel_id: string }; Returns: string }
+      claim_manager_code: { Args: { _code: string }; Returns: string }
+      current_resident_id: { Args: { _building_id: string }; Returns: string }
       generate_building_access_code: { Args: never; Returns: string }
       generate_manager_access_code: { Args: never; Returns: string }
+      get_building_info: {
+        Args: { _building_id: string }
+        Returns: {
+          city: string
+          id: string
+          name: string
+        }[]
+      }
+      has_building_access: { Args: { _building_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_channel_member: { Args: { _channel_id: string }; Returns: boolean }
+      is_manager_of_building: {
+        Args: { _building_id: string }
+        Returns: boolean
+      }
+      is_resident_of_building: {
+        Args: { _building_id: string }
+        Returns: boolean
+      }
+      lookup_building_by_code: {
+        Args: { _code: string }
+        Returns: {
+          city: string
+          id: string
+          name: string
+        }[]
       }
     }
     Enums: {
