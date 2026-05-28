@@ -414,7 +414,9 @@ function ChannelView({
     if (data) {
       setSenders((prev) => {
         const next = { ...prev };
-        for (const s of data) next[s.id] = s as Sender;
+        for (const s of data) {
+          if (s.id) next[s.id] = s as Sender;
+        }
         return next;
       });
     }
