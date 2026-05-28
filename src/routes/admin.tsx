@@ -168,16 +168,21 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <header className="mb-10">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">
-            Super Admin
-          </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
-            Buildings
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Create properties and share their access codes with residents.
-          </p>
+        <header className="mb-10 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              Super Admin
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
+              Buildings
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Create properties and share their access codes with residents.
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
+            <LogOut className="h-4 w-4" /> Sign out
+          </Button>
         </header>
 
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm mb-10">
