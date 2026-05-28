@@ -96,21 +96,19 @@ function BuildingHub() {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
-  // Identify resident from localStorage (set during onboarding)
+  // Identify resident via Supabase auth session
   useEffect(() => {
-    const profileId =
-      typeof window !== "undefined"
-        ? localStorage.getItem(`resident_profile_${buildingId}`)
-        : null;
-    if (!profileId) {
-      navigate({ to: "/onboarding/$buildingId", params: { buildingId } });
-      return;
-    }
     (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate({ to: "/onboarding/$buildingId", params: { buildingId } });
+        return;
+      }
       const { data } = await supabase
         .from("resident_profiles")
         .select("id, first_name")
-        .eq("id", profileId)
+        .eq("user_id", user.id)
+        .eq("building_id", buildingId)
         .maybeSingle();
       if (!data) {
         navigate({ to: "/onboarding/$buildingId", params: { buildingId } });
@@ -120,21 +118,23 @@ function BuildingHub() {
     })();
   }, [buildingId, navigate]);
 
-  // Load building + channels
+  // Load building (via security-definer RPC that only returns it to members)
+  // and channels (RLS-scoped to building members) once we have a profile.
   useEffect(() => {
+    if (!me) return;
     (async () => {
       const [{ data: b }, { data: ch }] = await Promise.all([
-        supabase.from("buildings").select("name, city").eq("id", buildingId).maybeSingle(),
+        supabase.rpc("get_building_info", { _building_id: buildingId }).maybeSingle(),
         supabase
           .from("channels")
           .select("id, name, interest_tag, created_at")
           .eq("building_id", buildingId)
           .order("created_at", { ascending: true }),
       ]);
-      setBuilding(b);
+      if (b) setBuilding({ name: b.name, city: b.city });
       setChannels(ch ?? []);
     })();
-  }, [buildingId]);
+  }, [buildingId, me]);
 
   // Realtime: new channels in this building
   useEffect(() => {
