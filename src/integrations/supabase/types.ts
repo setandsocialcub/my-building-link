@@ -38,9 +38,81 @@ export type Database = {
         }
         Relationships: []
       }
+      resident_profiles: {
+        Row: {
+          building_id: string
+          created_at: string
+          first_name: string
+          id: string
+          interest_tags: string[]
+          job_title: string | null
+          last_name: string
+        }
+        Insert: {
+          building_id: string
+          created_at?: string
+          first_name: string
+          id?: string
+          interest_tags?: string[]
+          job_title?: string | null
+          last_name: string
+        }
+        Update: {
+          building_id?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          interest_tags?: string[]
+          job_title?: string | null
+          last_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_profiles_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      resident_public_profiles: {
+        Row: {
+          building_id: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string | null
+          interest_tags: string[] | null
+          job_title: string | null
+        }
+        Insert: {
+          building_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          interest_tags?: string[] | null
+          job_title?: string | null
+        }
+        Update: {
+          building_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          interest_tags?: string[] | null
+          job_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_profiles_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       generate_building_access_code: { Args: never; Returns: string }
