@@ -55,36 +55,64 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      // 1. If profile already exists, jump straight to the hub.
+      // 1. If a profile already exists for this user + building, skip onboarding.
       const { data: existing } = await supabase
         .from("resident_profiles")
         .select("id")
         .eq("user_id", user.id)
         .eq("building_id", buildingId)
         .maybeSingle();
+      if (cancelled) return;
       if (existing) {
         navigate({ to: "/building/$buildingId", params: { buildingId } });
         return;
       }
-      // 2. Otherwise fetch building info (RPC works even before profile exists).
-      const { data } = await supabase
-        .rpc("lookup_building_by_code", { _code: "" }); // placeholder
-      void data;
-      const { data: b } = await supabase
-        .rpc("get_building_info", { _building_id: buildingId })
-        .maybeSingle();
-      if (!b) {
-        // The user is signed in but not a member yet → use a different lookup that
-        // still works (they typed a valid code on the landing page).
-        // Fall back to a code-less name fetch via buildings table — will fail under RLS,
-        // so just show generic copy.
-        setBuilding({ name: "your building", city: "" });
+
+      // 2. Load building context. Prefer the cached lookup from the landing
+      //    page (works before the resident profile is created, so RLS on
+      //    buildings doesn't block us). Re-validate by access code if we have it.
+      let cached: { name: string; city: string; code?: string } | null = null;
+      try {
+        const raw = sessionStorage.getItem(`building:${buildingId}`);
+        if (raw) cached = JSON.parse(raw);
+      } catch {
+        cached = null;
+      }
+
+      if (cached?.code) {
+        const { data: verified } = await supabase
+          .rpc("lookup_building_by_code", { _code: cached.code })
+          .maybeSingle();
+        if (cancelled) return;
+        if (!verified || verified.id !== buildingId) {
+          setNotFound(true);
+          setChecking(false);
+          return;
+        }
+        setBuilding({ name: verified.name, city: verified.city });
+      } else if (cached) {
+        setBuilding({ name: cached.name, city: cached.city });
       } else {
+        // No cached access code — try the access-gated RPC (only succeeds
+        // for managers/admins/existing residents). Otherwise bounce to /.
+        const { data: b } = await supabase
+          .rpc("get_building_info", { _building_id: buildingId })
+          .maybeSingle();
+        if (cancelled) return;
+        if (!b) {
+          setNotFound(true);
+          setChecking(false);
+          return;
+        }
         setBuilding({ name: b.name, city: b.city });
       }
       setChecking(false);
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [buildingId, user.id, navigate]);
 
   const toggleInterest = (tag: string) => {
