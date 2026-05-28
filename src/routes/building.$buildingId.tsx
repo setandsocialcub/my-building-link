@@ -9,6 +9,9 @@ import {
   Users,
   Bell,
   X,
+  Megaphone,
+  Flag,
+  Pin,
 } from "lucide-react";
 import { toast } from "sonner";
 
