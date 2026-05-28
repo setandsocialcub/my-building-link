@@ -14,13 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      buildings: {
+        Row: {
+          access_code: string
+          city: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          access_code?: string
+          city: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          access_code?: string
+          city?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_building_access_code: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
