@@ -4,6 +4,7 @@ import { Shield, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AuthGate } from "@/components/AuthGate";
 
 export const Route = createFileRoute("/manager")({
   head: () => ({
@@ -12,10 +13,21 @@ export const Route = createFileRoute("/manager")({
       { name: "description", content: "Sign in to manage your building." },
     ],
   }),
-  component: ManagerLogin,
+  component: ManagerEntry,
 });
 
-function ManagerLogin() {
+function ManagerEntry() {
+  return (
+    <AuthGate
+      title="Property Manager sign-in"
+      subtitle="Sign in or create your account, then enter your manager code."
+    >
+      {() => <ClaimCode />}
+    </AuthGate>
+  );
+}
+
+function ClaimCode() {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,18 +39,13 @@ function ManagerLogin() {
     const trimmed = code.trim().toUpperCase();
     if (!trimmed) return;
     setLoading(true);
-    const { data, error: qErr } = await supabase
-      .from("property_managers")
-      .select("id, building_id")
-      .eq("manager_code", trimmed)
-      .maybeSingle();
+    const { data, error: qErr } = await supabase.rpc("claim_manager_code", { _code: trimmed });
     setLoading(false);
     if (qErr || !data) {
-      setError("Invalid manager code. Check with your super admin.");
+      setError(qErr?.message ?? "Invalid manager code.");
       return;
     }
-    localStorage.setItem(`manager_${data.building_id}`, data.id);
-    navigate({ to: "/manager/$buildingId", params: { buildingId: data.building_id } });
+    navigate({ to: "/manager/$buildingId", params: { buildingId: data as string } });
   };
 
   return (
@@ -50,7 +57,7 @@ function ManagerLogin() {
           </div>
           <h1 className="mt-4 text-2xl font-semibold tracking-tight">Property Manager</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Enter your manager access code to broadcast announcements and moderate your building.
+            Enter the manager access code your super admin gave you.
           </p>
         </div>
         <form
@@ -67,8 +74,15 @@ function ManagerLogin() {
           />
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" disabled={loading || !code.trim()} className="w-full">
-            {loading ? <Loader2 className="animate-spin" /> : "Sign in"}
+            {loading ? <Loader2 className="animate-spin" /> : "Continue"}
           </Button>
+          <button
+            type="button"
+            onClick={() => supabase.auth.signOut()}
+            className="text-xs text-muted-foreground hover:text-foreground w-full text-center"
+          >
+            Sign out
+          </button>
         </form>
       </div>
     </main>
