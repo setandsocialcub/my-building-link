@@ -560,13 +560,50 @@ function ChannelView({
                 )}
                 <div
                   className={cn(
-                    "max-w-md rounded-2xl px-4 py-2 text-sm",
-                    isMe
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-muted rounded-bl-sm",
+                    "flex items-center gap-1.5 group",
+                    isMe ? "flex-row-reverse" : "flex-row",
                   )}
                 >
-                  {m.body}
+                  <div
+                    className={cn(
+                      "max-w-md rounded-2xl px-4 py-2 text-sm",
+                      isMe
+                        ? "bg-primary text-primary-foreground rounded-br-sm"
+                        : "bg-muted rounded-bl-sm",
+                    )}
+                  >
+                    {m.body}
+                  </div>
+                  {!isMe && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (flagged.has(m.id)) return;
+                        const { error } = await supabase.from("message_flags").insert({
+                          message_id: m.id,
+                          channel_id: channelId,
+                          building_id: buildingId,
+                          reporter_id: meId,
+                        });
+                        if (error && !error.message.toLowerCase().includes("duplicate")) {
+                          toast.error("Could not flag message.");
+                          return;
+                        }
+                        setFlagged((prev) => new Set(prev).add(m.id));
+                        toast.success("Flagged for review by the property manager.");
+                      }}
+                      title={flagged.has(m.id) ? "Already flagged" : "Flag message"}
+                      className={cn(
+                        "h-6 w-6 grid place-content-center rounded-md transition-opacity cursor-pointer",
+                        flagged.has(m.id)
+                          ? "text-destructive opacity-100"
+                          : "text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-muted",
+                      )}
+                      aria-label="Flag message"
+                    >
+                      <Flag className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             );
