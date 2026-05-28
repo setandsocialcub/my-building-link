@@ -420,11 +420,14 @@ function ChannelView({
   channelId,
   meId,
   channel,
+  buildingId,
 }: {
   channelId: string;
   meId: string;
   channel: Channel | null;
+  buildingId: string;
 }) {
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [messages, setMessages] = useState<Message[]>([]);
   const [senders, setSenders] = useState<Record<string, Sender>>({});
   const [body, setBody] = useState("");
