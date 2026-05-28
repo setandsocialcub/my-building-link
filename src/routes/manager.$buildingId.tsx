@@ -32,21 +32,27 @@ function ManagerDashboard() {
   const [managerId, setManagerId] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = typeof window !== "undefined"
-      ? localStorage.getItem(`manager_${buildingId}`)
-      : null;
-    if (!stored) {
-      navigate({ to: "/manager" });
-      return;
-    }
-    setManagerId(stored);
     (async () => {
-      const { data } = await supabase
-        .from("buildings")
-        .select("name, city")
-        .eq("id", buildingId)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate({ to: "/manager" });
+        return;
+      }
+      const { data: mgr } = await supabase
+        .from("property_managers")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("building_id", buildingId)
         .maybeSingle();
-      setBuilding(data);
+      if (!mgr) {
+        navigate({ to: "/manager" });
+        return;
+      }
+      setManagerId(mgr.id);
+      const { data: b } = await supabase
+        .rpc("get_building_info", { _building_id: buildingId })
+        .maybeSingle();
+      if (b) setBuilding({ name: b.name, city: b.city });
     })();
   }, [buildingId, navigate]);
 
@@ -68,8 +74,8 @@ function ManagerDashboard() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              localStorage.removeItem(`manager_${buildingId}`);
+            onClick={async () => {
+              await supabase.auth.signOut();
               navigate({ to: "/manager" });
             }}
           >
