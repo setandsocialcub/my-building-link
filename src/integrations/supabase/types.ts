@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string
+          building_id: string
+          created_at: string
+          id: string
+          manager_id: string
+        }
+        Insert: {
+          body: string
+          building_id: string
+          created_at?: string
+          id?: string
+          manager_id: string
+        }
+        Update: {
+          body?: string
+          building_id?: string
+          created_at?: string
+          id?: string
+          manager_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "property_managers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buildings: {
         Row: {
           access_code: string
@@ -173,6 +212,75 @@ export type Database = {
           },
         ]
       }
+      message_flags: {
+        Row: {
+          building_id: string
+          channel_id: string
+          created_at: string
+          id: string
+          message_id: string
+          reporter_id: string | null
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          building_id: string
+          channel_id: string
+          created_at?: string
+          id?: string
+          message_id: string
+          reporter_id?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          building_id?: string
+          channel_id?: string
+          created_at?: string
+          id?: string
+          message_id?: string
+          reporter_id?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_flags_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_flags_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_flags_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_flags_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_flags_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           building_id: string
@@ -228,6 +336,38 @@ export type Database = {
             columns: ["recipient_id"]
             isOneToOne: false
             referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_managers: {
+        Row: {
+          building_id: string
+          created_at: string
+          id: string
+          manager_code: string
+          name: string
+        }
+        Insert: {
+          building_id: string
+          created_at?: string
+          id?: string
+          manager_code?: string
+          name?: string
+        }
+        Update: {
+          building_id?: string
+          created_at?: string
+          id?: string
+          manager_code?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_managers_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: true
+            referencedRelation: "buildings"
             referencedColumns: ["id"]
           },
         ]
@@ -310,6 +450,7 @@ export type Database = {
     }
     Functions: {
       generate_building_access_code: { Args: never; Returns: string }
+      generate_manager_access_code: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
