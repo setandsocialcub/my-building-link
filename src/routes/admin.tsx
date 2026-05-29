@@ -45,15 +45,24 @@ function AdminGate() {
   const [err, setErr] = useState<string | null>(null);
 
   const check = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return setState("signed-out");
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-    setState(roles ? "admin" : "not-admin");
+    try {
+      const { data, error: uErr } = await supabase.auth.getUser();
+      if (uErr || !data?.user) return setState("signed-out");
+      const { data: roles, error: rErr } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (rErr) {
+        console.error("[admin] role check failed", rErr);
+        return setState("not-admin");
+      }
+      setState(roles ? "admin" : "not-admin");
+    } catch (e) {
+      console.error("[admin] auth check failed", e);
+      setState("signed-out");
+    }
   };
 
   useEffect(() => {
