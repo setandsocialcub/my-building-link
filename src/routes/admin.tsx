@@ -44,14 +44,18 @@ function AdminGate() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const check = async () => {
+  const check = async (preloadedUserId?: string | null) => {
     try {
-      const { data, error: uErr } = await supabase.auth.getUser();
-      if (uErr || !data?.user) return setState("signed-out");
+      let userId = preloadedUserId;
+      if (userId === undefined) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        userId = sessionData.session?.user?.id ?? null;
+      }
+      if (!userId) return setState("signed-out");
       const { data: roles, error: rErr } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", data.user.id)
+        .eq("user_id", userId)
         .eq("role", "admin")
         .maybeSingle();
       if (rErr) {
@@ -66,9 +70,38 @@ function AdminGate() {
   };
 
   useEffect(() => {
-    check();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => check());
-    return () => sub.subscription.unsubscribe();
+    let cancelled = false;
+    let settled = false;
+
+    // Preload session synchronously-as-possible, then run the role check.
+    const run = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (cancelled) return;
+      await check(data.session?.user?.id ?? null);
+      settled = true;
+    };
+    run();
+
+    // Timeout fallback — never stay stuck on "Loading".
+    const timeout = setTimeout(() => {
+      if (!settled && !cancelled) {
+        console.warn("[admin] auth check timed out; defaulting to signed-out");
+        setState((prev) => (prev === "loading" ? "signed-out" : prev));
+      }
+    }, 5000);
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      settled = false;
+      check(session?.user?.id ?? null).then(() => {
+        settled = true;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
