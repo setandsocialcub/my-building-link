@@ -383,7 +383,7 @@ export type Database = {
           id: string
           interest_tags: string[]
           job_title: string | null
-          last_name: string
+          last_name: string | null
           user_id: string
         }
         Insert: {
@@ -393,7 +393,7 @@ export type Database = {
           id?: string
           interest_tags?: string[]
           job_title?: string | null
-          last_name: string
+          last_name?: string | null
           user_id: string
         }
         Update: {
@@ -403,7 +403,7 @@ export type Database = {
           id?: string
           interest_tags?: string[]
           job_title?: string | null
-          last_name?: string
+          last_name?: string | null
           user_id?: string
         }
         Relationships: [
