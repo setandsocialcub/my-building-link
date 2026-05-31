@@ -24,17 +24,6 @@ export const Route = createFileRoute("/admin")({
   component: AdminGate,
 });
 
-
-export const Route = createFileRoute("/admin")({
-  head: () => ({
-    meta: [
-      { title: "Super Admin — Buildings" },
-      { name: "description", content: "Manage buildings and access codes." },
-    ],
-  }),
-  component: AdminGate,
-});
-
 type Building = {
   id: string;
   name: string;
@@ -44,15 +33,11 @@ type Building = {
   manager_code?: string | null;
 };
 
-type AuthState = "loading" | "signed-out" | "not-admin" | "admin";
+type AuthState = "loading" | "not-admin" | "admin";
 
 function AdminGate() {
+  const navigate = useNavigate();
   const [state, setState] = useState<AuthState>("loading");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
 
   const check = async (preloadedUserId?: string | null) => {
     try {
@@ -61,7 +46,10 @@ function AdminGate() {
         const { data: sessionData } = await supabase.auth.getSession();
         userId = sessionData.session?.user?.id ?? null;
       }
-      if (!userId) return setState("signed-out");
+      if (!userId) {
+        navigate({ to: "/super-admin-login" });
+        return;
+      }
       const { data: roles, error: rErr } = await supabase
         .from("user_roles")
         .select("role")
@@ -75,7 +63,7 @@ function AdminGate() {
       setState(roles ? "admin" : "not-admin");
     } catch (e) {
       console.error("[admin] auth check failed", e);
-      setState("signed-out");
+      navigate({ to: "/super-admin-login" });
     }
   };
 
@@ -83,7 +71,6 @@ function AdminGate() {
     let cancelled = false;
     let settled = false;
 
-    // Preload session synchronously-as-possible, then run the role check.
     const run = async () => {
       const { data } = await supabase.auth.getSession();
       if (cancelled) return;
@@ -92,19 +79,18 @@ function AdminGate() {
     };
     run();
 
-    // Timeout fallback — never stay stuck on "Loading".
     const timeout = setTimeout(() => {
       if (!settled && !cancelled) {
-        console.warn("[admin] auth check timed out; defaulting to signed-out");
-        setState((prev) => (prev === "loading" ? "signed-out" : prev));
+        navigate({ to: "/super-admin-login" });
       }
     }, 5000);
 
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      settled = false;
-      check(session?.user?.id ?? null).then(() => {
-        settled = true;
-      });
+      if (!session?.user) {
+        navigate({ to: "/super-admin-login" });
+        return;
+      }
+      check(session.user.id);
     });
 
     return () => {
@@ -112,67 +98,15 @@ function AdminGate() {
       clearTimeout(timeout);
       sub.subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErr(null);
-    setBusy(true);
-    const { error } = mode === "signup"
-      ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } })
-      : await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (error) setErr(error.message);
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
   };
-
-  const signOut = async () => { await supabase.auth.signOut(); };
 
   if (state === "loading") {
     return <main className="min-h-screen grid place-items-center text-muted-foreground">Loading…</main>;
-  }
-
-  if (state === "signed-out") {
-    return (
-      <main className="min-h-screen grid place-items-center bg-background px-6">
-        <form onSubmit={onSubmit} className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-sm space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Super Admin</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight">{mode === "signup" ? "Create admin account" : "Sign in"}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">The first account created becomes the admin.</p>
-          </div>
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input type="password" placeholder="Password (min 8 chars)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
-          {err && <p className="text-sm text-destructive">{err}</p>}
-          <Button type="submit" disabled={busy} className="w-full">
-            {busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
-          </Button>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="h-px flex-1 bg-border" />or<div className="h-px flex-1 bg-border" />
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full gap-2"
-            onClick={async () => {
-              setErr(null);
-              const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/admin` });
-              if (result.error) setErr(result.error.message ?? "Google sign-in failed");
-            }}
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09Z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.99.66-2.25 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/>
-              <path fill="#FBBC05" d="M5.84 14.11A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.44.34-2.11V7.05H2.18A11 11 0 0 0 1 12c0 1.78.43 3.46 1.18 4.95l3.66-2.84Z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z"/>
-            </svg>
-            Continue with Google
-          </Button>
-          <button type="button" onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="text-xs text-muted-foreground hover:text-foreground w-full text-center">
-            {mode === "signup" ? "Already have an account? Sign in" : "Need to create the admin account? Sign up"}
-          </button>
-        </form>
-      </main>
-    );
   }
 
   if (state === "not-admin") {
