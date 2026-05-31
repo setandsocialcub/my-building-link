@@ -1,66 +1,42 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Building2, ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  KeyRound,
+  Loader2,
+  LogIn,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/resident-access")({
   head: () => ({
     meta: [
-      { title: "Resident Access — Enter Your Building Code" },
+      { title: "Resident Access — Join Your Building" },
       {
         name: "description",
         content:
-          "Enter your building access code to join your residential community portal.",
+          "Use your building invitation code or sign in to your resident community.",
       },
     ],
   }),
   component: ResidentAccessPage,
 });
 
+type View = "choice" | "code" | "login";
+
 function ResidentAccessPage() {
-  const navigate = useNavigate();
-  const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    const trimmed = code.trim().toUpperCase();
-    if (trimmed.length !== 6) {
-      setError("Access codes are 6 characters long.");
-      return;
-    }
-    setLoading(true);
-    const { data, error: qErr } = await supabase
-      .rpc("lookup_building_by_code", { _code: trimmed })
-      .maybeSingle();
-    setLoading(false);
-
-    if (qErr) {
-      setError("Something went wrong. Please try again.");
-      return;
-    }
-    if (!data) {
-      setError("Invalid access code. Please check with your building manager.");
-      return;
-    }
-    try {
-      sessionStorage.setItem(
-        `building:${data.id}`,
-        JSON.stringify({ name: data.name, city: data.city, code: trimmed }),
-      );
-    } catch {
-      // ignore storage failures
-    }
-    navigate({ to: "/onboarding/$buildingId", params: { buildingId: data.id } });
-  };
+  const [view, setView] = useState<View>("choice");
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4">
+    <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <Link
           to="/"
@@ -68,47 +44,466 @@ function ResidentAccessPage() {
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
-        <div className="flex flex-col items-center text-center mb-10">
-          <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
-            <Building2 className="h-7 w-7 text-primary" />
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Resident Access
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enter the access code provided by your building to continue.
-          </p>
-        </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
-        >
-          <label className="block">
-            <span className="text-sm font-medium text-foreground">
-              Building Access Code
-            </span>
-            <Input
-              autoFocus
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="e.g. LVMIA1"
-              maxLength={6}
-              className="mt-2 h-12 text-center text-lg font-mono tracking-[0.4em] uppercase"
-            />
-          </label>
-
-          {error && (
-            <p className="text-sm text-destructive" role="alert">
-              {error}
-            </p>
-          )}
-
-          <Button type="submit" className="w-full h-11" disabled={loading}>
-            {loading ? "Checking…" : "Continue"}
-          </Button>
-        </form>
+        {view === "choice" && <ChoiceView onPick={setView} />}
+        {view === "code" && <CodeView onBack={() => setView("choice")} />}
+        {view === "login" && <LoginView onBack={() => setView("choice")} />}
       </div>
     </main>
+  );
+}
+
+function ChoiceView({ onPick }: { onPick: (v: View) => void }) {
+  return (
+    <div>
+      <div className="text-center mb-10">
+        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-5">
+          <Building2 className="h-7 w-7" />
+        </div>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          Welcome, resident
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Do you have a Building Invitation Code?
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        <button
+          onClick={() => onPick("code")}
+          className="group w-full text-left rounded-2xl border border-border bg-card p-5 shadow-sm hover:border-primary hover:shadow-md transition-all flex items-center gap-4"
+        >
+          <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary grid place-items-center flex-shrink-0">
+            <KeyRound className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-semibold text-foreground">Yes, I have a code</h2>
+            <p className="text-sm text-muted-foreground">
+              Enter your 6-character invitation.
+            </p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+        </button>
+
+        <button
+          onClick={() => onPick("login")}
+          className="group w-full text-left rounded-2xl border border-border bg-card p-5 shadow-sm hover:border-primary hover:shadow-md transition-all flex items-center gap-4"
+        >
+          <div className="h-11 w-11 rounded-xl bg-muted text-foreground grid place-items-center flex-shrink-0">
+            <LogIn className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-semibold text-foreground">
+              I already have an account
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Sign in with email and password.
+            </p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Code path                                                                  */
+/* -------------------------------------------------------------------------- */
+
+const INTEREST_TAGS = [
+  "Wellness & Fitness",
+  "Professional Networking",
+  "Sports",
+  "Running",
+  "Gaming",
+  "Food & Cooking",
+  "Pets",
+  "Arts & Culture",
+] as const;
+
+type Building = { id: string; name: string; city: string };
+
+function CodeView({ onBack }: { onBack: () => void }) {
+  const [code, setCode] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [building, setBuilding] = useState<Building | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Live validation when 6 chars entered
+  useEffect(() => {
+    const trimmed = code.trim().toUpperCase();
+    if (trimmed.length !== 6) {
+      setBuilding(null);
+      setError(null);
+      return;
+    }
+    let cancelled = false;
+    setChecking(true);
+    setError(null);
+    supabase
+      .rpc("lookup_building_by_code", { _code: trimmed })
+      .maybeSingle()
+      .then(({ data, error: qErr }) => {
+        if (cancelled) return;
+        setChecking(false);
+        if (qErr) {
+          setError("Couldn't verify the code. Try again.");
+          setBuilding(null);
+          return;
+        }
+        if (!data) {
+          setError("This code didn't match any building.");
+          setBuilding(null);
+          return;
+        }
+        setBuilding(data as Building);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [code]);
+
+  return (
+    <div>
+      <button
+        onClick={onBack}
+        className="text-xs text-muted-foreground hover:text-foreground mb-4"
+      >
+        ← Choose a different option
+      </button>
+      <div className="text-center mb-8">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-4">
+          <KeyRound className="h-6 w-6" />
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Enter your invitation code
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Your building manager shared a 6-character code.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <Input
+          autoFocus
+          value={code}
+          onChange={(e) =>
+            setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))
+          }
+          placeholder="A B C 1 2 3"
+          maxLength={6}
+          inputMode="text"
+          autoCapitalize="characters"
+          className="h-16 text-center text-2xl font-mono tracking-[0.6em] uppercase"
+        />
+        <div className="mt-3 min-h-[1.25rem] text-center text-sm">
+          {checking && (
+            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Verifying…
+            </span>
+          )}
+          {!checking && error && <span className="text-destructive">{error}</span>}
+        </div>
+      </div>
+
+      {/* Success banner + sliding profile card */}
+      <div
+        className={cn(
+          "grid transition-all duration-500 ease-out",
+          building ? "grid-rows-[1fr] opacity-100 mt-4" : "grid-rows-[0fr] opacity-0",
+        )}
+      >
+        <div className="overflow-hidden">
+          {building && (
+            <>
+              <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 flex items-center gap-2.5">
+                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                <p className="text-sm">
+                  <span className="font-medium text-foreground">Success!</span>{" "}
+                  <span className="text-muted-foreground">
+                    Code verified for{" "}
+                  </span>
+                  <span className="font-semibold text-foreground">
+                    {building.name}
+                  </span>
+                  <span className="text-muted-foreground">.</span>
+                </p>
+              </div>
+              <ProfileCreationCard building={building} />
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileCreationCard({ building }: { building: Building }) {
+  const navigate = useNavigate();
+  const [firstName, setFirstName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [interests, setInterests] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const toggle = (tag: string) =>
+    setInterests((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!firstName.trim()) return setError("Please enter your first name.");
+    if (password.length < 8)
+      return setError("Password must be at least 8 characters.");
+
+    setBusy(true);
+    const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/building/${building.id}`,
+        data: { first_name: firstName.trim() },
+      },
+    });
+
+    if (signUpErr) {
+      setBusy(false);
+      setError(signUpErr.message);
+      return;
+    }
+
+    // Ensure we have a session before inserting (auto-confirm is on).
+    let userId = signUpData.user?.id;
+    if (!userId) {
+      const { data: u } = await supabase.auth.getUser();
+      userId = u.user?.id;
+    }
+    if (!userId) {
+      // Account created but needs email confirmation.
+      setBusy(false);
+      setError("Check your email to confirm your account, then sign in.");
+      return;
+    }
+
+    const { error: insErr } = await supabase.from("resident_profiles").insert({
+      user_id: userId,
+      building_id: building.id,
+      first_name: firstName.trim(),
+      job_title: jobTitle.trim() || null,
+      interest_tags: interests,
+    });
+
+    setBusy(false);
+    if (insErr) {
+      setError(insErr.message);
+      return;
+    }
+
+    navigate({ to: "/building/$buildingId", params: { buildingId: building.id } });
+  };
+
+  return (
+    <form
+      onSubmit={onSubmit}
+      className="mt-4 rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5"
+    >
+      <div>
+        <h2 className="text-lg font-semibold tracking-tight">
+          Create your profile
+        </h2>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Just a few things so your neighbors can say hi.
+        </p>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="first-name">First name</Label>
+        <Input
+          id="first-name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          autoComplete="given-name"
+          required
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="job-title">
+          Job title <span className="text-muted-foreground">(optional)</span>
+        </Label>
+        <Input
+          id="job-title"
+          value={jobTitle}
+          onChange={(e) => setJobTitle(e.target.value)}
+          placeholder="e.g. Product Designer"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Interests</Label>
+        <div className="grid grid-cols-2 gap-2">
+          {INTEREST_TAGS.map((tag) => {
+            const active = interests.includes(tag);
+            return (
+              <button
+                type="button"
+                key={tag}
+                onClick={() => toggle(tag)}
+                className={cn(
+                  "rounded-xl border px-3 py-2.5 text-sm text-left transition-all",
+                  active
+                    ? "border-primary bg-primary/10 text-foreground font-medium"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                )}
+              >
+                {tag}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      <div className="space-y-1.5">
+        <Label htmlFor="signup-email">Email</Label>
+        <Input
+          id="signup-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          required
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="signup-password">Password</Label>
+        <Input
+          id="signup-password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          minLength={8}
+          autoComplete="new-password"
+          required
+        />
+        <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+      </div>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <Button type="submit" disabled={busy} className="w-full h-11">
+        {busy ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          "Join Building Community"
+        )}
+      </Button>
+    </form>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Login path                                                                 */
+/* -------------------------------------------------------------------------- */
+
+function LoginView({ onBack }: { onBack: () => void }) {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    const { data, error: signInErr } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (signInErr || !data.user) {
+      setBusy(false);
+      setError(signInErr?.message ?? "Sign in failed.");
+      return;
+    }
+
+    // Find which building this resident belongs to.
+    const { data: profile, error: pErr } = await supabase
+      .from("resident_profiles")
+      .select("building_id")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    setBusy(false);
+    if (pErr) {
+      setError(pErr.message);
+      return;
+    }
+    if (!profile) {
+      setError("No resident profile found for this account.");
+      return;
+    }
+    navigate({
+      to: "/building/$buildingId",
+      params: { buildingId: profile.building_id },
+    });
+  };
+
+  return (
+    <div>
+      <button
+        onClick={onBack}
+        className="text-xs text-muted-foreground hover:text-foreground mb-4"
+      >
+        ← Choose a different option
+      </button>
+      <div className="text-center mb-8">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-foreground mb-4">
+          <LogIn className="h-6 w-6" />
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Sign in to your resident account.
+        </p>
+      </div>
+
+      <form
+        onSubmit={onSubmit}
+        className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
+      >
+        <div className="space-y-1.5">
+          <Label htmlFor="login-email">Email</Label>
+          <Input
+            id="login-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="login-password">Password</Label>
+          <Input
+            id="login-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <Button type="submit" disabled={busy} className="w-full h-11">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
+        </Button>
+      </form>
+    </div>
   );
 }
