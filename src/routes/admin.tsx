@@ -31,6 +31,7 @@ type Building = {
   access_code: string;
   created_at: string;
   manager_code?: string | null;
+  active_residents?: number;
 };
 
 type AuthState = "loading" | "not-admin" | "admin";
@@ -136,18 +137,38 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
       .from("buildings")
       .select("id, name, city, access_code, created_at, property_managers(manager_code)")
       .order("created_at", { ascending: false });
-    if (!qErr && data) {
-      setBuildings(
-        (data as any[]).map((b) => ({
-          ...b,
-          manager_code: b.property_managers?.[0]?.manager_code ?? null,
-        })),
-      );
-    }
+    if (qErr || !data) return;
+
+    const { data: residents } = await supabase
+      .from("resident_profiles")
+      .select("building_id");
+    const counts = new Map<string, number>();
+    (residents ?? []).forEach((r: any) => {
+      counts.set(r.building_id, (counts.get(r.building_id) ?? 0) + 1);
+    });
+
+    setBuildings(
+      (data as any[]).map((b) => ({
+        ...b,
+        manager_code: b.property_managers?.[0]?.manager_code ?? null,
+        active_residents: counts.get(b.id) ?? 0,
+      })),
+    );
   };
 
   useEffect(() => {
     load();
+    const sub = supabase
+      .channel("admin-residents")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "resident_profiles" },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(sub);
+    };
   }, []);
 
   const onCreate = async (e: React.FormEvent) => {
@@ -231,6 +252,7 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                 <TableHead>City</TableHead>
                 <TableHead>Resident Code</TableHead>
                 <TableHead>Manager Code</TableHead>
+                <TableHead className="text-center">Active Residents</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="pr-6 text-right">Actions</TableHead>
               </TableRow>
@@ -239,7 +261,7 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
               {buildings.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="text-center text-muted-foreground py-10"
                   >
                     No buildings yet. Create your first one above.
@@ -263,6 +285,11 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                       ) : (
                         <span className="text-muted-foreground text-xs">—</span>
                       )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="inline-flex items-center justify-center min-w-9 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold text-sm tabular-nums">
+                        {b.active_residents ?? 0}
+                      </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(b.created_at).toLocaleDateString()}
