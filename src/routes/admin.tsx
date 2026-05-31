@@ -137,18 +137,38 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
       .from("buildings")
       .select("id, name, city, access_code, created_at, property_managers(manager_code)")
       .order("created_at", { ascending: false });
-    if (!qErr && data) {
-      setBuildings(
-        (data as any[]).map((b) => ({
-          ...b,
-          manager_code: b.property_managers?.[0]?.manager_code ?? null,
-        })),
-      );
-    }
+    if (qErr || !data) return;
+
+    const { data: residents } = await supabase
+      .from("resident_profiles")
+      .select("building_id");
+    const counts = new Map<string, number>();
+    (residents ?? []).forEach((r: any) => {
+      counts.set(r.building_id, (counts.get(r.building_id) ?? 0) + 1);
+    });
+
+    setBuildings(
+      (data as any[]).map((b) => ({
+        ...b,
+        manager_code: b.property_managers?.[0]?.manager_code ?? null,
+        active_residents: counts.get(b.id) ?? 0,
+      })),
+    );
   };
 
   useEffect(() => {
     load();
+    const sub = supabase
+      .channel("admin-residents")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "resident_profiles" },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(sub);
+    };
   }, []);
 
   const onCreate = async (e: React.FormEvent) => {
