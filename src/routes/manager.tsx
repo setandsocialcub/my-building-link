@@ -1,31 +1,44 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shield, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AuthGate } from "@/components/AuthGate";
 
 export const Route = createFileRoute("/manager")({
   head: () => ({
     meta: [
-      { title: "Property Manager — Sign In" },
-      { name: "description", content: "Sign in to manage your building." },
+      { title: "Property Manager — Enter Code" },
+      { name: "description", content: "Claim your building manager access." },
     ],
   }),
   component: ManagerEntry,
 });
 
 function ManagerEntry() {
-  return (
-    <AuthGate
-      title="Property Manager sign-in"
-      subtitle="Sign in or create your account, then enter your manager code."
-    >
-      {() => <ClaimCode />}
-    </AuthGate>
-  );
+  const navigate = useNavigate();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        navigate({ to: "/manager-auth" });
+        return;
+      }
+      setReady(true);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!session?.user) navigate({ to: "/manager-auth" });
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
+
+  if (!ready) {
+    return <main className="min-h-screen grid place-items-center text-muted-foreground">Loading…</main>;
+  }
+  return <ClaimCode />;
 }
+
 
 function ClaimCode() {
   const navigate = useNavigate();

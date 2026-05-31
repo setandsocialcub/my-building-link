@@ -1,114 +1,87 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Building2 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Building2, KeyRound, Shield, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Resident Access — Enter Your Building Code" },
+      { title: "Welcome — Choose Your Access" },
       {
         name: "description",
         content:
-          "Enter your building access code to join your residential community portal.",
+          "Resident, property manager, or system admin — pick how you'd like to sign in.",
       },
     ],
   }),
-  component: LandingPage,
+  component: LandingChooser,
 });
 
-function LandingPage() {
-  const navigate = useNavigate();
-  const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    const trimmed = code.trim().toUpperCase();
-    if (trimmed.length !== 6) {
-      setError("Access codes are 6 characters long.");
-      return;
-    }
-    setLoading(true);
-    const { data, error: qErr } = await supabase
-      .rpc("lookup_building_by_code", { _code: trimmed })
-      .maybeSingle();
-    setLoading(false);
-
-    if (qErr) {
-      setError("Something went wrong. Please try again.");
-      return;
-    }
-    if (!data) {
-      setError("Invalid access code. Please check with your building manager.");
-      return;
-    }
-    try {
-      sessionStorage.setItem(
-        `building:${data.id}`,
-        JSON.stringify({ name: data.name, city: data.city, code: trimmed }),
-      );
-    } catch {
-      // ignore storage failures
-    }
-    navigate({ to: "/onboarding/$buildingId", params: { buildingId: data.id } });
-  };
-
+function LandingChooser() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col items-center text-center mb-10">
-          <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
-            <Building2 className="h-7 w-7 text-primary" />
+    <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-2xl">
+        <div className="text-center mb-12">
+          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-5">
+            <Building2 className="h-7 w-7" />
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-4xl font-semibold tracking-tight text-foreground">
             Welcome home
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enter the access code provided by your building to continue.
+          <p className="mt-3 text-muted-foreground">
+            How would you like to continue?
           </p>
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
-        >
-          <label className="block">
-            <span className="text-sm font-medium text-foreground">
-              Building Access Code
-            </span>
-            <Input
-              autoFocus
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="e.g. LVMIA1"
-              maxLength={6}
-              className="mt-2 h-12 text-center text-lg font-mono tracking-[0.4em] uppercase"
-            />
-          </label>
-
-          {error && (
-            <p className="text-sm text-destructive" role="alert">
-              {error}
-            </p>
-          )}
-
-          <Button type="submit" className="w-full h-11" disabled={loading}>
-            {loading ? "Checking…" : "Continue"}
-          </Button>
-        </form>
-
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Building manager?{" "}
-          <Link to="/admin" className="underline hover:text-foreground">
-            Open Super Admin
+        <div className="space-y-4">
+          <Link
+            to="/resident-access"
+            className="group block rounded-2xl border border-border bg-card p-6 shadow-sm hover:border-primary hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-5">
+              <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary grid place-items-center flex-shrink-0">
+                <KeyRound className="h-6 w-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Resident Access
+                </h2>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Enter your building's access code to join your community.
+                </p>
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+            </div>
           </Link>
-        </p>
+
+          <Link
+            to="/manager-auth"
+            className="group block rounded-2xl border border-border bg-card p-6 shadow-sm hover:border-primary hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-5">
+              <div className="h-12 w-12 rounded-xl bg-muted text-foreground grid place-items-center flex-shrink-0">
+                <Building2 className="h-6 w-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Property Management Portal
+                </h2>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Sign in or create a manager account to run your building.
+                </p>
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+            </div>
+          </Link>
+        </div>
+
+        <div className="mt-16 text-center">
+          <Link
+            to="/super-admin-login"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Shield className="h-3.5 w-3.5" />
+            System Admin
+          </Link>
+        </div>
       </div>
     </main>
   );

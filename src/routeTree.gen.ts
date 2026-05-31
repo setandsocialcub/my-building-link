@@ -9,6 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SuperAdminLoginRouteImport } from './routes/super-admin-login'
+import { Route as ResidentAccessRouteImport } from './routes/resident-access'
+import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -16,6 +19,21 @@ import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$b
 import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
 
+const SuperAdminLoginRoute = SuperAdminLoginRouteImport.update({
+  id: '/super-admin-login',
+  path: '/super-admin-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResidentAccessRoute = ResidentAccessRouteImport.update({
+  id: '/resident-access',
+  path: '/resident-access',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerAuthRoute = ManagerAuthRouteImport.update({
+  id: '/manager-auth',
+  path: '/manager-auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
@@ -51,6 +69,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/manager': typeof ManagerRouteWithChildren
+  '/manager-auth': typeof ManagerAuthRoute
+  '/resident-access': typeof ResidentAccessRoute
+  '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
@@ -59,6 +80,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/manager': typeof ManagerRouteWithChildren
+  '/manager-auth': typeof ManagerAuthRoute
+  '/resident-access': typeof ResidentAccessRoute
+  '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
@@ -68,6 +92,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/manager': typeof ManagerRouteWithChildren
+  '/manager-auth': typeof ManagerAuthRoute
+  '/resident-access': typeof ResidentAccessRoute
+  '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
@@ -78,6 +105,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/manager'
+    | '/manager-auth'
+    | '/resident-access'
+    | '/super-admin-login'
     | '/building/$buildingId'
     | '/manager/$buildingId'
     | '/onboarding/$buildingId'
@@ -86,6 +116,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/manager'
+    | '/manager-auth'
+    | '/resident-access'
+    | '/super-admin-login'
     | '/building/$buildingId'
     | '/manager/$buildingId'
     | '/onboarding/$buildingId'
@@ -94,6 +127,9 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/manager'
+    | '/manager-auth'
+    | '/resident-access'
+    | '/super-admin-login'
     | '/building/$buildingId'
     | '/manager/$buildingId'
     | '/onboarding/$buildingId'
@@ -103,12 +139,36 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   ManagerRoute: typeof ManagerRouteWithChildren
+  ManagerAuthRoute: typeof ManagerAuthRoute
+  ResidentAccessRoute: typeof ResidentAccessRoute
+  SuperAdminLoginRoute: typeof SuperAdminLoginRoute
   BuildingBuildingIdRoute: typeof BuildingBuildingIdRoute
   OnboardingBuildingIdRoute: typeof OnboardingBuildingIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/super-admin-login': {
+      id: '/super-admin-login'
+      path: '/super-admin-login'
+      fullPath: '/super-admin-login'
+      preLoaderRoute: typeof SuperAdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resident-access': {
+      id: '/resident-access'
+      path: '/resident-access'
+      fullPath: '/resident-access'
+      preLoaderRoute: typeof ResidentAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manager-auth': {
+      id: '/manager-auth'
+      path: '/manager-auth'
+      fullPath: '/manager-auth'
+      preLoaderRoute: typeof ManagerAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manager': {
       id: '/manager'
       path: '/manager'
@@ -169,6 +229,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   ManagerRoute: ManagerRouteWithChildren,
+  ManagerAuthRoute: ManagerAuthRoute,
+  ResidentAccessRoute: ResidentAccessRoute,
+  SuperAdminLoginRoute: SuperAdminLoginRoute,
   BuildingBuildingIdRoute: BuildingBuildingIdRoute,
   OnboardingBuildingIdRoute: OnboardingBuildingIdRoute,
 }
