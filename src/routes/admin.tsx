@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Copy, Plus, LogOut } from "lucide-react";
 
@@ -13,7 +13,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+
+export const Route = createFileRoute("/admin")({
+  head: () => ({
+    meta: [
+      { title: "Super Admin — Buildings" },
+      { name: "description", content: "Manage buildings and access codes." },
+    ],
+  }),
+  component: AdminGate,
+});
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
