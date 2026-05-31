@@ -31,6 +31,7 @@ type Building = {
   access_code: string;
   created_at: string;
   manager_code?: string | null;
+  active_residents?: number;
 };
 
 type AuthState = "loading" | "not-admin" | "admin";
