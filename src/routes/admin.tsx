@@ -252,6 +252,7 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                 <TableHead>City</TableHead>
                 <TableHead>Resident Code</TableHead>
                 <TableHead>Manager Code</TableHead>
+                <TableHead className="text-center">Active Residents</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="pr-6 text-right">Actions</TableHead>
               </TableRow>
