@@ -286,6 +286,11 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                         <span className="text-muted-foreground text-xs">—</span>
                       )}
                     </TableCell>
+                    <TableCell className="text-center">
+                      <span className="inline-flex items-center justify-center min-w-9 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold text-sm tabular-nums">
+                        {b.active_residents ?? 0}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(b.created_at).toLocaleDateString()}
                     </TableCell>
