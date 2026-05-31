@@ -105,12 +105,18 @@ function ManagerDashboard() {
             <TabsTrigger value="flags">
               <Flag className="h-4 w-4" /> Flagged Content
             </TabsTrigger>
+            <TabsTrigger value="directory">
+              <Users className="h-4 w-4" /> Resident Directory
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="announcements" className="mt-6">
             <AnnouncementsPanel buildingId={buildingId} managerId={managerId} />
           </TabsContent>
           <TabsContent value="flags" className="mt-6">
             <FlagsPanel buildingId={buildingId} />
+          </TabsContent>
+          <TabsContent value="directory" className="mt-6">
+            <DirectoryPanel buildingId={buildingId} />
           </TabsContent>
         </Tabs>
       </div>
