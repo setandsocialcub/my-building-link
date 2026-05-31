@@ -1,0 +1,10 @@
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.has_building_access(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_resident_of_building(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_manager_of_building(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.current_resident_id(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.channel_building(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_channel_member(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.claim_manager_code(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.lookup_building_by_code(text) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.get_building_info(uuid) TO authenticated;
