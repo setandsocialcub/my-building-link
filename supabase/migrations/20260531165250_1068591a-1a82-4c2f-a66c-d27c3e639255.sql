@@ -1,0 +1,1 @@
+ALTER TABLE public.resident_profiles ALTER COLUMN last_name DROP NOT NULL;
