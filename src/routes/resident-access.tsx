@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
 
 export const Route = createFileRoute("/resident-access")({
   head: () => ({
