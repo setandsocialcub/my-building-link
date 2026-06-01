@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
 
 export const Route = createFileRoute("/manager-auth")({
   head: () => ({
@@ -95,6 +96,8 @@ function SignInForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      <GoogleSignInButton redirectTo={`${typeof window !== "undefined" ? window.location.origin : ""}/manager`} />
+      <AuthDivider />
       <div className="space-y-1.5">
         <Label htmlFor="signin-email">Email</Label>
         <Input
@@ -121,6 +124,9 @@ function SignInForm() {
       <Button type="submit" disabled={busy} className="w-full">
         {busy ? <Loader2 className="animate-spin h-4 w-4" /> : "Log In"}
       </Button>
+      <Link to="/reset-password" className="block text-xs text-center text-muted-foreground hover:text-foreground">
+        Forgot your password?
+      </Link>
     </form>
   );
 }
@@ -151,6 +157,8 @@ function SignUpForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      <GoogleSignInButton redirectTo={`${typeof window !== "undefined" ? window.location.origin : ""}/manager`} label="Sign up with Google" />
+      <AuthDivider />
       <div className="space-y-1.5">
         <Label htmlFor="signup-name">Full name</Label>
         <Input

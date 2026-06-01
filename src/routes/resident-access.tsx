@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
 
 export const Route = createFileRoute("/resident-access")({
   head: () => ({
@@ -477,6 +478,8 @@ function LoginView({ onBack }: { onBack: () => void }) {
         onSubmit={onSubmit}
         className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
       >
+        <GoogleSignInButton />
+        <AuthDivider />
         <div className="space-y-1.5">
           <Label htmlFor="login-email">Email</Label>
           <Input
@@ -503,6 +506,9 @@ function LoginView({ onBack }: { onBack: () => void }) {
         <Button type="submit" disabled={busy} className="w-full h-11">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
         </Button>
+        <Link to="/reset-password" className="block text-xs text-center text-muted-foreground hover:text-foreground">
+          Forgot your password?
+        </Link>
       </form>
     </div>
   );
