@@ -124,6 +124,9 @@ function SignInForm() {
       <Button type="submit" disabled={busy} className="w-full">
         {busy ? <Loader2 className="animate-spin h-4 w-4" /> : "Log In"}
       </Button>
+      <Link to="/reset-password" className="block text-xs text-center text-muted-foreground hover:text-foreground">
+        Forgot your password?
+      </Link>
     </form>
   );
 }
