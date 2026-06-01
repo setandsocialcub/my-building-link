@@ -96,6 +96,8 @@ function SignInForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      <GoogleSignInButton redirectTo={`${typeof window !== "undefined" ? window.location.origin : ""}/manager`} />
+      <AuthDivider />
       <div className="space-y-1.5">
         <Label htmlFor="signin-email">Email</Label>
         <Input
