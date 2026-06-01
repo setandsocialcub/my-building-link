@@ -157,6 +157,8 @@ function SignUpForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      <GoogleSignInButton redirectTo={`${typeof window !== "undefined" ? window.location.origin : ""}/manager`} label="Sign up with Google" />
+      <AuthDivider />
       <div className="space-y-1.5">
         <Label htmlFor="signup-name">Full name</Label>
         <Input
