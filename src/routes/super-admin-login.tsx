@@ -69,6 +69,8 @@ function SuperAdminLogin() {
           onSubmit={onSubmit}
           className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
         >
+          <GoogleSignInButton redirectTo={`${typeof window !== "undefined" ? window.location.origin : ""}/admin`} />
+          <AuthDivider />
           <div className="space-y-1.5">
             <Label htmlFor="admin-email">Email</Label>
             <Input
@@ -95,6 +97,9 @@ function SuperAdminLogin() {
           <Button type="submit" disabled={busy} className="w-full">
             {busy ? <Loader2 className="animate-spin h-4 w-4" /> : "Sign In"}
           </Button>
+          <Link to="/reset-password" className="block text-xs text-center text-muted-foreground hover:text-foreground">
+            Forgot your password?
+          </Link>
         </form>
       </div>
     </main>
