@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SuperAdminLoginRouteImport } from './routes/super-admin-login'
 import { Route as ResidentAccessRouteImport } from './routes/resident-access'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -27,6 +28,11 @@ const SuperAdminLoginRoute = SuperAdminLoginRouteImport.update({
 const ResidentAccessRoute = ResidentAccessRouteImport.update({
   id: '/resident-access',
   path: '/resident-access',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerAuthRoute = ManagerAuthRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/manager'
     | '/manager-auth'
+    | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
     | '/building/$buildingId'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/manager'
     | '/manager-auth'
+    | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
     | '/building/$buildingId'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/manager'
     | '/manager-auth'
+    | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
     | '/building/$buildingId'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   ManagerAuthRoute: typeof ManagerAuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ResidentAccessRoute: typeof ResidentAccessRoute
   SuperAdminLoginRoute: typeof SuperAdminLoginRoute
   BuildingBuildingIdRoute: typeof BuildingBuildingIdRoute
@@ -160,6 +173,13 @@ declare module '@tanstack/react-router' {
       path: '/resident-access'
       fullPath: '/resident-access'
       preLoaderRoute: typeof ResidentAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager-auth': {
@@ -230,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ManagerRoute: ManagerRouteWithChildren,
   ManagerAuthRoute: ManagerAuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ResidentAccessRoute: ResidentAccessRoute,
   SuperAdminLoginRoute: SuperAdminLoginRoute,
   BuildingBuildingIdRoute: BuildingBuildingIdRoute,
