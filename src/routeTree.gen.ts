@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
 import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as ForumRouteImport } from './routes/forum'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -22,6 +23,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$buildingId'
 import { Route as MessagesConnectionIdRouteImport } from './routes/messages.$connectionId'
 import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
+import { Route as ForumThreadIdRouteImport } from './routes/forum.$threadId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
 
 const SuperAdminLoginRoute = SuperAdminLoginRouteImport.update({
@@ -52,6 +54,11 @@ const ManagerAuthRoute = ManagerAuthRouteImport.update({
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForumRoute = ForumRouteImport.update({
+  id: '/forum',
+  path: '/forum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -89,6 +96,11 @@ const ManagerBuildingIdRoute = ManagerBuildingIdRouteImport.update({
   path: '/$buildingId',
   getParentRoute: () => ManagerRoute,
 } as any)
+const ForumThreadIdRoute = ForumThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => ForumRoute,
+} as any)
 const BuildingBuildingIdRoute = BuildingBuildingIdRouteImport.update({
   id: '/building/$buildingId',
   path: '/building/$buildingId',
@@ -100,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
+  '/forum': typeof ForumRouteWithChildren
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -107,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
+  '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
@@ -116,6 +130,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
+  '/forum': typeof ForumRouteWithChildren
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -123,6 +138,7 @@ export interface FileRoutesByTo {
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
+  '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
@@ -133,6 +149,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
+  '/forum': typeof ForumRouteWithChildren
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -140,6 +157,7 @@ export interface FileRoutesById {
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
+  '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
@@ -151,6 +169,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/connections'
     | '/discover'
+    | '/forum'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -158,6 +177,7 @@ export interface FileRouteTypes {
     | '/resident-access'
     | '/super-admin-login'
     | '/building/$buildingId'
+    | '/forum/$threadId'
     | '/manager/$buildingId'
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
@@ -167,6 +187,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/connections'
     | '/discover'
+    | '/forum'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -174,6 +195,7 @@ export interface FileRouteTypes {
     | '/resident-access'
     | '/super-admin-login'
     | '/building/$buildingId'
+    | '/forum/$threadId'
     | '/manager/$buildingId'
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
@@ -183,6 +205,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/connections'
     | '/discover'
+    | '/forum'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -190,6 +213,7 @@ export interface FileRouteTypes {
     | '/resident-access'
     | '/super-admin-login'
     | '/building/$buildingId'
+    | '/forum/$threadId'
     | '/manager/$buildingId'
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
@@ -200,6 +224,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ConnectionsRoute: typeof ConnectionsRoute
   DiscoverRoute: typeof DiscoverRoute
+  ForumRoute: typeof ForumRouteWithChildren
   ManagerRoute: typeof ManagerRouteWithChildren
   ManagerAuthRoute: typeof ManagerAuthRoute
   MessagesRoute: typeof MessagesRouteWithChildren
@@ -254,6 +279,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forum': {
+      id: '/forum'
+      path: '/forum'
+      fullPath: '/forum'
+      preLoaderRoute: typeof ForumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/discover': {
       id: '/discover'
       path: '/discover'
@@ -303,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerBuildingIdRouteImport
       parentRoute: typeof ManagerRoute
     }
+    '/forum/$threadId': {
+      id: '/forum/$threadId'
+      path: '/$threadId'
+      fullPath: '/forum/$threadId'
+      preLoaderRoute: typeof ForumThreadIdRouteImport
+      parentRoute: typeof ForumRoute
+    }
     '/building/$buildingId': {
       id: '/building/$buildingId'
       path: '/building/$buildingId'
@@ -312,6 +351,16 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ForumRouteChildren {
+  ForumThreadIdRoute: typeof ForumThreadIdRoute
+}
+
+const ForumRouteChildren: ForumRouteChildren = {
+  ForumThreadIdRoute: ForumThreadIdRoute,
+}
+
+const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
 
 interface ManagerRouteChildren {
   ManagerBuildingIdRoute: typeof ManagerBuildingIdRoute
@@ -341,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ConnectionsRoute: ConnectionsRoute,
   DiscoverRoute: DiscoverRoute,
+  ForumRoute: ForumRouteWithChildren,
   ManagerRoute: ManagerRouteWithChildren,
   ManagerAuthRoute: ManagerAuthRoute,
   MessagesRoute: MessagesRouteWithChildren,

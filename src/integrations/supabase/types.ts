@@ -316,33 +316,113 @@ export type Database = {
           },
         ]
       }
+      forum_replies: {
+        Row: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at: string
+          id: string
+          thread_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at?: string
+          id?: string
+          thread_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          building_id?: string
+          created_at?: string
+          id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_replies_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "forum_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_threads: {
+        Row: {
+          author_id: string
+          body: string
+          building_id: string
+          category: string
+          created_at: string
+          id: string
+          is_locked: boolean
+          is_pinned: boolean
+          reply_count: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          building_id: string
+          category: string
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          is_pinned?: boolean
+          reply_count?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          building_id?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          is_pinned?: boolean
+          reply_count?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       message_flags: {
         Row: {
           building_id: string
-          channel_id: string
+          channel_id: string | null
           created_at: string
           id: string
           message_id: string
+          message_type: string
           reporter_id: string | null
           resolved_at: string | null
           status: string
         }
         Insert: {
           building_id: string
-          channel_id: string
+          channel_id?: string | null
           created_at?: string
           id?: string
           message_id: string
+          message_type?: string
           reporter_id?: string | null
           resolved_at?: string | null
           status?: string
         }
         Update: {
           building_id?: string
-          channel_id?: string
+          channel_id?: string | null
           created_at?: string
           id?: string
           message_id?: string
+          message_type?: string
           reporter_id?: string | null
           resolved_at?: string | null
           status?: string

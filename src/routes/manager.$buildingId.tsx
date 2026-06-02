@@ -29,7 +29,7 @@ type Announcement = { id: string; body: string; created_at: string };
 type FlaggedRow = {
   id: string;
   message_id: string;
-  channel_id: string;
+  channel_id: string | null;
   status: string;
   created_at: string;
   message?: { id: string; body: string; sender_id: string; created_at: string } | null;
@@ -239,7 +239,7 @@ function FlagsPanel({ buildingId }: { buildingId: string }) {
 
     const flagRows = flags ?? [];
     const msgIds = [...new Set(flagRows.map((f) => f.message_id))];
-    const chanIds = [...new Set(flagRows.map((f) => f.channel_id))];
+    const chanIds = [...new Set(flagRows.map((f) => f.channel_id).filter((id): id is string => !!id))];
 
     const [{ data: msgs }, { data: chans }] = await Promise.all([
       msgIds.length
