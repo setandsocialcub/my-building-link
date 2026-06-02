@@ -344,6 +344,159 @@ function ManagerDashboard() {
   );
 }
 
+function InviteCodeCard({
+  buildingId,
+  buildingName,
+  code,
+  onCodeChange,
+}: {
+  buildingId: string;
+  buildingName: string;
+  code: string;
+  onCodeChange: (code: string) => void;
+}) {
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+
+  const joinUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/join?code=${encodeURIComponent(code)}`
+      : `/join?code=${encodeURIComponent(code)}`;
+
+  const copy = async (text: string, setFlag: (v: boolean) => void) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setFlag(true);
+      setTimeout(() => setFlag(false), 1800);
+    } catch {
+      toast.error("Couldn't copy to clipboard");
+    }
+  };
+
+  const regenerate = async () => {
+    setRegenerating(true);
+    const { data, error } = await supabase.rpc("regenerate_building_access_code", {
+      _building_id: buildingId,
+    });
+    setRegenerating(false);
+    setConfirmOpen(false);
+    if (error || !data) {
+      toast.error(error?.message ?? "Couldn't regenerate code");
+      return;
+    }
+    onCodeChange(data as string);
+    toast.success("New code generated");
+  };
+
+  const downloadFlyer = () => {
+    const html = `<!doctype html>
+<html><head><meta charset="utf-8"/><title>${buildingName} — Invite</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:48px;color:#111}
+  .wrap{max-width:560px;margin:0 auto;text-align:center;border:1px solid #e5e7eb;border-radius:24px;padding:56px 40px}
+  h1{font-size:22px;margin:0 0 8px;font-weight:600}
+  .sub{color:#6b7280;margin-bottom:40px}
+  .code{font-family:'SF Mono',Menlo,monospace;font-size:72px;letter-spacing:.08em;font-weight:700;padding:32px 0;border-top:1px dashed #d1d5db;border-bottom:1px dashed #d1d5db;margin:24px 0}
+  .instr{margin:32px 0;font-size:16px;line-height:1.5}
+  .qr{margin-top:32px;padding:24px;border:2px dashed #d1d5db;border-radius:12px;font-family:monospace;font-size:13px;word-break:break-all;color:#374151}
+  .qrlabel{font-size:12px;color:#6b7280;margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em}
+  @media print{body{padding:0}.wrap{border:none}}
+</style></head>
+<body><div class="wrap">
+  <h1>${buildingName}</h1>
+  <div class="sub">Join your building community</div>
+  <div class="code">${code}</div>
+  <div class="instr">Download the app and enter this code to join your building community.</div>
+  <div class="qr"><div class="qrlabel">Or scan / visit</div>${joinUrl}</div>
+</div><script>window.onload=()=>setTimeout(()=>window.print(),300)</script></body></html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${buildingName.replace(/[^a-z0-9]+/gi, "-")}-invite-${code}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Card className="mb-6 bg-gradient-to-br from-primary/5 via-card to-card border-primary/20">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4">
+          <KeyRound className="h-3.5 w-3.5" />
+          Resident Invite Code
+        </div>
+
+        <div className="flex flex-col items-center gap-4 py-2">
+          <div className="font-mono text-5xl md:text-6xl font-bold tracking-[0.15em] text-foreground select-all">
+            {code}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => copy(code, setCopiedCode)}
+            >
+              {copiedCode ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copiedCode ? "Copied!" : "Copy Code"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmOpen(true)}
+              disabled={regenerating}
+            >
+              {regenerating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              Regenerate
+            </Button>
+          </div>
+        </div>
+
+        <div className="h-px bg-border my-5" />
+
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => copy(joinUrl, setCopiedLink)}>
+            {copiedLink ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+            {copiedLink ? "Link copied!" : "Copy invite link"}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={downloadFlyer}>
+            <FileDown className="h-4 w-4" />
+            Download PDF flyer
+          </Button>
+        </div>
+      </CardContent>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Regenerate code?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The old code will stop working immediately. Residents who haven't
+              signed up yet will need the new code.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={regenerate} disabled={regenerating}>
+              {regenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Regenerate"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+}
+
+
+
 function AnnouncementsPanel({
   buildingId,
   managerId,
