@@ -14,6 +14,7 @@ import { Route as ResidentAccessRouteImport } from './routes/resident-access'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
 import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$buildingId'
@@ -45,6 +46,11 @@ const ManagerRoute = ManagerRouteImport.update({
   path: '/manager',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -74,6 +80,7 @@ const BuildingBuildingIdRoute = BuildingBuildingIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/discover'
     | '/manager'
     | '/manager-auth'
     | '/reset-password'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/discover'
     | '/manager'
     | '/manager-auth'
     | '/reset-password'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/discover'
     | '/manager'
     | '/manager-auth'
     | '/reset-password'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  DiscoverRoute: typeof DiscoverRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   ManagerAuthRoute: typeof ManagerAuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/manager'
       fullPath: '/manager'
       preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -248,6 +268,7 @@ const ManagerRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  DiscoverRoute: DiscoverRoute,
   ManagerRoute: ManagerRouteWithChildren,
   ManagerAuthRoute: ManagerAuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,

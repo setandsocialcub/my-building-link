@@ -212,6 +212,72 @@ export type Database = {
           },
         ]
       }
+      connections: {
+        Row: {
+          addressee_id: string
+          building_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          building_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          building_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_addressee_id_fkey"
+            columns: ["addressee_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_addressee_id_fkey"
+            columns: ["addressee_id"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_flags: {
         Row: {
           building_id: string
@@ -382,6 +448,7 @@ export type Database = {
           first_name: string
           id: string
           interest_tags: string[]
+          is_visible: boolean
           job_title: string | null
           last_name: string | null
           user_id: string
@@ -392,6 +459,7 @@ export type Database = {
           first_name: string
           id?: string
           interest_tags?: string[]
+          is_visible?: boolean
           job_title?: string | null
           last_name?: string | null
           user_id: string
@@ -402,6 +470,7 @@ export type Database = {
           first_name?: string
           id?: string
           interest_tags?: string[]
+          is_visible?: boolean
           job_title?: string | null
           last_name?: string | null
           user_id?: string
@@ -446,6 +515,7 @@ export type Database = {
           first_name: string | null
           id: string | null
           interest_tags: string[] | null
+          is_visible: boolean | null
           job_title: string | null
         }
         Insert: {
@@ -454,6 +524,7 @@ export type Database = {
           first_name?: string | null
           id?: string | null
           interest_tags?: string[] | null
+          is_visible?: boolean | null
           job_title?: string | null
         }
         Update: {
@@ -462,6 +533,7 @@ export type Database = {
           first_name?: string | null
           id?: string | null
           interest_tags?: string[] | null
+          is_visible?: boolean | null
           job_title?: string | null
         }
         Relationships: [
@@ -502,6 +574,7 @@ export type Database = {
         Args: { _building_id: string }
         Returns: boolean
       }
+      is_my_profile: { Args: { _profile_id: string }; Returns: boolean }
       is_resident_of_building: {
         Args: { _building_id: string }
         Returns: boolean
