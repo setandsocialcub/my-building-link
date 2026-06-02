@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
 import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as JoinRouteImport } from './routes/join'
 import { Route as ForumRouteImport } from './routes/forum'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DiscoverRouteImport } from './routes/discover'
@@ -55,6 +56,11 @@ const ManagerAuthRoute = ManagerAuthRouteImport.update({
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForumRoute = ForumRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
   '/forum': typeof ForumRouteWithChildren
+  '/join': typeof JoinRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
   '/forum': typeof ForumRouteWithChildren
+  '/join': typeof JoinRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
   '/forum': typeof ForumRouteWithChildren
+  '/join': typeof JoinRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/events'
     | '/forum'
+    | '/join'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/events'
     | '/forum'
+    | '/join'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/events'
     | '/forum'
+    | '/join'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   DiscoverRoute: typeof DiscoverRoute
   EventsRoute: typeof EventsRoute
   ForumRoute: typeof ForumRouteWithChildren
+  JoinRoute: typeof JoinRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   ManagerAuthRoute: typeof ManagerAuthRoute
   MessagesRoute: typeof MessagesRouteWithChildren
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       path: '/manager'
       fullPath: '/manager'
       preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forum': {
@@ -412,6 +432,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiscoverRoute: DiscoverRoute,
   EventsRoute: EventsRoute,
   ForumRoute: ForumRouteWithChildren,
+  JoinRoute: JoinRoute,
   ManagerRoute: ManagerRouteWithChildren,
   ManagerAuthRoute: ManagerAuthRoute,
   MessagesRoute: MessagesRouteWithChildren,
