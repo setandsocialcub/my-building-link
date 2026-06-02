@@ -147,6 +147,9 @@ function ManagerDashboard() {
             <TabsTrigger value="directory">
               <Users className="h-4 w-4" /> Resident Directory
             </TabsTrigger>
+            <TabsTrigger value="events">
+              <CalendarIcon className="h-4 w-4" /> Events
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="announcements" className="mt-6">
             <AnnouncementsPanel buildingId={buildingId} managerId={managerId} />
@@ -157,6 +160,10 @@ function ManagerDashboard() {
           <TabsContent value="directory" className="mt-6">
             <DirectoryPanel buildingId={buildingId} />
           </TabsContent>
+          <TabsContent value="events" className="mt-6">
+            <EventsPanel buildingId={buildingId} />
+          </TabsContent>
+
         </Tabs>
       </div>
     </div>
