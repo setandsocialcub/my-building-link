@@ -782,10 +782,15 @@ function CreateChannelDialog({
                 <SelectValue placeholder="Select a tag" />
               </SelectTrigger>
               <SelectContent>
-                {INTEREST_TAGS.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
+                {Object.entries(INTEREST_CATEGORIES).map(([category, tags]) => (
+                  <SelectGroup key={category}>
+                    <SelectLabel>{category}</SelectLabel>
+                    {tags.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>
