@@ -29,7 +29,7 @@ type Announcement = { id: string; body: string; created_at: string };
 type FlaggedRow = {
   id: string;
   message_id: string;
-  channel_id: string;
+  channel_id: string | null;
   status: string;
   created_at: string;
   message?: { id: string; body: string; sender_id: string; created_at: string } | null;
