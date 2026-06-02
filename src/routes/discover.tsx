@@ -387,7 +387,7 @@ function DiscoverPage() {
                     )}
                     {conn?.status === "accepted" && (
                       <Button variant="outline" className="w-full" asChild>
-                        <Link to={"/messages/" + conn.id as never}>Message</Link>
+                        <a href={`/messages/${conn.id}`}>Message</a>
                       </Button>
                     )}
                     {conn?.status === "declined" && (
