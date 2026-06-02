@@ -62,6 +62,160 @@ function relativeTime(iso: string): string {
   return `${Math.floor(days / 365)}y ago`;
 }
 
+function CommunityHealthSection({ buildingId }: { buildingId: string }) {
+  const [stats, setStats] = useState({
+    residents: 0,
+    verifiedPct: 100,
+    connections: 0,
+    activeThisMonth: 0,
+    upcomingEvents: 0,
+  });
+  const [topInterests, setTopInterests] = useState<{ tag: string; count: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data: residents } = await supabase
+        .from("resident_profiles")
+        .select("id, interest_tags, last_active_at")
+        .eq("building_id", buildingId);
+
+      const residentList = residents ?? [];
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const activeThisMonth = residentList.filter(
+        (r) => r.last_active_at && new Date(r.last_active_at) >= thirtyDaysAgo
+      ).length;
+
+      const [{ count: connectionsCount }, { count: eventsCount }] = await Promise.all([
+        supabase
+          .from("connections")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "accepted")
+          .eq("building_id", buildingId),
+        supabase
+          .from("events")
+          .select("*", { count: "exact", head: true })
+          .eq("building_id", buildingId)
+          .gte("starts_at", new Date().toISOString()),
+      ]);
+
+      setStats({
+        residents: residentList.length,
+        verifiedPct: 100,
+        connections: connectionsCount ?? 0,
+        activeThisMonth,
+        upcomingEvents: eventsCount ?? 0,
+      });
+
+      const tagCounts: Record<string, number> = {};
+      residentList.forEach((r) => {
+        (r.interest_tags ?? []).forEach((t: string) => {
+          tagCounts[t] = (tagCounts[t] ?? 0) + 1;
+        });
+      });
+
+      const sorted = Object.entries(tagCounts)
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      setTopInterests(sorted);
+      setLoading(false);
+    };
+
+    load();
+  }, [buildingId]);
+
+  const statCards = [
+    {
+      label: "Residents",
+      value: stats.residents,
+      subtitle: `${stats.verifiedPct}% verified`,
+      icon: Users,
+      iconColor: "text-blue-500",
+    },
+    {
+      label: "Connections Made",
+      value: stats.connections,
+      subtitle: "Accepted neighbor links",
+      icon: HeartHandshake,
+      iconColor: "text-rose-500",
+    },
+    {
+      label: "Active This Month",
+      value: stats.activeThisMonth,
+      subtitle: "Residents engaged recently",
+      icon: TrendingUp,
+      iconColor: "text-emerald-500",
+    },
+    {
+      label: "Upcoming Events",
+      value: stats.upcomingEvents,
+      subtitle: "Events on the calendar",
+      icon: CalendarIcon,
+      iconColor: "text-amber-500",
+    },
+  ];
+
+  return (
+    <div className="space-y-5 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((card) => (
+          <Card
+            key={card.label}
+            className="bg-gradient-to-br from-amber-500/10 via-card to-card border-border shadow-sm"
+          >
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {card.label}
+                  </p>
+                  <p className="mt-2 text-3xl font-semibold tabular-nums text-foreground">
+                    {loading ? (
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    ) : (
+                      card.value
+                    )}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{card.subtitle}</p>
+                </div>
+                <div
+                  className={`h-9 w-9 rounded-lg bg-muted grid place-content-center ${card.iconColor}`}
+                >
+                  <card.icon className="h-5 w-5" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {topInterests.length > 0 && (
+        <div className="rounded-xl border border-border bg-gradient-to-br from-amber-500/5 to-card p-4 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+            Top Interests
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {topInterests.map(({ tag, count }) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="bg-card text-foreground border border-border/50 text-sm px-3 py-1"
+              >
+                {tag} <span className="ml-1 text-muted-foreground">({count})</span>
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/manager/$buildingId")({
   component: ManagerDashboard,
 });
