@@ -303,26 +303,35 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
                   Select all that apply. These appear on your public profile.
                 </p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {INTEREST_TAGS.map((tag) => {
-                  const selected = interests.includes(tag);
-                  return (
-                    <button
-                      type="button"
-                      key={tag}
-                      onClick={() => toggleInterest(tag)}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg border p-3 text-left text-sm transition-colors cursor-pointer",
-                        selected
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/40 hover:bg-muted/50",
-                      )}
-                    >
-                      <Checkbox checked={selected} tabIndex={-1} />
-                      <span className="font-medium">{tag}</span>
-                    </button>
-                  );
-                })}
+              <div className="space-y-6">
+                {Object.entries(INTEREST_CATEGORIES).map(([category, tags]) => (
+                  <div key={category}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                      {category}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {tags.map((tag) => {
+                        const selected = interests.includes(tag);
+                        return (
+                          <button
+                            type="button"
+                            key={tag}
+                            onClick={() => toggleInterest(tag)}
+                            className={cn(
+                              "flex items-center gap-3 rounded-lg border p-3 text-left text-sm transition-colors cursor-pointer",
+                              selected
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:border-primary/40 hover:bg-muted/50",
+                            )}
+                          >
+                            <Checkbox checked={selected} tabIndex={-1} />
+                            <span className="font-medium">{tag}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {error && (
