@@ -791,6 +791,10 @@ export type Database = {
           name: string
         }[]
       }
+      regenerate_building_access_code: {
+        Args: { _building_id: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin"
