@@ -429,6 +429,7 @@ type Resident = {
   job_title: string | null;
   interest_tags: string[];
   created_at: string;
+  last_active_at: string | null;
 };
 
 function DirectoryPanel({ buildingId }: { buildingId: string }) {
@@ -440,12 +441,13 @@ function DirectoryPanel({ buildingId }: { buildingId: string }) {
     setLoading(true);
     const { data } = await supabase
       .from("resident_profiles")
-      .select("id, first_name, job_title, interest_tags, created_at")
+      .select("id, first_name, job_title, interest_tags, created_at, last_active_at")
       .eq("building_id", buildingId)
       .order("created_at", { ascending: false });
     setResidents((data ?? []) as Resident[]);
     setLoading(false);
   };
+
 
   useEffect(() => {
     load();
