@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SuperAdminLoginRouteImport } from './routes/super-admin-login'
 import { Route as ResidentAccessRouteImport } from './routes/resident-access'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as DiscoverRouteImport } from './routes/discover'
@@ -35,6 +36,11 @@ const ResidentAccessRoute = ResidentAccessRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerAuthRoute = ManagerAuthRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
+  '/messages': typeof MessagesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
+  '/messages': typeof MessagesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
+  '/messages': typeof MessagesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/manager'
     | '/manager-auth'
+    | '/messages'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/manager'
     | '/manager-auth'
+    | '/messages'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/discover'
     | '/manager'
     | '/manager-auth'
+    | '/messages'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   DiscoverRoute: typeof DiscoverRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   ManagerAuthRoute: typeof ManagerAuthRoute
+  MessagesRoute: typeof MessagesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResidentAccessRoute: typeof ResidentAccessRoute
   SuperAdminLoginRoute: typeof SuperAdminLoginRoute
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager-auth': {
@@ -292,6 +312,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiscoverRoute: DiscoverRoute,
   ManagerRoute: ManagerRouteWithChildren,
   ManagerAuthRoute: ManagerAuthRoute,
+  MessagesRoute: MessagesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ResidentAccessRoute: ResidentAccessRoute,
   SuperAdminLoginRoute: SuperAdminLoginRoute,
@@ -301,13 +322,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
