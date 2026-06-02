@@ -346,7 +346,10 @@ function FlagsPanel({ buildingId }: { buildingId: string }) {
       {rows.map((r) => (
         <article key={r.id} className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
-            <Badge variant="secondary">#{r.channel?.name ?? "channel"}</Badge>
+            <Badge variant="secondary" className="gap-1">
+              <Users className="h-3 w-3" />
+              {r.channel?.name ?? "group"}
+            </Badge>
             <span>by {r.sender_name}</span>
             <span>· flagged {new Date(r.created_at).toLocaleString()}</span>
           </div>

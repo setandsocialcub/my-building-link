@@ -343,15 +343,15 @@ function BuildingHub() {
 
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Channels
+              Interest Groups
             </h2>
             <Button size="sm" variant="ghost" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4" /> New
+              <Plus className="h-4 w-4" /> New Group
             </Button>
           </div>
           {channels.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No channels yet. Start the first one.
+              No groups yet. Start the first one and invite your neighbors.
             </p>
           ) : (
             <ul className="space-y-1">
@@ -370,7 +370,7 @@ function BuildingHub() {
                           : "hover:bg-muted text-foreground",
                       )}
                     >
-                      <Hash className="h-3.5 w-3.5 shrink-0" />
+                      <Users className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{c.name}</span>
                     </Link>
                   </li>
@@ -423,7 +423,7 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
       <Users className="h-8 w-8 mx-auto text-muted-foreground" />
       <h2 className="mt-4 text-lg font-semibold">Welcome to the Community Hub</h2>
       <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-        Pick a channel on the left, or start a new interest group to summon neighbors who share it.
+        Pick a group on the left, or start a new interest group to summon neighbors who share it.
       </p>
       <div className="mt-5">
         <Button onClick={onCreate}>
@@ -538,7 +538,7 @@ function ChannelView({
       <header className="px-5 py-3 border-b border-border flex items-center gap-2">
         <Hash className="h-4 w-4 text-muted-foreground" />
         <div className="flex-1 min-w-0">
-          <h2 className="font-semibold truncate">{channel?.name ?? "Channel"}</h2>
+          <h2 className="font-semibold truncate">{channel?.name ?? "Group"}</h2>
           {channel && (
             <p className="text-xs text-muted-foreground">{channel.interest_tag}</p>
           )}
@@ -633,7 +633,7 @@ function ChannelView({
         <Input
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder={`Message #${channel?.name ?? ""}`}
+          placeholder={`Message in ${channel?.name ?? ""}`}
           maxLength={2000}
           disabled={sending}
         />
@@ -695,7 +695,7 @@ function CreateChannelDialog({
       .single();
 
     if (chErr || !ch) {
-      toast.error(chErr?.message ?? "Could not create channel.");
+      toast.error(chErr?.message ?? "Could not create group.");
       setSubmitting(false);
       return;
     }
@@ -740,7 +740,7 @@ function CreateChannelDialog({
     toast.success(
       notifRows.length > 0
         ? `Summoned ${notifRows.length} neighbor${notifRows.length === 1 ? "" : "s"}.`
-        : "Channel created.",
+        : "Group created.",
     );
 
     reset();
@@ -760,7 +760,7 @@ function CreateChannelDialog({
         <DialogHeader>
           <DialogTitle>Start a new group</DialogTitle>
           <DialogDescription>
-            Pick an interest. Neighbors who share it will be summoned automatically.
+            Pick an interest. Neighbors who share it will be invited to join.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
