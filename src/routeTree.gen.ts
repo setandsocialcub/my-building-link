@@ -20,6 +20,7 @@ import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$buildingId'
+import { Route as MessagesConnectionIdRouteImport } from './routes/messages.$connectionId'
 import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
 
@@ -78,6 +79,11 @@ const OnboardingBuildingIdRoute = OnboardingBuildingIdRouteImport.update({
   path: '/onboarding/$buildingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesConnectionIdRoute = MessagesConnectionIdRouteImport.update({
+  id: '/$connectionId',
+  path: '/$connectionId',
+  getParentRoute: () => MessagesRoute,
+} as any)
 const ManagerBuildingIdRoute = ManagerBuildingIdRouteImport.update({
   id: '/$buildingId',
   path: '/$buildingId',
@@ -96,12 +102,13 @@ export interface FileRoutesByFullPath {
   '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
+  '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
 }
 export interface FileRoutesByTo {
@@ -111,12 +118,13 @@ export interface FileRoutesByTo {
   '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
+  '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
 }
 export interface FileRoutesById {
@@ -127,12 +135,13 @@ export interface FileRoutesById {
   '/discover': typeof DiscoverRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
-  '/messages': typeof MessagesRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
+  '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/super-admin-login'
     | '/building/$buildingId'
     | '/manager/$buildingId'
+    | '/messages/$connectionId'
     | '/onboarding/$buildingId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/super-admin-login'
     | '/building/$buildingId'
     | '/manager/$buildingId'
+    | '/messages/$connectionId'
     | '/onboarding/$buildingId'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/super-admin-login'
     | '/building/$buildingId'
     | '/manager/$buildingId'
+    | '/messages/$connectionId'
     | '/onboarding/$buildingId'
   fileRoutesById: FileRoutesById
 }
@@ -190,7 +202,7 @@ export interface RootRouteChildren {
   DiscoverRoute: typeof DiscoverRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   ManagerAuthRoute: typeof ManagerAuthRoute
-  MessagesRoute: typeof MessagesRoute
+  MessagesRoute: typeof MessagesRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResidentAccessRoute: typeof ResidentAccessRoute
   SuperAdminLoginRoute: typeof SuperAdminLoginRoute
@@ -277,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingBuildingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages/$connectionId': {
+      id: '/messages/$connectionId'
+      path: '/$connectionId'
+      fullPath: '/messages/$connectionId'
+      preLoaderRoute: typeof MessagesConnectionIdRouteImport
+      parentRoute: typeof MessagesRoute
+    }
     '/manager/$buildingId': {
       id: '/manager/$buildingId'
       path: '/$buildingId'
@@ -305,6 +324,18 @@ const ManagerRouteChildren: ManagerRouteChildren = {
 const ManagerRouteWithChildren =
   ManagerRoute._addFileChildren(ManagerRouteChildren)
 
+interface MessagesRouteChildren {
+  MessagesConnectionIdRoute: typeof MessagesConnectionIdRoute
+}
+
+const MessagesRouteChildren: MessagesRouteChildren = {
+  MessagesConnectionIdRoute: MessagesConnectionIdRoute,
+}
+
+const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
+  MessagesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -312,7 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiscoverRoute: DiscoverRoute,
   ManagerRoute: ManagerRouteWithChildren,
   ManagerAuthRoute: ManagerAuthRoute,
-  MessagesRoute: MessagesRoute,
+  MessagesRoute: MessagesRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   ResidentAccessRoute: ResidentAccessRoute,
   SuperAdminLoginRoute: SuperAdminLoginRoute,
