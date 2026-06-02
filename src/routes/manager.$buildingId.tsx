@@ -293,6 +293,7 @@ function ManagerDashboard() {
       </header>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
+        <CommunityHealthSection buildingId={buildingId} />
         <Tabs defaultValue="announcements">
           <TabsList>
             <TabsTrigger value="announcements">
