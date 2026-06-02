@@ -316,6 +316,89 @@ export type Database = {
           },
         ]
       }
+      event_rsvps: {
+        Row: {
+          building_id: string
+          created_at: string
+          event_id: string
+          id: string
+          profile_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          building_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+          profile_id: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          building_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          profile_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          building_id: string
+          capacity: number | null
+          cover_emoji: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          location: string | null
+          starts_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          building_id: string
+          capacity?: number | null
+          cover_emoji?: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          starts_at: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          building_id?: string
+          capacity?: number | null
+          cover_emoji?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          starts_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       forum_replies: {
         Row: {
           author_id: string
