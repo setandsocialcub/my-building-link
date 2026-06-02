@@ -135,13 +135,29 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
   const load = async () => {
     const { data, error: qErr } = await supabase
       .from("buildings")
-      .select("id, name, city, access_code, created_at, property_managers(manager_code)")
+      .select("id, name, city, access_code, created_at")
       .order("created_at", { ascending: false });
     if (qErr || !data) return;
 
-    const { data: residents } = await supabase
-      .from("resident_profiles")
-      .select("building_id");
+    const buildingIds = (data as any[]).map((b) => b.id);
+    const [{ data: managers }, { data: residents }] = await Promise.all([
+      supabase
+        .from("property_managers")
+        .select("building_id, manager_code")
+        .in(
+          "building_id",
+          buildingIds.length ? buildingIds : ["00000000-0000-0000-0000-000000000000"],
+        ),
+      supabase.from("resident_profiles").select("building_id"),
+    ]);
+
+    const managerByBuilding = new Map<string, string>();
+    (managers ?? []).forEach((m: any) => {
+      if (!managerByBuilding.has(m.building_id)) {
+        managerByBuilding.set(m.building_id, m.manager_code);
+      }
+    });
+
     const counts = new Map<string, number>();
     (residents ?? []).forEach((r: any) => {
       counts.set(r.building_id, (counts.get(r.building_id) ?? 0) + 1);
@@ -150,7 +166,7 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
     setBuildings(
       (data as any[]).map((b) => ({
         ...b,
-        manager_code: b.property_managers?.[0]?.manager_code ?? null,
+        manager_code: managerByBuilding.get(b.id) ?? null,
         active_residents: counts.get(b.id) ?? 0,
       })),
     );
