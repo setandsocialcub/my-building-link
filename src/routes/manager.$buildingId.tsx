@@ -600,6 +600,10 @@ function DirectoryPanel({ buildingId }: { buildingId: string }) {
                   ))}
                 </div>
               )}
+              <p className="mt-3 text-xs text-muted-foreground flex items-center gap-1.5">
+                <Clock className="h-3 w-3" />
+                Last active {r.last_active_at ? relativeTime(r.last_active_at) : "—"}
+              </p>
             </article>
           ))}
         </div>
@@ -607,3 +611,366 @@ function DirectoryPanel({ buildingId }: { buildingId: string }) {
     </div>
   );
 }
+
+// ============ Events Panel ============
+
+type EventRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  starts_at: string;
+  capacity: number | null;
+  cover_emoji: string;
+  status: string;
+  created_by: string | null;
+};
+
+type RsvpRow = {
+  id: string;
+  event_id: string;
+  profile_id: string;
+  status: string;
+  resident_name?: string;
+};
+
+function EventsPanel({ buildingId }: { buildingId: string }) {
+  const [events, setEvents] = useState<EventRow[]>([]);
+  const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  // form state
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [time, setTime] = useState("18:00");
+  const [capacity, setCapacity] = useState("");
+  const [emoji, setEmoji] = useState("🏢");
+  const [posting, setPosting] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data: evs } = await supabase
+      .from("events")
+      .select("id, title, description, location, starts_at, capacity, cover_emoji, status, created_by")
+      .eq("building_id", buildingId)
+      .order("starts_at", { ascending: true });
+    const evList = (evs ?? []) as EventRow[];
+    setEvents(evList);
+
+    if (evList.length) {
+      const { data: rs } = await supabase
+        .from("event_rsvps")
+        .select("id, event_id, profile_id, status")
+        .in("event_id", evList.map((e) => e.id));
+      const rsList = (rs ?? []) as RsvpRow[];
+      const profileIds = [...new Set(rsList.map((r) => r.profile_id))];
+      const { data: profs } = profileIds.length
+        ? await supabase
+            .from("resident_profiles")
+            .select("id, first_name")
+            .in("id", profileIds)
+        : { data: [] as any[] };
+      const nameMap = new Map((profs ?? []).map((p: any) => [p.id, p.first_name]));
+      setRsvps(rsList.map((r) => ({ ...r, resident_name: nameMap.get(r.profile_id) ?? "Resident" })));
+    } else {
+      setRsvps([]);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildingId]);
+
+  const post = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !date) {
+      toast.error("Title and date are required.");
+      return;
+    }
+    const [hh, mm] = time.split(":").map(Number);
+    const startsAt = new Date(date);
+    startsAt.setHours(hh ?? 18, mm ?? 0, 0, 0);
+    setPosting(true);
+    const { error } = await supabase.from("events").insert({
+      building_id: buildingId,
+      title: title.trim(),
+      description: description.trim() || null,
+      location: location.trim() || null,
+      starts_at: startsAt.toISOString(),
+      capacity: capacity ? Number(capacity) : null,
+      cover_emoji: emoji,
+      status: "published",
+    });
+    setPosting(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setTitle("");
+    setDescription("");
+    setLocation("");
+    setDate(undefined);
+    setTime("18:00");
+    setCapacity("");
+    setEmoji("🏢");
+    toast.success("Event published.");
+    load();
+  };
+
+  const cancelEvent = async (ev: EventRow) => {
+    const evRsvps = rsvps.filter((r) => r.event_id === ev.id);
+    // Notify all RSVPed residents
+    if (evRsvps.length) {
+      await supabase.from("notifications").insert(
+        evRsvps.map((r) => ({
+          building_id: buildingId,
+          recipient_id: r.profile_id,
+          message: `Event cancelled: ${ev.title}`,
+        })),
+      );
+    }
+    const { error } = await supabase.from("events").delete().eq("id", ev.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Event cancelled.");
+    load();
+  };
+
+  const now = Date.now();
+  const upcoming = useMemo(
+    () => events.filter((e) => new Date(e.starts_at).getTime() >= now),
+    [events, now],
+  );
+  const past = useMemo(
+    () => events.filter((e) => new Date(e.starts_at).getTime() < now).reverse(),
+    [events, now],
+  );
+
+  const rsvpsFor = (eventId: string) => rsvps.filter((r) => r.event_id === eventId);
+
+  return (
+    <div className="space-y-8">
+      {/* Create form */}
+      <form
+        onSubmit={post}
+        className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm"
+      >
+        <h3 className="text-sm font-semibold">Create event</h3>
+        <Input
+          placeholder="Event title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={120}
+        />
+        <Textarea
+          placeholder="Description (optional)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+          maxLength={2000}
+        />
+        <Input
+          placeholder="Location (optional)"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          maxLength={200}
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className={cn("justify-start text-left font-normal", !date && "text-muted-foreground")}
+              >
+                <CalendarIcon className="h-4 w-4" />
+                {date ? format(date, "PPP") : "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={date} onSelect={setDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+            </PopoverContent>
+          </Popover>
+          <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            type="number"
+            min={1}
+            placeholder="Capacity (optional)"
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+          />
+          <div className="flex flex-wrap gap-1.5 items-center">
+            {EVENT_EMOJIS.map((em) => (
+              <button
+                key={em}
+                type="button"
+                onClick={() => setEmoji(em)}
+                className={cn(
+                  "h-8 w-8 rounded-lg grid place-content-center text-lg transition",
+                  emoji === em ? "bg-primary/10 ring-2 ring-primary" : "hover:bg-muted",
+                )}
+              >
+                {em}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={posting || !title.trim() || !date}>
+            {posting ? <Loader2 className="animate-spin" /> : <CalendarIcon />} Publish event
+          </Button>
+        </div>
+      </form>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-12 text-muted-foreground">
+          <Loader2 className="animate-spin" />
+        </div>
+      ) : (
+        <>
+          {/* Upcoming */}
+          <section className="space-y-3">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Upcoming
+            </h3>
+            {upcoming.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No upcoming events.</p>
+            ) : (
+              upcoming.map((ev) => {
+                const evRsvps = rsvpsFor(ev.id);
+                const going = evRsvps.filter((r) => r.status === "going");
+                const maybe = evRsvps.filter((r) => r.status === "maybe");
+                const isExpanded = !!expanded[ev.id];
+                return (
+                  <article key={ev.id} className="rounded-xl border border-border bg-card p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-3xl">{ev.cover_emoji}</div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold">{ev.title}</h4>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                          <Clock className="h-3 w-3" />
+                          {format(new Date(ev.starts_at), "PPP 'at' p")}
+                          {ev.location && (
+                            <>
+                              <MapPin className="h-3 w-3 ml-2" />
+                              {ev.location}
+                            </>
+                          )}
+                        </p>
+                        <p className="text-xs mt-2">
+                          <span className="font-medium">{going.length} Going</span>
+                          <span className="text-muted-foreground"> · {maybe.length} Maybe</span>
+                        </p>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setExpanded((p) => ({ ...p, [ev.id]: !p[ev.id] }))}
+                        >
+                          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive">
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Cancel {ev.title}?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This deletes the event and notifies all {evRsvps.length} RSVPed residents.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Keep event</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => cancelEvent(ev)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Cancel event
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div className="mt-3 pt-3 border-t border-border space-y-2">
+                        {evRsvps.length === 0 ? (
+                          <p className="text-xs text-muted-foreground">No RSVPs yet.</p>
+                        ) : (
+                          <>
+                            <RsvpList label="Going" items={going} />
+                            <RsvpList label="Maybe" items={maybe} />
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </article>
+                );
+              })
+            )}
+          </section>
+
+          {/* Past */}
+          <section className="space-y-3">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Past
+            </h3>
+            {past.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No past events.</p>
+            ) : (
+              past.map((ev) => {
+                const going = rsvpsFor(ev.id).filter((r) => r.status === "going");
+                return (
+                  <article key={ev.id} className="rounded-xl border border-border bg-card p-4 opacity-80">
+                    <div className="flex items-start gap-3">
+                      <div className="text-3xl grayscale">{ev.cover_emoji}</div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold">{ev.title}</h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(new Date(ev.starts_at), "PPP 'at' p")}
+                        </p>
+                        <p className="text-xs mt-2 text-muted-foreground">
+                          {going.length} attended (RSVPed Going)
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })
+            )}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function RsvpList({ label, items }: { label: string; items: RsvpRow[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <p className="text-xs font-medium text-muted-foreground">{label} ({items.length})</p>
+      <div className="flex flex-wrap gap-1.5 mt-1">
+        {items.map((r) => (
+          <Badge key={r.id} variant="secondary" className="text-xs">
+            {r.resident_name}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  );
+}
+
