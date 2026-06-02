@@ -18,6 +18,8 @@ export const Route = createFileRoute("/manager")({
 function ManagerEntry() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const matches = useMatches();
+  const hasChild = matches.some((m) => m.routeId === "/manager/$buildingId");
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
