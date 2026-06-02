@@ -18,6 +18,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
 
 export const Route = createFileRoute("/resident-access")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    code: typeof search.code === "string" ? search.code : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Resident Access — Join Your Building" },
@@ -34,7 +37,9 @@ export const Route = createFileRoute("/resident-access")({
 type View = "choice" | "code" | "login";
 
 function ResidentAccessPage() {
-  const [view, setView] = useState<View>("choice");
+  const { code: codeFromUrl } = Route.useSearch();
+  const initialCode = (codeFromUrl ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 7);
+  const [view, setView] = useState<View>(initialCode ? "code" : "choice");
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4 py-12">
@@ -47,12 +52,19 @@ function ResidentAccessPage() {
         </Link>
 
         {view === "choice" && <ChoiceView onPick={setView} />}
-        {view === "code" && <CodeView onBack={() => setView("choice")} />}
+        {view === "code" && (
+          <CodeView
+            onBack={() => setView("choice")}
+            initialCode={initialCode}
+            prefilled={Boolean(initialCode)}
+          />
+        )}
         {view === "login" && <LoginView onBack={() => setView("choice")} />}
       </div>
     </main>
   );
 }
+
 
 function ChoiceView({ onPick }: { onPick: (v: View) => void }) {
   return (
