@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Shield, Loader2 } from "lucide-react";
+import { Shield, Loader2, CheckCircle2, ArrowRight, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,12 +39,19 @@ function ManagerEntry() {
   return <ClaimCode />;
 }
 
+type ClaimedBuilding = {
+  id: string;
+  name: string;
+  city: string;
+  code: string;
+};
 
 function ClaimCode() {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [claimed, setClaimed] = useState<ClaimedBuilding | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,9 +60,11 @@ function ClaimCode() {
     const normalized = code.toUpperCase().replace(/[^A-Z0-9]/g, "");
     if (!normalized) return;
     setLoading(true);
-    const { data, error: qErr } = await supabase.rpc("claim_manager_code", { _code: normalized });
-    setLoading(false);
+    const { data, error: qErr } = await supabase.rpc("claim_manager_code", {
+      _code: normalized,
+    });
     if (qErr || !data) {
+      setLoading(false);
       // Detect a building invite code (format AAA-NNN, 3 letters + 3 digits) and explain.
       const looksLikeBuildingCode = /^[A-Z]{3}[0-9]{3}$/.test(normalized);
       if (looksLikeBuildingCode) {
@@ -67,8 +76,91 @@ function ClaimCode() {
       }
       return;
     }
-    navigate({ to: "/manager/$buildingId", params: { buildingId: data as string } });
+
+    const buildingId = data as string;
+    const { data: b, error: bErr } = await supabase
+      .from("buildings")
+      .select("id, name, city")
+      .eq("id", buildingId)
+      .maybeSingle();
+    setLoading(false);
+    if (bErr || !b) {
+      setError(bErr?.message ?? "Couldn't load building details.");
+      return;
+    }
+    setClaimed({ id: b.id, name: b.name, city: b.city, code: normalized });
   };
+
+  if (claimed) {
+    return (
+      <main className="min-h-screen grid place-items-center bg-gradient-to-br from-background via-background to-muted px-6">
+        <div className="w-full max-w-md">
+          <div className="mb-6 text-center">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+              Code verified
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              You're about to manage the building below.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+            <div className="rounded-xl border border-border bg-muted/40 p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary grid place-content-center">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                    Building
+                  </div>
+                  <div className="text-lg font-semibold truncate">
+                    {claimed.name}
+                  </div>
+                  <div className="text-sm text-muted-foreground truncate">
+                    {claimed.city}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-3">
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                  Matched code
+                </div>
+                <code className="px-2.5 py-1 rounded-md bg-primary/10 text-primary font-mono text-sm tracking-widest">
+                  {claimed.code}
+                </code>
+              </div>
+            </div>
+
+            <Button
+              className="w-full gap-2"
+              onClick={() =>
+                navigate({
+                  to: "/manager/$buildingId",
+                  params: { buildingId: claimed.id },
+                })
+              }
+            >
+              Continue to dashboard <ArrowRight className="h-4 w-4" />
+            </Button>
+            <button
+              type="button"
+              onClick={() => {
+                setClaimed(null);
+                setCode("");
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground w-full text-center"
+            >
+              Use a different code
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen grid place-items-center bg-gradient-to-br from-background via-background to-muted px-6">
