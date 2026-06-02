@@ -360,7 +360,7 @@ export type Database = {
           capacity: number | null
           cover_emoji: string
           created_at: string
-          created_by: string
+          created_by: string | null
           description: string | null
           id: string
           location: string | null
@@ -374,7 +374,7 @@ export type Database = {
           capacity?: number | null
           cover_emoji?: string
           created_at?: string
-          created_by: string
+          created_by?: string | null
           description?: string | null
           id?: string
           location?: string | null
@@ -388,7 +388,7 @@ export type Database = {
           capacity?: number | null
           cover_emoji?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           location?: string | null
@@ -651,6 +651,7 @@ export type Database = {
           interest_tags: string[]
           is_visible: boolean
           job_title: string | null
+          last_active_at: string
           last_name: string | null
           user_id: string
         }
@@ -662,6 +663,7 @@ export type Database = {
           interest_tags?: string[]
           is_visible?: boolean
           job_title?: string | null
+          last_active_at?: string
           last_name?: string | null
           user_id: string
         }
@@ -673,6 +675,7 @@ export type Database = {
           interest_tags?: string[]
           is_visible?: boolean
           job_title?: string | null
+          last_active_at?: string
           last_name?: string | null
           user_id?: string
         }
