@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Outlet, useMatches } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Shield, Loader2, CheckCircle2, ArrowRight, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,8 @@ export const Route = createFileRoute("/manager")({
 function ManagerEntry() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const matches = useMatches();
+  const hasChild = matches.some((m) => m.routeId === "/manager/$buildingId");
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -36,6 +38,7 @@ function ManagerEntry() {
   if (!ready) {
     return <main className="min-h-screen grid place-items-center text-muted-foreground">Loading…</main>;
   }
+  if (hasChild) return <Outlet />;
   return <ClaimCode />;
 }
 
