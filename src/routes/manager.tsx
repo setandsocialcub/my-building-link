@@ -38,6 +38,7 @@ function ManagerEntry() {
   if (!ready) {
     return <main className="min-h-screen grid place-items-center text-muted-foreground">Loading…</main>;
   }
+  if (hasChild) return <Outlet />;
   return <ClaimCode />;
 }
 
