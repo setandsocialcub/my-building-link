@@ -44,16 +44,32 @@ export const Route = createFileRoute("/building/$buildingId")({
   component: BuildingHub,
 });
 
-const INTEREST_TAGS = [
-  "Wellness & Fitness",
-  "Professional Networking",
-  "Sports",
-  "Running",
-  "Gaming",
-  "Food & Cooking",
-  "Pets",
-  "Arts & Culture",
-] as const;
+const INTEREST_CATEGORIES = {
+  "Wellness & Movement": [
+    "Running", "Cycling", "Yoga", "Strength Training",
+    "Swimming", "Hiking", "Dance", "Tennis", "Pilates"
+  ],
+  "Food & Drink": [
+    "Cooking", "Wine", "Cocktails", "Coffee",
+    "Vegan & Plant-Based", "Baking", "Restaurant Hunting"
+  ],
+  "Arts & Culture": [
+    "Music", "Live Music & Concerts", "Photography",
+    "Film & Cinema", "Reading & Books", "Visual Art", "Writing"
+  ],
+  "Career & Professional": [
+    "Tech & Startups", "Finance & Investing",
+    "Entrepreneurship", "Creative Industries", "Real Estate"
+  ],
+  "Lifestyle & Social": [
+    "Pets & Dogs", "Parenting & Kids", "Travel", "Gaming",
+    "Sustainability", "Sports Watching", "Meditation", "Board Games"
+  ],
+  "Building Life": [
+    "New to the Building", "New to the City",
+    "Remote Worker", "Looking for Running Buddy", "Looking for Carpool"
+  ],
+} as const;
 
 type Channel = {
   id: string;
