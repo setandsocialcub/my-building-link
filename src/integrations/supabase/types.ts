@@ -752,6 +752,7 @@ export type Database = {
       }
     }
     Functions: {
+      building_exists: { Args: { _building_id: string }; Returns: boolean }
       channel_building: { Args: { _channel_id: string }; Returns: string }
       claim_manager_code: { Args: { _code: string }; Returns: string }
       current_resident_id: { Args: { _building_id: string }; Returns: string }
