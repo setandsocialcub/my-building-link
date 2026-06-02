@@ -137,16 +137,30 @@ const INTEREST_TAGS = [
 
 type Building = { id: string; name: string; city: string };
 
-function CodeView({ onBack }: { onBack: () => void }) {
-  const [code, setCode] = useState("");
+function normalizeCode(raw: string): string {
+  const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+  if (cleaned.length <= 3) return cleaned;
+  return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+}
+
+function CodeView({
+  onBack,
+  initialCode = "",
+  prefilled = false,
+}: {
+  onBack: () => void;
+  initialCode?: string;
+  prefilled?: boolean;
+}) {
+  const [code, setCode] = useState(() => normalizeCode(initialCode));
   const [checking, setChecking] = useState(false);
   const [building, setBuilding] = useState<Building | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Live validation when 6 chars entered
+  // Live validation once the full AAA-NNN code is entered
   useEffect(() => {
     const trimmed = code.trim().toUpperCase();
-    if (trimmed.length !== 6) {
+    if (!/^[A-Z]{3}-[0-9]{3}$/.test(trimmed)) {
       setBuilding(null);
       setError(null);
       return;
@@ -193,23 +207,31 @@ function CodeView({ onBack }: { onBack: () => void }) {
           Enter your invitation code
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Your building manager shared a 6-character code.
+          {prefilled
+            ? "We pre-filled your invitation code from the link."
+            : "Your building manager shared a 7-character code."}
         </p>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div
+        className={cn(
+          "rounded-2xl border bg-card p-6 shadow-sm transition-all",
+          prefilled
+            ? "border-primary ring-2 ring-primary/30 shadow-md"
+            : "border-border",
+        )}
+      >
         <Input
           autoFocus
           value={code}
-          onChange={(e) =>
-            setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6))
-          }
-          placeholder="A B C 1 2 3"
-          maxLength={6}
+          onChange={(e) => setCode(normalizeCode(e.target.value))}
+          placeholder="A B C - 1 2 3"
+          maxLength={7}
           inputMode="text"
           autoCapitalize="characters"
-          className="h-16 text-center text-2xl font-mono tracking-[0.6em] uppercase"
+          className="h-16 text-center text-2xl font-mono tracking-[0.4em] uppercase"
         />
+
         <div className="mt-3 min-h-[1.25rem] text-center text-sm">
           {checking && (
             <span className="inline-flex items-center gap-1.5 text-muted-foreground">
