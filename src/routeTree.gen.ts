@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
 import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as ForumRouteImport } from './routes/forum'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -52,6 +53,11 @@ const ManagerAuthRoute = ManagerAuthRouteImport.update({
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForumRoute = ForumRouteImport.update({
+  id: '/forum',
+  path: '/forum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
+  '/forum': typeof ForumRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
+  '/forum': typeof ForumRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
+  '/forum': typeof ForumRoute
   '/manager': typeof ManagerRouteWithChildren
   '/manager-auth': typeof ManagerAuthRoute
   '/messages': typeof MessagesRouteWithChildren
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/connections'
     | '/discover'
+    | '/forum'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/connections'
     | '/discover'
+    | '/forum'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/connections'
     | '/discover'
+    | '/forum'
     | '/manager'
     | '/manager-auth'
     | '/messages'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ConnectionsRoute: typeof ConnectionsRoute
   DiscoverRoute: typeof DiscoverRoute
+  ForumRoute: typeof ForumRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   ManagerAuthRoute: typeof ManagerAuthRoute
   MessagesRoute: typeof MessagesRouteWithChildren
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/manager'
       fullPath: '/manager'
       preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forum': {
+      id: '/forum'
+      path: '/forum'
+      fullPath: '/forum'
+      preLoaderRoute: typeof ForumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -341,6 +361,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ConnectionsRoute: ConnectionsRoute,
   DiscoverRoute: DiscoverRoute,
+  ForumRoute: ForumRoute,
   ManagerRoute: ManagerRouteWithChildren,
   ManagerAuthRoute: ManagerAuthRoute,
   MessagesRoute: MessagesRouteWithChildren,
@@ -353,3 +374,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
