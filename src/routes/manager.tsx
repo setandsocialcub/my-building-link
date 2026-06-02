@@ -49,13 +49,22 @@ function ClaimCode() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const trimmed = code.trim().toUpperCase();
-    if (!trimmed) return;
+    // Normalize: uppercase, strip everything except A–Z and 0–9 (drops dashes/spaces).
+    const normalized = code.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!normalized) return;
     setLoading(true);
-    const { data, error: qErr } = await supabase.rpc("claim_manager_code", { _code: trimmed });
+    const { data, error: qErr } = await supabase.rpc("claim_manager_code", { _code: normalized });
     setLoading(false);
     if (qErr || !data) {
-      setError(qErr?.message ?? "Invalid manager code.");
+      // Detect a building invite code (format AAA-NNN, 3 letters + 3 digits) and explain.
+      const looksLikeBuildingCode = /^[A-Z]{3}[0-9]{3}$/.test(normalized);
+      if (looksLikeBuildingCode) {
+        setError(
+          "That looks like a resident invite code (e.g. JUK-611). Manager codes start with M (e.g. M93PP5).",
+        );
+      } else {
+        setError(qErr?.message ?? "Invalid manager code.");
+      }
       return;
     }
     navigate({ to: "/manager/$buildingId", params: { buildingId: data as string } });
@@ -70,7 +79,8 @@ function ClaimCode() {
           </div>
           <h1 className="mt-4 text-2xl font-semibold tracking-tight">Property Manager</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Enter the manager access code your super admin gave you.
+            Enter the manager access code your super admin gave you. It starts with{" "}
+            <span className="font-mono font-semibold">M</span> followed by 5 characters.
           </p>
         </div>
         <form
@@ -78,13 +88,14 @@ function ClaimCode() {
           className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
         >
           <Input
-            placeholder="e.g. MA1B2C"
+            placeholder="e.g. M93PP5"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
-            maxLength={6}
+            maxLength={12}
             className="text-center tracking-[0.4em] font-mono uppercase"
             autoFocus
           />
+
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" disabled={loading || !code.trim()} className="w-full">
             {loading ? <Loader2 className="animate-spin" /> : "Continue"}
