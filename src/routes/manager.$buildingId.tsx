@@ -1,6 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Megaphone, Shield, Flag, Loader2, Trash2, Check, Users, Search, UserMinus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Megaphone,
+  Shield,
+  Flag,
+  Loader2,
+  Trash2,
+  Check,
+  Users,
+  Search,
+  UserMinus,
+  Calendar as CalendarIcon,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  MapPin,
+  X,
+} from "lucide-react";
+import { format } from "date-fns";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,9 +41,28 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const EVENT_EMOJIS = ["🏢", "🎉", "🍕", "☕", "🧘", "🎬", "🎲", "🌱"];
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  const wks = Math.floor(days / 7);
+  if (wks < 5) return `${wks}w ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+}
+
 export const Route = createFileRoute("/manager/$buildingId")({
   component: ManagerDashboard,
 });
+
 
 type Announcement = { id: string; body: string; created_at: string };
 type FlaggedRow = {
