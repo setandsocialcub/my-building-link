@@ -241,7 +241,7 @@ type FlaggedRow = {
 function ManagerDashboard() {
   const { buildingId } = Route.useParams();
   const navigate = useNavigate();
-  const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
+  const [building, setBuilding] = useState<{ name: string; city: string; access_code: string } | null>(null);
   const [managerId, setManagerId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -263,9 +263,11 @@ function ManagerDashboard() {
       }
       setManagerId(mgr.id);
       const { data: b } = await supabase
-        .rpc("get_building_info", { _building_id: buildingId })
+        .from("buildings")
+        .select("name, city, access_code")
+        .eq("id", buildingId)
         .maybeSingle();
-      if (b) setBuilding({ name: b.name, city: b.city });
+      if (b) setBuilding({ name: b.name, city: b.city, access_code: b.access_code });
     })();
   }, [buildingId, navigate]);
 
@@ -299,7 +301,16 @@ function ManagerDashboard() {
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         <CommunityHealthSection buildingId={buildingId} />
+        {building && (
+          <InviteCodeCard
+            buildingId={buildingId}
+            buildingName={building.name}
+            code={building.access_code}
+            onCodeChange={(c) => setBuilding((prev) => (prev ? { ...prev, access_code: c } : prev))}
+          />
+        )}
         <Tabs defaultValue="announcements">
+
           <TabsList>
             <TabsTrigger value="announcements">
               <Megaphone className="h-4 w-4" /> Announcements
