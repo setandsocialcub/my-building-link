@@ -598,6 +598,73 @@ export type Database = {
           },
         ]
       }
+      marketplace_listings: {
+        Row: {
+          building_id: string
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_free: boolean
+          price: number
+          seller_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          building_id: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_free?: boolean
+          price?: number
+          seller_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          building_id?: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_free?: boolean
+          price?: number
+          seller_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_listings_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_flags: {
         Row: {
           building_id: string
