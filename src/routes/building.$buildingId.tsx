@@ -38,6 +38,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from "@/components/ResidentNav";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -320,6 +321,8 @@ function BuildingHub() {
       <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
         {/* Sidebar */}
         <aside className="space-y-4">
+          <ResidentSidebarLinks />
+
           <div>
             <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
               Pinned
@@ -413,6 +416,8 @@ function BuildingHub() {
           }
         />
       )}
+      <ResidentBottomNavSpacer />
+      <ResidentBottomNav />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { ResidentNav } from "@/components/ResidentNav";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Users } from "lucide-react";
@@ -248,6 +249,7 @@ function GroupsPage() {
           </Tabs>
         </section>
       </main>
+    <ResidentNav />
     </div>
   );
 }

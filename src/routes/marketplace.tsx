@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ResidentNav } from "@/components/ResidentNav";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, ImagePlus, ShoppingBag, X } from "lucide-react";
 import { toast } from "sonner";
@@ -208,6 +209,7 @@ function MarketplacePage() {
         onClose={() => setOpenDetail(null)}
         onChanged={() => me && loadListings(me.building_id)}
       />
+      <ResidentNav />
     </div>
   );
 }
