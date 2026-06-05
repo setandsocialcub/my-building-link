@@ -35,7 +35,7 @@ type Listing = {
   image_url: string | null;
   status: string;
   created_at: string;
-  seller?: { display_name: string | null } | null;
+  seller?: { first_name: string | null; last_name: string | null } | null;
 };
 
 type MyProfile = { id: string; building_id: string };
@@ -54,11 +54,10 @@ function timeAgo(iso: string) {
   return new Date(iso).toLocaleDateString();
 }
 
-function sellerName(n: string | null | undefined) {
-  if (!n) return "Resident";
-  const parts = n.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0];
-  return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+function sellerName(s: { first_name: string | null; last_name: string | null } | null | undefined) {
+  if (!s || !s.first_name) return "Resident";
+  const li = s.last_name?.trim()?.[0];
+  return li ? `${s.first_name} ${li}.` : s.first_name;
 }
 
 function MarketplacePage() {
@@ -104,7 +103,7 @@ function MarketplacePage() {
     const { data, error } = await supabase
       .from("marketplace_listings")
       .select(
-        "id, building_id, seller_id, title, description, price, is_free, image_url, status, created_at, seller:resident_profiles!seller_id(display_name)",
+        "id, building_id, seller_id, title, description, price, is_free, image_url, status, created_at, seller:resident_profiles!seller_id(first_name, last_name)",
       )
       .eq("building_id", buildingId)
       .order("created_at", { ascending: false });
