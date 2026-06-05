@@ -476,6 +476,99 @@ export type Database = {
         }
         Relationships: []
       }
+      group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          building_id: string
+          category: string
+          created_at: string
+          created_by: string | null
+          emoji: string
+          id: string
+          interest_tag: string | null
+          is_default: boolean
+          is_pinned: boolean
+          member_count: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          building_id: string
+          category: string
+          created_at?: string
+          created_by?: string | null
+          emoji?: string
+          id?: string
+          interest_tag?: string | null
+          is_default?: boolean
+          is_pinned?: boolean
+          member_count?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          building_id?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          emoji?: string
+          id?: string
+          interest_tag?: string | null
+          is_default?: boolean
+          is_pinned?: boolean
+          member_count?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_flags: {
         Row: {
           building_id: string
@@ -795,6 +888,10 @@ export type Database = {
       regenerate_building_access_code: {
         Args: { _building_id: string }
         Returns: string
+      }
+      seed_default_groups: {
+        Args: { _building_id: string }
+        Returns: undefined
       }
     }
     Enums: {
