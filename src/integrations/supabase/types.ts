@@ -14,6 +14,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcement_reads: {
+        Row: {
+          announcement_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_reads_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           body: string
@@ -21,6 +47,7 @@ export type Database = {
           created_at: string
           id: string
           manager_id: string
+          title: string | null
         }
         Insert: {
           body: string
@@ -28,6 +55,7 @@ export type Database = {
           created_at?: string
           id?: string
           manager_id: string
+          title?: string | null
         }
         Update: {
           body?: string
@@ -35,6 +63,7 @@ export type Database = {
           created_at?: string
           id?: string
           manager_id?: string
+          title?: string | null
         }
         Relationships: [
           {

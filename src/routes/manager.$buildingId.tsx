@@ -48,6 +48,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 
 const EVENT_EMOJIS = ["🏢", "🎉", "🍕", "☕", "🧘", "🎬", "🎲", "🌱"];
 
@@ -226,7 +236,7 @@ export const Route = createFileRoute("/manager/$buildingId")({
 });
 
 
-type Announcement = { id: string; body: string; created_at: string };
+type Announcement = { id: string; title: string | null; body: string; created_at: string };
 type FlaggedRow = {
   id: string;
   message_id: string;
@@ -567,16 +577,42 @@ function AnnouncementsPanel({
   managerId: string;
 }) {
   const [list, setList] = useState<Announcement[]>([]);
+  const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [posting, setPosting] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [residentCount, setResidentCount] = useState(0);
+  const [readCounts, setReadCounts] = useState<Record<string, number>>({});
 
   const load = async () => {
     const { data } = await supabase
       .from("announcements")
-      .select("id, body, created_at")
+      .select("id, title, body, created_at")
       .eq("building_id", buildingId)
       .order("created_at", { ascending: false });
-    setList(data ?? []);
+    const rows = (data ?? []) as Announcement[];
+    setList(rows);
+
+    const { count } = await supabase
+      .from("resident_profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("building_id", buildingId);
+    setResidentCount(count ?? 0);
+
+    if (rows.length > 0) {
+      const { data: reads } = await supabase
+        .from("announcement_reads")
+        .select("announcement_id")
+        .in("announcement_id", rows.map((r) => r.id));
+      const counts: Record<string, number> = {};
+      (reads ?? []).forEach((r) => {
+        const id = r.announcement_id as string;
+        counts[id] = (counts[id] ?? 0) + 1;
+      });
+      setReadCounts(counts);
+    } else {
+      setReadCounts({});
+    }
   };
 
   useEffect(() => {
@@ -586,21 +622,25 @@ function AnnouncementsPanel({
 
   const post = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = body.trim();
-    if (!trimmed) return;
+    const trimmedBody = body.trim();
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle || !trimmedBody) return;
     setPosting(true);
     const { error } = await supabase.from("announcements").insert({
       building_id: buildingId,
       manager_id: managerId,
-      body: trimmed,
+      title: trimmedTitle,
+      body: trimmedBody,
     });
     setPosting(false);
     if (error) {
       toast.error(error.message);
       return;
     }
+    setTitle("");
     setBody("");
-    toast.success("Announcement posted to all residents.");
+    setOpen(false);
+    toast.success("Announcement posted — residents notified.");
     load();
   };
 
@@ -611,48 +651,84 @@ function AnnouncementsPanel({
 
   return (
     <div className="space-y-6">
-      <form
-        onSubmit={post}
-        className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-sm"
-      >
-        <label className="text-sm font-medium">New official announcement</label>
-        <Textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="e.g. Elevator maintenance tomorrow from 9am–12pm."
-          maxLength={4000}
-          rows={3}
-        />
-        <div className="flex justify-end">
-          <Button type="submit" disabled={posting || !body.trim()}>
-            {posting ? <Loader2 className="animate-spin" /> : <Megaphone />} Broadcast
-          </Button>
-        </div>
-      </form>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          Past announcements
+        </h3>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4" /> New Announcement
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>New announcement</DialogTitle>
+              <DialogDescription>
+                Posts to all residents and sends a push notification.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={post} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Title</label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Elevator maintenance Friday"
+                  maxLength={120}
+                  required
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Body</label>
+                <Textarea
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  placeholder="Share the details residents need to know."
+                  maxLength={4000}
+                  rows={5}
+                  required
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={posting || !title.trim() || !body.trim()}>
+                  {posting ? <Loader2 className="animate-spin" /> : <Megaphone />} Post
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          Posted
-        </h3>
         {list.length === 0 ? (
           <p className="text-sm text-muted-foreground">No announcements yet.</p>
         ) : (
-          list.map((a) => (
-            <article
-              key={a.id}
-              className="rounded-xl border border-border bg-card p-4 flex items-start gap-3"
-            >
-              <div className="flex-1">
-                <p className="text-sm whitespace-pre-wrap">{a.body}</p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {new Date(a.created_at).toLocaleString()}
-                </p>
-              </div>
-              <Button size="sm" variant="ghost" onClick={() => remove(a.id)}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </article>
-          ))
+          list.map((a) => {
+            const seen = readCounts[a.id] ?? 0;
+            return (
+              <article
+                key={a.id}
+                className="rounded-xl border border-border bg-card p-4 flex items-start gap-3"
+              >
+                <div className="flex-1 min-w-0">
+                  {a.title && <h4 className="text-sm font-semibold">{a.title}</h4>}
+                  <p className="text-sm whitespace-pre-wrap mt-1">{a.body}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                    <span>{new Date(a.created_at).toLocaleString()}</span>
+                    <span>•</span>
+                    <span>
+                      Seen by {seen} of {residentCount} resident
+                      {residentCount === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => remove(a.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </article>
+            );
+          })
         )}
       </div>
     </div>
