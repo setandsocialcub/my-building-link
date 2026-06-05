@@ -54,7 +54,7 @@ function useResidentNavContext() {
           .from("direct_messages")
           .select("id", { count: "exact", head: true })
           .eq("recipient_id", auth.user.id)
-          .eq("read", false),
+          .is("read_at", null),
         bId
           ? supabase
               .from("announcements")
