@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ResidentNav } from "@/components/ResidentNav";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";

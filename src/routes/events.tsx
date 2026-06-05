@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ResidentNav } from "@/components/ResidentNav";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, ChevronDown, ChevronUp, Loader2, Plus } from "lucide-react";
