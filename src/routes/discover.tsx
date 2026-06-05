@@ -403,6 +403,7 @@ function DiscoverPage() {
           </div>
         )}
       </main>
+    <ResidentNav />
     </div>
   );
 }

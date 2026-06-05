@@ -181,6 +181,7 @@ function AnnouncementsPage() {
           </ul>
         )}
       </main>
+    <ResidentNav />
     </div>
   );
 }

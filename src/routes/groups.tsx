@@ -249,6 +249,7 @@ function GroupsPage() {
           </Tabs>
         </section>
       </main>
+    <ResidentNav />
     </div>
   );
 }
