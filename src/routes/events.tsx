@@ -463,6 +463,7 @@ function EventsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ResidentNav />
     </div>
   );
 }

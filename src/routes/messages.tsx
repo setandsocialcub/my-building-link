@@ -328,6 +328,7 @@ function MessagesInboxPage() {
           })}
         </ul>
       )}
+      <ResidentNav />
     </div>
   );
 }
