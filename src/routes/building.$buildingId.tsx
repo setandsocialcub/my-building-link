@@ -416,6 +416,8 @@ function BuildingHub() {
           }
         />
       )}
+      <ResidentBottomNavSpacer />
+      <ResidentBottomNav />
     </div>
   );
 }
