@@ -260,7 +260,7 @@ function ListingCard({
           )}
         </div>
         <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
-          <span>{sellerName(listing.seller?.display_name)}</span>
+          <span>{sellerName(listing.seller)}</span>
           <span>{timeAgo(listing.created_at)}</span>
         </div>
       </div>
@@ -538,7 +538,7 @@ function DetailDialog({
             </p>
           )}
           <div className="text-xs text-muted-foreground">
-            Posted by {sellerName(listing.seller?.display_name)} · {timeAgo(listing.created_at)}
+            Posted by {sellerName(listing.seller)} · {timeAgo(listing.created_at)}
           </div>
         </div>
         <DialogFooter>
