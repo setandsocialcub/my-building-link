@@ -1,3 +1,4 @@
+import { ResidentNav } from "@/components/ResidentNav";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Bell, Loader2 } from "lucide-react";
