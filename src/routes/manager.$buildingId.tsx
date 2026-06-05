@@ -226,7 +226,7 @@ export const Route = createFileRoute("/manager/$buildingId")({
 });
 
 
-type Announcement = { id: string; body: string; created_at: string };
+type Announcement = { id: string; title: string | null; body: string; created_at: string };
 type FlaggedRow = {
   id: string;
   message_id: string;
