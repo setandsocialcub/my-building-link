@@ -416,6 +416,7 @@ export function ResidentHome({
         items={recommended}
         loading={loading}
         onRequestIntro={requestIntroduction}
+        onRespondIntro={respondIntroduction}
         inflight={introInflight}
       />
 
