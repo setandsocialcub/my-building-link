@@ -989,6 +989,10 @@ export type Database = {
         Args: { _building_id: string }
         Returns: undefined
       }
+      user_shares_building_with: {
+        Args: { _other_uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin"
