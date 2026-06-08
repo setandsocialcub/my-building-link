@@ -351,9 +351,36 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
                     </>
                   ) : (
                     <>
-                      <Sparkles /> Finish & enter hub
+                      <ArrowRight /> Continue
                     </>
                   )}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold">Discover your circles</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Hand-picked from the interests you just chose. Join now or skip and explore later.
+                </p>
+              </div>
+              <CircleRecommendations
+                buildingId={buildingId}
+                interests={interests}
+                userId={user.id}
+                limit={6}
+                title="Circles you may love"
+                subtitle="Tap Join to be added instantly."
+              />
+              <div className="flex justify-between pt-2">
+                <Link to="/groups" className="text-sm text-muted-foreground hover:text-foreground self-center">
+                  Browse all circles
+                </Link>
+                <Button onClick={() => navigate({ to: "/building/$buildingId", params: { buildingId } })}>
+                  <Sparkles /> Enter hub
                 </Button>
               </div>
             </div>
