@@ -437,7 +437,7 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
       <Users className="h-8 w-8 mx-auto text-muted-foreground" />
       <h2 className="mt-4 text-lg font-semibold">Welcome to the Community Hub</h2>
       <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-        Pick a group on the left, or start a new interest group to summon neighbors who share it.
+        Pick a circle on the left, or start a new one to summon neighbors who share your interests.
       </p>
       <div className="mt-5">
         <Button onClick={onCreate}>
