@@ -46,7 +46,9 @@ type RecommendedResident = {
   sharedCircles: number;
   reason: string;
   isNew: boolean;
-  introStatus?: "pending" | "accepted" | null;
+  introStatus?: "pending" | "accepted" | "declined" | "expired" | null;
+  introId?: string;
+  iAmRequester?: boolean;
 };
 
 type Experience = {
