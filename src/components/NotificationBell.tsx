@@ -321,20 +321,6 @@ export function NotificationBell({
             </div>
           )}
 
-          {!loading && filter !== "introductions" && introTotal === 0 && notifications.length === 0 && filter === "community" && (
-            <div className="p-8 text-center">
-              <Bell className="h-8 w-8 mx-auto text-muted-foreground/40 mb-3" />
-              <p className="text-sm text-muted-foreground">No community notifications.</p>
-            </div>
-          )}
-
-          {!loading && filter !== "community" && pendingIntros.length === 0 && respondedIntros.length === 0 && filter === "introductions" && (
-            <div className="p-8 text-center">
-              <Handshake className="h-8 w-8 mx-auto text-muted-foreground/40 mb-3" />
-              <p className="text-sm text-muted-foreground">No introduction notifications.</p>
-            </div>
-          )}
-
           {!loading && filter !== "community" && pendingIntros.length > 0 && (
             <div className="px-4 pt-3 pb-1">
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
