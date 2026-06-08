@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResidentPageShell } from "@/components/ResidentPageShell";
 
@@ -22,7 +21,6 @@ type Profile = {
   first_name: string;
   last_name: string | null;
   job_title: string | null;
-  bio: string | null;
   interest_tags: string[] | null;
   is_visible: boolean | null;
 };
@@ -36,7 +34,6 @@ function ProfilePage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
-  const [bio, setBio] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +47,7 @@ function ProfilePage() {
 
       const { data } = await supabase
         .from("resident_profiles")
-        .select("id, user_id, building_id, first_name, last_name, job_title, bio, interest_tags, is_visible")
+        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible")
         .eq("user_id", auth.user.id)
         .maybeSingle();
       if (cancelled) return;
@@ -60,7 +57,6 @@ function ProfilePage() {
         setFirstName(p.first_name ?? "");
         setLastName(p.last_name ?? "");
         setJobTitle(p.job_title ?? "");
-        setBio(p.bio ?? "");
       }
       setLoading(false);
     })();
@@ -82,7 +78,6 @@ function ProfilePage() {
         first_name: firstName.trim(),
         last_name: lastName.trim() || null,
         job_title: jobTitle.trim() || null,
-        bio: bio.trim() || null,
       })
       .eq("id", profile.id);
     setSaving(false);
@@ -155,17 +150,6 @@ function ProfilePage() {
                   onChange={(e) => setJobTitle(e.target.value)}
                   maxLength={120}
                   placeholder="e.g. Designer, Investor, Parent"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="bio">Short bio</Label>
-                <Textarea
-                  id="bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  rows={4}
-                  maxLength={500}
-                  placeholder="Say a little about yourself…"
                 />
               </div>
               <div className="flex items-center justify-between pt-2">
