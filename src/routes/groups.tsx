@@ -328,13 +328,25 @@ function GroupCard({
         "flex min-w-[220px] flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md",
       )}
     >
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-2">
         <span className="text-4xl leading-none">{group.emoji}</span>
-        {group.is_pinned && (
-          <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
-            Pinned
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-1 justify-end">
+          {group.visibility === "private" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <Lock className="h-3 w-3" /> Private
+            </span>
+          )}
+          {group.is_pinned && (
+            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+              Pinned
+            </span>
+          )}
+          {group.category !== "system" && (
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", CIRCLE_TYPE_META[group.circle_type]?.tone ?? "bg-secondary text-secondary-foreground")}>
+              {CIRCLE_TYPE_META[group.circle_type]?.label ?? "Circle"}
+            </span>
+          )}
+        </div>
       </div>
       <h3 className="mt-3 truncate font-medium text-foreground">{group.name}</h3>
       <p className="text-xs text-muted-foreground">
