@@ -40,7 +40,6 @@ import {
 import { cn } from "@/lib/utils";
 import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from "@/components/ResidentNav";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
-import { CircleRecommendations } from "@/components/CircleRecommendations";
 import { ResidentHome } from "@/components/ResidentHome";
 
 export const Route = createFileRoute("/building/$buildingId")({
