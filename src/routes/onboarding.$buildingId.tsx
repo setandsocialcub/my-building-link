@@ -164,7 +164,8 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
       return;
     }
 
-    navigate({ to: "/building/$buildingId", params: { buildingId } });
+    setSubmitting(false);
+    setStep(4);
   };
 
   if (notFound) {
