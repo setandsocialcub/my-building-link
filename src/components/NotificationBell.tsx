@@ -312,8 +312,26 @@ export function NotificationBell({
                 No notifications yet.
               </p>
               <p className="text-xs text-muted-foreground/60 mt-1">
-                Introductions and community updates appear here.
+                {filter === "introductions"
+                  ? "Introduction requests and updates appear here."
+                  : filter === "community"
+                    ? "Community announcements and updates appear here."
+                    : "Introductions and community updates appear here."}
               </p>
+            </div>
+          )}
+
+          {!loading && filter !== "introductions" && introTotal === 0 && notifications.length === 0 && filter === "community" && (
+            <div className="p-8 text-center">
+              <Bell className="h-8 w-8 mx-auto text-muted-foreground/40 mb-3" />
+              <p className="text-sm text-muted-foreground">No community notifications.</p>
+            </div>
+          )}
+
+          {!loading && filter !== "community" && pendingIntros.length === 0 && respondedIntros.length === 0 && filter === "introductions" && (
+            <div className="p-8 text-center">
+              <Handshake className="h-8 w-8 mx-auto text-muted-foreground/40 mb-3" />
+              <p className="text-sm text-muted-foreground">No introduction notifications.</p>
             </div>
           )}
 
