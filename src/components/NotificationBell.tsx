@@ -67,6 +67,7 @@ export function NotificationBell({
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState<"all" | "introductions" | "community">("all");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [pendingIntros, setPendingIntros] = useState<PendingIntro[]>([]);
   const [respondedIntros, setRespondedIntros] = useState<RespondedIntro[]>([]);
@@ -279,6 +280,25 @@ export function NotificationBell({
             </button>
           </div>
 
+          <div className="flex items-center gap-1 px-4 py-2 border-b border-border">
+            {(["all", "introductions", "community"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "text-xs font-medium px-3 py-1 rounded-full transition-colors cursor-pointer",
+                  filter === f
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f === "all" && "All"}
+                {f === "introductions" && "Introductions"}
+                {f === "community" && "Community"}
+              </button>
+            ))}
+          </div>
+
           {loading && (
             <div className="p-8 text-center text-sm text-muted-foreground">
               Loading…
@@ -292,12 +312,16 @@ export function NotificationBell({
                 No notifications yet.
               </p>
               <p className="text-xs text-muted-foreground/60 mt-1">
-                Introductions and community updates appear here.
+                {filter === "introductions"
+                  ? "Introduction requests and updates appear here."
+                  : filter === "community"
+                    ? "Community announcements and updates appear here."
+                    : "Introductions and community updates appear here."}
               </p>
             </div>
           )}
 
-          {!loading && pendingIntros.length > 0 && (
+          {!loading && filter !== "community" && pendingIntros.length > 0 && (
             <div className="px-4 pt-3 pb-1">
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 Introduction Requests
@@ -354,7 +378,7 @@ export function NotificationBell({
             </div>
           )}
 
-          {!loading && respondedIntros.length > 0 && (
+          {!loading && filter !== "community" && respondedIntros.length > 0 && (
             <div
               className={cn(
                 "px-4 pt-3 pb-1",
@@ -430,11 +454,11 @@ export function NotificationBell({
             </div>
           )}
 
-          {!loading && notifications.length > 0 && (
+          {!loading && filter !== "introductions" && notifications.length > 0 && (
             <div
               className={cn(
                 "px-4 pt-3 pb-2",
-                introTotal > 0 && "border-t border-border"
+                filter !== "community" && introTotal > 0 && "border-t border-border"
               )}
             >
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
