@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ResidentNav } from "@/components/ResidentNav";
+import { FeatureGate } from "@/components/FeatureGate";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, ImagePlus, ShoppingBag, X } from "lucide-react";
 import { toast } from "sonner";
@@ -22,7 +23,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/marketplace")({
-  component: MarketplacePage,
+  component: () => (
+    <FeatureGate feature="enable_resident_exchange" featureLabel="Resident Exchange">
+      <MarketplacePage />
+    </FeatureGate>
+  ),
 });
 
 type Listing = {

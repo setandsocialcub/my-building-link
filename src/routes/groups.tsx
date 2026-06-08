@@ -1,4 +1,5 @@
 import { ResidentNav } from "@/components/ResidentNav";
+import { FeatureGate } from "@/components/FeatureGate";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Users } from "lucide-react";
@@ -10,7 +11,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/groups")({
-  component: GroupsPage,
+  component: () => (
+    <FeatureGate feature="enable_circles" featureLabel="Circles">
+      <GroupsPage />
+    </FeatureGate>
+  ),
 });
 
 type GroupRow = {
