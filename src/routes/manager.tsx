@@ -62,21 +62,29 @@ function ClaimCode() {
     // Normalize: uppercase, strip everything except A–Z and 0–9 (drops dashes/spaces).
     const normalized = code.toUpperCase().replace(/[^A-Z0-9]/g, "");
     if (!normalized) return;
+
+    // Early guard: resident invite codes look like XXX-NNN (3 letters + 3 digits)
+    const looksLikeBuildingCode = /^[A-Z]{3}[0-9]{3}$/.test(normalized);
+    if (looksLikeBuildingCode) {
+      setError(
+        "That looks like a resident invite code (e.g. JUK-611). Manager codes start with M (e.g. M93PP5).",
+      );
+      return;
+    }
+
+    // Manager codes must start with M
+    if (!normalized.startsWith("M")) {
+      setError("Manager codes start with M followed by 5 characters (e.g. M93PP5).");
+      return;
+    }
+
     setLoading(true);
     const { data, error: qErr } = await supabase.rpc("claim_manager_code", {
       _code: normalized,
     });
     if (qErr || !data) {
       setLoading(false);
-      // Detect a building invite code (format AAA-NNN, 3 letters + 3 digits) and explain.
-      const looksLikeBuildingCode = /^[A-Z]{3}[0-9]{3}$/.test(normalized);
-      if (looksLikeBuildingCode) {
-        setError(
-          "That looks like a resident invite code (e.g. JUK-611). Manager codes start with M (e.g. M93PP5).",
-        );
-      } else {
-        setError(qErr?.message ?? "Invalid manager code.");
-      }
+      setError(qErr?.message ?? "Invalid manager code.");
       return;
     }
 
