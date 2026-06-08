@@ -15,6 +15,7 @@ export type BuildingSettings = {
   enable_resident_ambassadors: boolean;
   allow_resident_circle_creation: boolean;
   require_circle_approval: boolean;
+  limit_circle_visibility: boolean;
   theme: string;
   community_style: string;
 };
@@ -31,6 +32,7 @@ export const DEFAULT_SETTINGS: Omit<BuildingSettings, "id" | "building_id"> = {
   enable_resident_ambassadors: true,
   allow_resident_circle_creation: true,
   require_circle_approval: false,
+  limit_circle_visibility: false,
   theme: "hospitality",
   community_style: "luxury",
 };
