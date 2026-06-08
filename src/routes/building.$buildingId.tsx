@@ -96,13 +96,6 @@ type Sender = {
   interest_tags: string[];
 };
 
-type Notification = {
-  id: string;
-  message: string;
-  channel_id: string | null;
-  read: boolean;
-  created_at: string;
-};
 
 
 function BuildingHub() {
