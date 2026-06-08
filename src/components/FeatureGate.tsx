@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
