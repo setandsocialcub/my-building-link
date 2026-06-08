@@ -24,7 +24,6 @@ export function FeatureGate({
 }) {
   const [buildingId, setBuildingId] = useState<string | null>(null);
   const [resolved, setResolved] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -73,11 +72,6 @@ export function FeatureGate({
         <Button asChild variant="outline">
           <Link to="/building/$buildingId" params={{ buildingId }}>Return home</Link>
         </Button>
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/building/$buildingId", params: { buildingId } })}
-          className="hidden"
-        />
       </div>
     </main>
   );
