@@ -40,6 +40,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from "@/components/ResidentNav";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
+import { CircleRecommendations } from "@/components/CircleRecommendations";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -114,7 +115,7 @@ function BuildingHub() {
   void updatesEnabled;
 
   const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
-  const [me, setMe] = useState<{ id: string; first_name: string } | null>(null);
+  const [me, setMe] = useState<{ id: string; first_name: string; user_id: string; interest_tags: string[] } | null>(null);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -130,7 +131,7 @@ function BuildingHub() {
       }
       const { data } = await supabase
         .from("resident_profiles")
-        .select("id, first_name")
+        .select("id, first_name, interest_tags")
         .eq("user_id", user.id)
         .eq("building_id", buildingId)
         .maybeSingle();
@@ -138,7 +139,7 @@ function BuildingHub() {
         navigate({ to: "/onboarding/$buildingId", params: { buildingId } });
         return;
       }
-      setMe(data);
+      setMe({ ...data, user_id: user.id, interest_tags: (data.interest_tags ?? []) as string[] });
     })();
   }, [buildingId, navigate]);
 
@@ -393,7 +394,14 @@ function BuildingHub() {
         </aside>
 
         {/* Main */}
-        <main className="min-h-[60vh]">
+        <main className="min-h-[60vh] space-y-6">
+          {!selectedChannelId && me && isFeatureEnabled(settings, "enable_circles") && (
+            <CircleRecommendations
+              buildingId={buildingId}
+              interests={me.interest_tags ?? []}
+              userId={me.user_id}
+            />
+          )}
           {selectedChannelId === "__announcements__" ? (
             <AnnouncementsFeed buildingId={buildingId} />
           ) : selectedChannelId && me ? (
@@ -437,7 +445,7 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
       <Users className="h-8 w-8 mx-auto text-muted-foreground" />
       <h2 className="mt-4 text-lg font-semibold">Welcome to the Community Hub</h2>
       <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-        Pick a group on the left, or start a new interest group to summon neighbors who share it.
+        Pick a circle on the left, or start a new one to summon neighbors who share your interests.
       </p>
       <div className="mt-5">
         <Button onClick={onCreate}>

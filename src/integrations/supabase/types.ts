@@ -98,6 +98,7 @@ export type Database = {
           enable_resident_ambassadors: boolean
           enable_resident_exchange: boolean
           id: string
+          limit_circle_visibility: boolean
           require_circle_approval: boolean
           theme: string
           updated_at: string
@@ -117,6 +118,7 @@ export type Database = {
           enable_resident_ambassadors?: boolean
           enable_resident_exchange?: boolean
           id?: string
+          limit_circle_visibility?: boolean
           require_circle_approval?: boolean
           theme?: string
           updated_at?: string
@@ -136,6 +138,7 @@ export type Database = {
           enable_resident_ambassadors?: boolean
           enable_resident_exchange?: boolean
           id?: string
+          limit_circle_visibility?: boolean
           require_circle_approval?: boolean
           theme?: string
           updated_at?: string
@@ -305,6 +308,38 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circle_invites: {
+        Row: {
+          circle_id: string
+          created_at: string
+          id: string
+          invited_by: string | null
+          invited_user_id: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          invited_user_id: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          invited_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_invites_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
@@ -603,8 +638,10 @@ export type Database = {
         Row: {
           building_id: string
           category: string
+          circle_type: string
           created_at: string
           created_by: string | null
+          description: string | null
           emoji: string
           id: string
           interest_tag: string | null
@@ -613,12 +650,15 @@ export type Database = {
           member_count: number
           name: string
           updated_at: string
+          visibility: string
         }
         Insert: {
           building_id: string
           category: string
+          circle_type?: string
           created_at?: string
           created_by?: string | null
+          description?: string | null
           emoji?: string
           id?: string
           interest_tag?: string | null
@@ -627,12 +667,15 @@ export type Database = {
           member_count?: number
           name: string
           updated_at?: string
+          visibility?: string
         }
         Update: {
           building_id?: string
           category?: string
+          circle_type?: string
           created_at?: string
           created_by?: string | null
+          description?: string | null
           emoji?: string
           id?: string
           interest_tag?: string | null
@@ -641,6 +684,7 @@ export type Database = {
           member_count?: number
           name?: string
           updated_at?: string
+          visibility?: string
         }
         Relationships: [
           {

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { AuthGate } from "@/components/AuthGate";
+import { CircleRecommendations } from "@/components/CircleRecommendations";
 
 export const Route = createFileRoute("/onboarding/$buildingId")({
   component: OnboardingRoute,
@@ -44,7 +45,7 @@ const INTEREST_CATEGORIES = {
 
 const ALL_INTEREST_TAGS = Object.values(INTEREST_CATEGORIES).flat();
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 function OnboardingRoute() {
   const { buildingId } = Route.useParams();
@@ -163,7 +164,8 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
       return;
     }
 
-    navigate({ to: "/building/$buildingId", params: { buildingId } });
+    setSubmitting(false);
+    setStep(4);
   };
 
   if (notFound) {
@@ -213,7 +215,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mt-8 mb-6">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4].map((n) => (
             <div
               key={n}
               className={cn(
@@ -223,7 +225,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
             />
           ))}
         </div>
-        <p className="text-xs text-muted-foreground mb-4">Step {step} of 3</p>
+        <p className="text-xs text-muted-foreground mb-4">Step {step} of 4</p>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
           {step === 1 && (
@@ -349,9 +351,36 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
                     </>
                   ) : (
                     <>
-                      <Sparkles /> Finish & enter hub
+                      <ArrowRight /> Continue
                     </>
                   )}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold">Discover your circles</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Hand-picked from the interests you just chose. Join now or skip and explore later.
+                </p>
+              </div>
+              <CircleRecommendations
+                buildingId={buildingId}
+                interests={interests}
+                userId={user.id}
+                limit={6}
+                title="Circles you may love"
+                subtitle="Tap Join to be added instantly."
+              />
+              <div className="flex justify-between pt-2">
+                <Link to="/groups" className="text-sm text-muted-foreground hover:text-foreground self-center">
+                  Browse all circles
+                </Link>
+                <Button onClick={() => navigate({ to: "/building/$buildingId", params: { buildingId } })}>
+                  <Sparkles /> Enter hub
                 </Button>
               </div>
             </div>

@@ -95,6 +95,7 @@ const GOVERNANCE_TOGGLES: Array<{
 }> = [
   { key: "allow_resident_circle_creation", label: "Allow Residents to Create Circles", description: "Otherwise only managers can create new circles." },
   { key: "require_circle_approval", label: "Require Approval for New Circles", description: "Manager must approve resident-created circles." },
+  { key: "limit_circle_visibility", label: "Limit Circle Visibility", description: "Block residents from creating private (invite-only) circles." },
 ];
 
 function SettingsPage() {
