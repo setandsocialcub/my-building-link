@@ -1,0 +1,1 @@
+ALTER TABLE public.property_managers ALTER COLUMN manager_code DROP NOT NULL;
