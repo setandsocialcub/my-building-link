@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ResidentNav } from "@/components/ResidentNav";
+import { ResidentPageShell } from "@/components/ResidentPageShell";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, ChevronDown, ChevronUp, Loader2, Plus } from "lucide-react";
@@ -249,7 +249,8 @@ function EventsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <ResidentPageShell title="Experiences" subtitle="Gatherings in your residence">
+      <div className="mx-auto max-w-3xl">
       <header className="mb-6 flex items-center justify-between gap-3">
         <div>
           <h1 className="font-serif text-4xl tracking-tight text-foreground">
@@ -470,8 +471,8 @@ function EventsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <ResidentNav />
-    </div>
+      </div>
+    </ResidentPageShell>
   );
 }
 
