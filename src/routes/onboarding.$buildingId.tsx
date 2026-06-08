@@ -215,7 +215,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mt-8 mb-6">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4].map((n) => (
             <div
               key={n}
               className={cn(
@@ -225,7 +225,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
             />
           ))}
         </div>
-        <p className="text-xs text-muted-foreground mb-4">Step {step} of 3</p>
+        <p className="text-xs text-muted-foreground mb-4">Step {step} of 4</p>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
           {step === 1 && (
