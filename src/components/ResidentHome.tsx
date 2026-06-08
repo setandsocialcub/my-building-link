@@ -233,6 +233,7 @@ export function ResidentHome({
         else if (sc > 0)
           reason = `You belong to ${sc} of the same Circle${sc === 1 ? "" : "s"}.`;
         else if (isNew) reason = "Recently joined the community.";
+        const meta = introMetaByProfile.get(r.id);
         return {
           id: r.id,
           user_id: r.user_id,
@@ -244,7 +245,9 @@ export function ResidentHome({
           sharedCircles: sc,
           reason,
           isNew,
-          introStatus: introStatusByProfile.get(r.id) ?? null,
+          introStatus: meta?.status ?? null,
+          introId: meta?.id,
+          iAmRequester: meta?.iAmRequester,
         };
       });
       setRecommended(top);
