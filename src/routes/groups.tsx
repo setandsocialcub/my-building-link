@@ -2,12 +2,20 @@ import { ResidentNav } from "@/components/ResidentNav";
 import { FeatureGate } from "@/components/FeatureGate";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Users } from "lucide-react";
+import { Loader2, Users, Plus, Lock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useBuildingSettings } from "@/hooks/use-building-settings";
+import { CIRCLE_CATEGORIES, CIRCLE_TYPE_META, categoryLabel } from "@/lib/circle-categories";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/groups")({
