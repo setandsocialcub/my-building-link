@@ -7,8 +7,6 @@ import {
   Plus,
   Send,
   Users,
-  Bell,
-  X,
   Megaphone,
   Flag,
   Pin,
@@ -41,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from "@/components/ResidentNav";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
 import { ResidentHome } from "@/components/ResidentHome";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
