@@ -52,19 +52,18 @@ export function CircleRecommendations({
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: gs }, { data: mems }] = await Promise.all([
-        supabase
-          .from("groups")
-          .select("id, name, emoji, category, interest_tag, member_count, visibility, circle_type")
-          .eq("building_id", buildingId)
-          .eq("visibility", "public"),
-        userId
-          ? supabase.from("group_members").select("group_id").eq("user_id", userId)
-          : Promise.resolve({ data: [] as { group_id: string }[] }),
-      ]);
+      const gsRes = await supabase
+        .from("groups")
+        .select("id, name, emoji, category, interest_tag, member_count, visibility, circle_type")
+        .eq("building_id", buildingId)
+        .eq("visibility", "public");
+      const memsRes = userId
+        ? await supabase.from("group_members").select("group_id").eq("user_id", userId)
+        : { data: [] as { group_id: string }[] };
       if (cancelled) return;
-      setCircles((gs as Circle[]) ?? []);
-      setJoined(new Set(((mems as { data: { group_id: string }[] | null })?.data ?? mems?.data ?? []).map?.((m: { group_id: string }) => m.group_id) ?? []));
+      setCircles((gsRes.data as Circle[] | null) ?? []);
+      const memRows = (memsRes.data ?? []) as { group_id: string }[];
+      setJoined(new Set(memRows.map((m) => m.group_id)));
       setLoading(false);
     })();
     return () => {
