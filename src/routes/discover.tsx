@@ -378,7 +378,7 @@ function DiscoverPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8 space-y-10">
+      <main className="mx-auto max-w-5xl py-8 space-y-10">
         {/* Concierge recommendations */}
         {recommended.length > 0 && (
           <section>
@@ -517,10 +517,9 @@ function DiscoverPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-
-      <ResidentNav />
-    </div>
+        </Dialog>
+      </div>
+    </ResidentPageShell>
   );
 }
 
