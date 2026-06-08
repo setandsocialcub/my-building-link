@@ -1,4 +1,4 @@
-import { ResidentNav } from "@/components/ResidentNav";
+import { ResidentPageShell } from "@/components/ResidentPageShell";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Users, Search, Sparkles, Send, CalendarCheck, UsersRound } from "lucide-react";
@@ -346,16 +346,19 @@ function DiscoverPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
+      <ResidentPageShell title="Community Match">
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </ResidentPageShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+    <ResidentPageShell title="Community Match" subtitle="Concierge introductions">
+      <div>
+        <header className="border-b border-border bg-card/50 -mx-4 px-4 md:-mx-6 md:px-6">
+          <div className="mx-auto flex max-w-5xl items-center justify-between py-5">
           <div>
             <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.18em] text-accent">
               Concierge Introductions
