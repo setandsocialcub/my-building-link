@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ResidentNav } from "@/components/ResidentNav";
+import { ResidentPageShell } from "@/components/ResidentPageShell";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
@@ -248,7 +248,8 @@ function MessagesInboxPage() {
   const hasThreads = useMemo(() => threads.length > 0, [threads]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <ResidentPageShell title="Conversations" subtitle="Private notes with neighbors">
+      <div className="mx-auto max-w-2xl">
       <header className="mb-8">
         <h1 className="font-serif text-4xl tracking-tight text-foreground">
           Conversations
@@ -335,7 +336,7 @@ function MessagesInboxPage() {
           })}
         </ul>
       )}
-      <ResidentNav />
-    </div>
+      </div>
+    </ResidentPageShell>
   );
 }

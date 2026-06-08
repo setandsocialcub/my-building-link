@@ -1,4 +1,4 @@
-import { ResidentNav } from "@/components/ResidentNav";
+import { ResidentPageShell } from "@/components/ResidentPageShell";
 import { FeatureGate } from "@/components/FeatureGate";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
@@ -159,16 +159,19 @@ function GroupsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
+      <ResidentPageShell title="Circles">
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </ResidentPageShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+    <ResidentPageShell title="Circles" subtitle="Curated company, just down the hall">
+      <div>
+        <header className="border-b border-border bg-card/50 -mx-4 px-4 md:-mx-6 md:px-6">
+          <div className="mx-auto flex max-w-5xl items-center justify-between py-5">
           <div>
             <h1 className="font-serif text-4xl text-foreground">
               Circles
@@ -196,85 +199,85 @@ function GroupsPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl space-y-12 px-6 py-8">
-        {/* Section 1 — You're In */}
-        <section>
-          <h2 className="mb-4 font-serif text-2xl text-foreground">Your Circles</h2>
-          <div className="-mx-6 flex gap-3 overflow-x-auto px-6 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
-            {joinedGroups.map((g) => (
-              <GroupCard key={g.id} group={g} joined variant="open" />
-            ))}
-          </div>
-        </section>
-
-        {/* Section 2 — Suggestions */}
-        {suggestions.length > 0 && (
+        <main className="mx-auto max-w-5xl space-y-12 py-8">
+          {/* Section 1 — You're In */}
           <section>
-            <h2 className="mb-1 font-serif text-2xl text-foreground">Selected for You</h2>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Hand-picked from the interests on your profile.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {suggestions.map((g) => (
-                <GroupCard
-                  key={g.id}
-                  group={g}
-                  joined={false}
-                  variant="join"
-                  busy={busyId === g.id}
-                  onJoin={() => handleJoin(g)}
-                />
+            <h2 className="mb-4 font-serif text-2xl text-foreground">Your Circles</h2>
+            <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+              {joinedGroups.map((g) => (
+                <GroupCard key={g.id} group={g} joined variant="open" />
               ))}
             </div>
           </section>
-        )}
 
-        {/* Section 3 — All Circles */}
-        <section>
-          <h2 className="mb-4 font-serif text-2xl text-foreground">All Circles</h2>
-          <Tabs defaultValue="sport" className="w-full">
-            <TabsList>
-              <TabsTrigger value="sport">Sport & Activity</TabsTrigger>
-              <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
-              <TabsTrigger value="resident">Resident-Created</TabsTrigger>
-            </TabsList>
-            <TabsContent value="sport" className="mt-6">
-              <GroupGrid
-                groups={sportGroups}
-                joinedIds={joinedIds}
-                busyId={busyId}
-                onJoin={handleJoin}
-              />
-            </TabsContent>
-            <TabsContent value="lifestyle" className="mt-6">
-              <GroupGrid
-                groups={lifestyleGroups}
-                joinedIds={joinedIds}
-                busyId={busyId}
-                onJoin={handleJoin}
-              />
-            </TabsContent>
-            <TabsContent value="resident" className="mt-6">
-              {residentGroups.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    No resident-created groups yet. Be the first to start one.
-                  </p>
-                </div>
-              ) : (
+          {/* Section 2 — Suggestions */}
+          {suggestions.length > 0 && (
+            <section>
+              <h2 className="mb-1 font-serif text-2xl text-foreground">Selected for You</h2>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Hand-picked from the interests on your profile.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {suggestions.map((g) => (
+                  <GroupCard
+                    key={g.id}
+                    group={g}
+                    joined={false}
+                    variant="join"
+                    busy={busyId === g.id}
+                    onJoin={() => handleJoin(g)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Section 3 — All Circles */}
+          <section>
+            <h2 className="mb-4 font-serif text-2xl text-foreground">All Circles</h2>
+            <Tabs defaultValue="sport" className="w-full">
+              <TabsList>
+                <TabsTrigger value="sport">Sport & Activity</TabsTrigger>
+                <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
+                <TabsTrigger value="resident">Resident-Created</TabsTrigger>
+              </TabsList>
+              <TabsContent value="sport" className="mt-6">
                 <GroupGrid
-                  groups={residentGroups}
+                  groups={sportGroups}
                   joinedIds={joinedIds}
                   busyId={busyId}
                   onJoin={handleJoin}
                 />
-              )}
-            </TabsContent>
-          </Tabs>
-        </section>
-      </main>
-    <ResidentNav />
-    </div>
+              </TabsContent>
+              <TabsContent value="lifestyle" className="mt-6">
+                <GroupGrid
+                  groups={lifestyleGroups}
+                  joinedIds={joinedIds}
+                  busyId={busyId}
+                  onJoin={handleJoin}
+                />
+              </TabsContent>
+              <TabsContent value="resident" className="mt-6">
+                {residentGroups.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No resident-created groups yet. Be the first to start one.
+                    </p>
+                  </div>
+                ) : (
+                  <GroupGrid
+                    groups={residentGroups}
+                    joinedIds={joinedIds}
+                    busyId={busyId}
+                    onJoin={handleJoin}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
+          </section>
+        </main>
+      </div>
+    </ResidentPageShell>
   );
 }
 

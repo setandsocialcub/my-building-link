@@ -110,34 +110,40 @@ function Dot({ n }: { n: number }) {
   );
 }
 
+type NavItem = {
+  to: string;
+  label: string;
+  icon: string;
+  badge?: number;
+  feature?: Parameters<typeof isFeatureEnabled>[1];
+  // For dynamic routes that need params
+  params?: Record<string, string>;
+};
+
 export function ResidentSidebarLinks() {
   const { buildingId, counts } = useResidentNavContext();
   const { settings } = useBuildingSettings(buildingId);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  type Item = {
-    to: string;
-    label: string;
-    icon: string;
-    badge?: number;
-    external?: boolean;
-    feature?: Parameters<typeof isFeatureEnabled>[1];
-  };
-
-  const all: Item[] = [
+  const all: NavItem[] = [
     { to: "/announcements", label: "Community Updates", icon: "📢", badge: counts.announcementsUnread },
     { to: "/marketplace", label: "Resident Exchange", icon: "🛒", feature: "enable_resident_exchange" },
     { to: "/groups", label: "Circles", icon: "👥", badge: counts.groupUnread, feature: "enable_circles" },
     { to: "/discover", label: "Community Match", icon: "🧭", feature: "enable_ai_matching" },
     { to: "/events", label: "Experiences", icon: "📅", feature: "enable_experiences" },
     { to: "/messages", label: "Conversations", icon: "✉️", badge: counts.dmUnread, feature: "enable_conversations" },
-    { to: "/profile", label: "Profile", icon: "👤", external: true },
+    { to: "/profile", label: "Profile", icon: "👤" },
   ];
 
   const items = all.filter((it) => !it.feature || isFeatureEnabled(settings, it.feature));
 
   if (buildingId) {
-    items.unshift({ to: `/building/${buildingId}`, label: "Home", icon: "🏠", external: true });
+    items.unshift({
+      to: "/building/$buildingId",
+      label: "Home",
+      icon: "🏠",
+      params: { buildingId },
+    });
   }
 
   return (
@@ -147,7 +153,10 @@ export function ResidentSidebarLinks() {
       </h2>
       <ul className="space-y-1">
         {items.map((it) => {
-          const active = pathname === it.to;
+          const resolvedHref = it.params
+            ? it.to.replace(/\$(\w+)/g, (_, k) => it.params![k] ?? "")
+            : it.to;
+          const active = pathname === resolvedHref;
           const className = cn(
             "flex items-center gap-2 rounded-md px-2.5 py-2 text-sm transition-colors",
             active
@@ -162,16 +171,11 @@ export function ResidentSidebarLinks() {
             </>
           );
           return (
-            <li key={it.to}>
-              {it.external ? (
-                <a href={it.to} className={className}>
-                  {content}
-                </a>
-              ) : (
-                <Link to={it.to} className={className}>
-                  {content}
-                </Link>
-              )}
+            <li key={resolvedHref}>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              <Link to={it.to as any} params={it.params as never} className={className}>
+                {content}
+              </Link>
             </li>
           );
         })}
@@ -185,47 +189,58 @@ export function ResidentBottomNav() {
   const { settings } = useBuildingSettings(buildingId);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const allTabs = [
+  type Tab = {
+    to: string;
+    params?: Record<string, string>;
+    label: string;
+    Icon: typeof Home;
+    badge?: number;
+    active: boolean;
+    feature?: Parameters<typeof isFeatureEnabled>[1];
+  };
+
+  const allTabs: Tab[] = [
     {
-      href: buildingId ? `/building/${buildingId}` : "/",
+      to: buildingId ? "/building/$buildingId" : "/",
+      params: buildingId ? { buildingId } : undefined,
       label: "Home",
       Icon: Home,
       active: pathname.startsWith("/building/"),
     },
     {
-      href: "/groups",
+      to: "/groups",
       label: "Circles",
       Icon: Users,
       badge: counts.groupUnread,
       active: pathname === "/groups",
-      feature: "enable_circles" as const,
+      feature: "enable_circles",
     },
     {
-      href: "/discover",
+      to: "/discover",
       label: "Match",
       Icon: Compass,
       active: pathname === "/discover",
-      feature: "enable_ai_matching" as const,
+      feature: "enable_ai_matching",
     },
     {
-      href: "/events",
+      to: "/events",
       label: "Experiences",
       Icon: Calendar,
       active: pathname === "/events",
-      feature: "enable_experiences" as const,
+      feature: "enable_experiences",
     },
     {
-      href: "/messages",
+      to: "/messages",
       label: "Conversations",
       Icon: Mail,
       badge: counts.dmUnread,
       active: pathname.startsWith("/messages"),
-      feature: "enable_conversations" as const,
+      feature: "enable_conversations",
     },
   ];
 
   const tabs = allTabs.filter(
-    (t) => !("feature" in t) || !t.feature || isFeatureEnabled(settings, t.feature),
+    (t) => !t.feature || isFeatureEnabled(settings, t.feature),
   );
 
   return (
@@ -236,8 +251,10 @@ export function ResidentBottomNav() {
       <ul className="mx-auto flex max-w-md items-stretch justify-between px-2">
         {tabs.map((t) => (
           <li key={t.label} className="flex-1">
-            <a
-              href={t.href}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <Link
+              to={t.to as any}
+              params={t.params as never}
               className={cn(
                 "relative flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium",
                 t.active ? "text-primary" : "text-muted-foreground",
@@ -248,13 +265,14 @@ export function ResidentBottomNav() {
                 <Dot n={t.badge ?? 0} />
               </span>
               {t.label}
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
     </nav>
   );
 }
+
 
 // Spacer to prevent fixed bottom nav from covering page content on mobile.
 export function ResidentBottomNavSpacer() {
