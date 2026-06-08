@@ -336,7 +336,7 @@ function MessagesInboxPage() {
           })}
         </ul>
       )}
-      <ResidentNav />
-    </div>
+      </div>
+    </ResidentPageShell>
   );
 }
