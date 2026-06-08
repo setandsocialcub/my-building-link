@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
 import { cn } from "@/lib/utils";
 
 type Counts = {
