@@ -61,7 +61,7 @@ export function useBuildingSettings(buildingId: string | null | undefined) {
     })();
 
     const channel = supabase
-      .channel(`building-settings-${buildingId}`)
+      .channel(`building-settings-${buildingId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "building_settings", filter: `building_id=eq.${buildingId}` },
