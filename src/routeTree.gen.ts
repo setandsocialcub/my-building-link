@@ -25,6 +25,7 @@ import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PulseBuildingIdRouteImport } from './routes/pulse.$buildingId'
 import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$buildingId'
 import { Route as MessagesConnectionIdRouteImport } from './routes/messages.$connectionId'
 import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
@@ -112,6 +113,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PulseBuildingIdRoute = PulseBuildingIdRouteImport.update({
+  id: '/pulse/$buildingId',
+  path: '/pulse/$buildingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingBuildingIdRoute = OnboardingBuildingIdRouteImport.update({
   id: '/onboarding/$buildingId',
   path: '/onboarding/$buildingId',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
+  '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
 }
 export interface FileRoutesByTo {
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
+  '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
 }
 export interface FileRoutesById {
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
+  '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
 }
 export interface FileRouteTypes {
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId'
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
+    | '/pulse/$buildingId'
     | '/admin/buildings/$buildingId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId'
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
+    | '/pulse/$buildingId'
     | '/admin/buildings/$buildingId/settings'
   id:
     | '__root__'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId'
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
+    | '/pulse/$buildingId'
     | '/admin/buildings/$buildingId/settings'
   fileRoutesById: FileRoutesById
 }
@@ -311,6 +323,7 @@ export interface RootRouteChildren {
   SuperAdminLoginRoute: typeof SuperAdminLoginRoute
   BuildingBuildingIdRoute: typeof BuildingBuildingIdRoute
   OnboardingBuildingIdRoute: typeof OnboardingBuildingIdRoute
+  PulseBuildingIdRoute: typeof PulseBuildingIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -427,6 +440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pulse/$buildingId': {
+      id: '/pulse/$buildingId'
+      path: '/pulse/$buildingId'
+      fullPath: '/pulse/$buildingId'
+      preLoaderRoute: typeof PulseBuildingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding/$buildingId': {
       id: '/onboarding/$buildingId'
       path: '/onboarding/$buildingId'
@@ -534,6 +554,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperAdminLoginRoute: SuperAdminLoginRoute,
   BuildingBuildingIdRoute: BuildingBuildingIdRoute,
   OnboardingBuildingIdRoute: OnboardingBuildingIdRoute,
+  PulseBuildingIdRoute: PulseBuildingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
