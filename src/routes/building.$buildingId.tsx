@@ -349,42 +349,46 @@ function BuildingHub() {
             </Link>
           </div>
 
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Circles
-            </h2>
-            <Button size="sm" variant="ghost" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4" /> New Circle
-            </Button>
-          </div>
-          {channels.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No circles yet. Start the first one and invite your neighbors.
-            </p>
-          ) : (
-            <ul className="space-y-1">
-              {channels.map((c) => {
-                const active = c.id === selectedChannelId;
-                return (
-                  <li key={c.id}>
-                    <Link
-                      to="/building/$buildingId"
-                      params={{ buildingId }}
-                      search={{ c: c.id }}
-                      className={cn(
-                        "flex items-center gap-2 rounded-md px-2.5 py-2 text-sm transition-colors",
-                        active
-                          ? "bg-primary/10 text-primary font-medium"
-                          : "hover:bg-muted text-foreground",
-                      )}
-                    >
-                      <Users className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{c.name}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+          {circlesEnabled && (
+            <>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Circles
+                </h2>
+                <Button size="sm" variant="ghost" onClick={() => setShowCreate(true)}>
+                  <Plus className="h-4 w-4" /> New Circle
+                </Button>
+              </div>
+              {channels.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No circles yet. Start the first one and invite your neighbors.
+                </p>
+              ) : (
+                <ul className="space-y-1">
+                  {channels.map((c) => {
+                    const active = c.id === selectedChannelId;
+                    return (
+                      <li key={c.id}>
+                        <Link
+                          to="/building/$buildingId"
+                          params={{ buildingId }}
+                          search={{ c: c.id }}
+                          className={cn(
+                            "flex items-center gap-2 rounded-md px-2.5 py-2 text-sm transition-colors",
+                            active
+                              ? "bg-primary/10 text-primary font-medium"
+                              : "hover:bg-muted text-foreground",
+                          )}
+                        >
+                          <Users className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">{c.name}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </>
           )}
         </aside>
 
