@@ -1,4 +1,4 @@
-import { ResidentNav } from "@/components/ResidentNav";
+import { ResidentPageShell } from "@/components/ResidentPageShell";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Bell, Loader2 } from "lucide-react";
@@ -103,82 +103,75 @@ function AnnouncementsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, rows]);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-6 py-5">
-          <div className="grid h-10 w-10 place-content-center rounded-xl bg-primary/10 text-primary">
-            <Bell className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="font-serif text-4xl text-foreground">
-              Community Updates
-            </h1>
-            <p className="text-sm text-muted-foreground">News from your residence team.</p>
-          </div>
+    <ResidentPageShell title="Community Updates" subtitle="News from your residence team">
+      {loading ? (
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
-      </header>
-
-      <main className="mx-auto max-w-3xl px-6 py-8">
-        {rows.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
-            <p className="text-sm text-muted-foreground">
-              No announcements yet. Check back soon.
-            </p>
+      ) : (
+        <div className="max-w-3xl">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="grid h-10 w-10 place-content-center rounded-xl bg-primary/10 text-primary">
+              <Bell className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="font-serif text-3xl text-foreground">Community Updates</h1>
+              <p className="text-sm text-muted-foreground">News from your residence team.</p>
+            </div>
           </div>
-        ) : (
-          <ul className="space-y-4">
-            {rows.map((a) => {
-              const unread = !readIds.has(a.id);
-              return (
-                <li
-                  key={a.id}
-                  data-announcement
-                  data-id={a.id}
-                  className="relative rounded-2xl border border-border bg-card p-5 shadow-sm"
-                >
-                  {unread && (
-                    <span
-                      aria-label="Unread"
-                      className="absolute left-0 top-6 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-primary ring-4 ring-background"
-                    />
-                  )}
-                  <div className="flex items-start gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-content-center rounded-xl bg-secondary text-lg">
-                      🏠
+
+          {rows.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
+              <p className="text-sm text-muted-foreground">
+                No announcements yet. Check back soon.
+              </p>
+            </div>
+          ) : (
+            <ul className="space-y-4">
+              {rows.map((a) => {
+                const unread = !readIds.has(a.id);
+                return (
+                  <li
+                    key={a.id}
+                    data-announcement
+                    data-id={a.id}
+                    className="relative rounded-2xl border border-border bg-card p-5 shadow-sm"
+                  >
+                    {unread && (
+                      <span
+                        aria-label="Unread"
+                        className="absolute left-0 top-6 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-primary ring-4 ring-background"
+                      />
+                    )}
+                    <div className="flex items-start gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-content-center rounded-xl bg-secondary text-lg">
+                        🏠
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Building Management
+                        </p>
+                        {a.title && (
+                          <h2 className="mt-0.5 text-lg font-semibold text-foreground">
+                            {a.title}
+                          </h2>
+                        )}
+                        <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
+                          {a.body}
+                        </p>
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          {format(new Date(a.created_at), "EEEE, MMMM d")}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Building Management
-                      </p>
-                      {a.title && (
-                        <h2 className="mt-0.5 text-lg font-semibold text-foreground">
-                          {a.title}
-                        </h2>
-                      )}
-                      <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">
-                        {a.body}
-                      </p>
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        {format(new Date(a.created_at), "EEEE, MMMM d")}
-                      </p>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </main>
-    <ResidentNav />
-    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </ResidentPageShell>
   );
 }
