@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from "@/components/ResidentNav";
+import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -107,6 +108,10 @@ function BuildingHub() {
   const { buildingId } = Route.useParams();
   const { c: selectedChannelId } = useSearch({ from: Route.id });
   const navigate = useNavigate({ from: Route.fullPath });
+  const { settings } = useBuildingSettings(buildingId);
+  const circlesEnabled = isFeatureEnabled(settings, "enable_circles");
+  const updatesEnabled = isFeatureEnabled(settings, "enable_community_board") || true; // announcements always visible
+  void updatesEnabled;
 
   const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
   const [me, setMe] = useState<{ id: string; first_name: string } | null>(null);
