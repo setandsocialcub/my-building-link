@@ -105,6 +105,7 @@ type Notification = {
   created_at: string;
 };
 
+
 function BuildingHub() {
   const { buildingId } = Route.useParams();
   const { c: selectedChannelId } = useSearch({ from: Route.id });
