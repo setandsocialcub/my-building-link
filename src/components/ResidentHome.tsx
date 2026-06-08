@@ -200,12 +200,19 @@ export function ResidentHome({
       }
 
       const myInterests = (me.interest_tags ?? []).map((t) => t.toLowerCase());
-      const introStatusByProfile = new Map<string, "pending" | "accepted">();
+      const introMetaByProfile = new Map<
+        string,
+        { status: "pending" | "accepted" | "declined" | "expired"; id: string; iAmRequester: boolean }
+      >();
       for (const it of myIntros) {
         const other = it.requester_id === me.id ? it.recipient_id : it.requester_id;
-        if (it.status === "accepted") introStatusByProfile.set(other, "accepted");
-        else if (it.status === "pending" && !introStatusByProfile.has(other))
-          introStatusByProfile.set(other, "pending");
+        const status = it.status as "pending" | "accepted" | "declined" | "expired";
+        const iAmRequester = it.requester_id === me.id;
+        if (status === "accepted") {
+          introMetaByProfile.set(other, { status, id: it.id, iAmRequester });
+        } else if (!introMetaByProfile.has(other)) {
+          introMetaByProfile.set(other, { status, id: it.id, iAmRequester });
+        }
       }
 
       const scored = residents.map((r) => {
