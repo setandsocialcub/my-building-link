@@ -629,10 +629,12 @@ function RecommendationGrid({
 function ResidentCard({
   r,
   onRequestIntro,
+  onRespondIntro,
   inflight,
 }: {
   r: RecommendedResident;
   onRequestIntro: () => void;
+  onRespondIntro: (introId: string, next: "accepted" | "declined") => void;
   inflight: boolean;
 }) {
   const initials = `${r.first_name?.[0] ?? ""}${r.last_name?.[0] ?? ""}`.toUpperCase() || "·";
@@ -694,9 +696,33 @@ function ResidentCard({
                 <MessageCircle className="h-3.5 w-3.5" /> Open conversation
               </Link>
             </Button>
+          ) : r.introStatus === "pending" && !r.iAmRequester ? (
+            <div className="flex flex-1 gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                disabled={inflight}
+                onClick={() => r.introId && onRespondIntro(r.introId, "declined")}
+              >
+                Decline
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 gap-1.5"
+                disabled={inflight}
+                onClick={() => r.introId && onRespondIntro(r.introId, "accepted")}
+              >
+                <HeartHandshake className="h-3.5 w-3.5" /> Accept
+              </Button>
+            </div>
           ) : r.introStatus === "pending" ? (
             <Button size="sm" variant="secondary" disabled className="flex-1 gap-1.5">
               <Check className="h-3.5 w-3.5" /> Awaiting reply
+            </Button>
+          ) : r.introStatus === "declined" || r.introStatus === "expired" ? (
+            <Button size="sm" variant="ghost" disabled className="flex-1 gap-1.5">
+              <Lock className="h-3.5 w-3.5" /> Introduction closed
             </Button>
           ) : (
             <Button
