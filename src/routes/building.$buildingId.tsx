@@ -393,7 +393,14 @@ function BuildingHub() {
         </aside>
 
         {/* Main */}
-        <main className="min-h-[60vh]">
+        <main className="min-h-[60vh] space-y-6">
+          {!selectedChannelId && me && isFeatureEnabled(settings, "enable_circles") && (
+            <CircleRecommendations
+              buildingId={buildingId}
+              interests={me.interest_tags ?? []}
+              userId={me.user_id}
+            />
+          )}
           {selectedChannelId === "__announcements__" ? (
             <AnnouncementsFeed buildingId={buildingId} />
           ) : selectedChannelId && me ? (
