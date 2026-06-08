@@ -112,23 +112,29 @@ function Dot({ n }: { n: number }) {
 
 export function ResidentSidebarLinks() {
   const { buildingId, counts } = useResidentNavContext();
+  const { settings } = useBuildingSettings(buildingId);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const items: Array<{
+  type Item = {
     to: string;
     label: string;
     icon: string;
     badge?: number;
     external?: boolean;
-  }> = [
+    feature?: Parameters<typeof isFeatureEnabled>[1];
+  };
+
+  const all: Item[] = [
     { to: "/announcements", label: "Community Updates", icon: "📢", badge: counts.announcementsUnread },
-    { to: "/marketplace", label: "Resident Exchange", icon: "🛒" },
-    { to: "/groups", label: "Circles", icon: "👥", badge: counts.groupUnread },
-    { to: "/discover", label: "Community Match", icon: "🧭" },
-    { to: "/events", label: "Experiences", icon: "📅" },
-    { to: "/messages", label: "Conversations", icon: "✉️", badge: counts.dmUnread },
+    { to: "/marketplace", label: "Resident Exchange", icon: "🛒", feature: "enable_resident_exchange" },
+    { to: "/groups", label: "Circles", icon: "👥", badge: counts.groupUnread, feature: "enable_circles" },
+    { to: "/discover", label: "Community Match", icon: "🧭", feature: "enable_ai_matching" },
+    { to: "/events", label: "Experiences", icon: "📅", feature: "enable_experiences" },
+    { to: "/messages", label: "Conversations", icon: "✉️", badge: counts.dmUnread, feature: "enable_conversations" },
     { to: "/profile", label: "Profile", icon: "👤", external: true },
   ];
+
+  const items = all.filter((it) => !it.feature || isFeatureEnabled(settings, it.feature));
 
   if (buildingId) {
     items.unshift({ to: `/building/${buildingId}`, label: "Home", icon: "🏠", external: true });
@@ -176,9 +182,10 @@ export function ResidentSidebarLinks() {
 
 export function ResidentBottomNav() {
   const { buildingId, counts } = useResidentNavContext();
+  const { settings } = useBuildingSettings(buildingId);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const tabs = [
+  const allTabs = [
     {
       href: buildingId ? `/building/${buildingId}` : "/",
       label: "Home",
@@ -191,18 +198,21 @@ export function ResidentBottomNav() {
       Icon: Users,
       badge: counts.groupUnread,
       active: pathname === "/groups",
+      feature: "enable_circles" as const,
     },
     {
       href: "/discover",
       label: "Match",
       Icon: Compass,
       active: pathname === "/discover",
+      feature: "enable_ai_matching" as const,
     },
     {
       href: "/events",
       label: "Experiences",
       Icon: Calendar,
       active: pathname === "/events",
+      feature: "enable_experiences" as const,
     },
     {
       href: "/messages",
@@ -210,8 +220,13 @@ export function ResidentBottomNav() {
       Icon: Mail,
       badge: counts.dmUnread,
       active: pathname.startsWith("/messages"),
+      feature: "enable_conversations" as const,
     },
   ];
+
+  const tabs = allTabs.filter(
+    (t) => !("feature" in t) || !t.feature || isFeatureEnabled(settings, t.feature),
+  );
 
   return (
     <nav
