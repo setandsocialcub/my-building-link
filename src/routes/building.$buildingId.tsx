@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from "@/components/ResidentNav";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
 import { CircleRecommendations } from "@/components/CircleRecommendations";
+import { ResidentHome } from "@/components/ResidentHome";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -395,13 +396,6 @@ function BuildingHub() {
 
         {/* Main */}
         <main className="min-h-[60vh] space-y-6">
-          {!selectedChannelId && me && isFeatureEnabled(settings, "enable_circles") && (
-            <CircleRecommendations
-              buildingId={buildingId}
-              interests={me.interest_tags ?? []}
-              userId={me.user_id}
-            />
-          )}
           {selectedChannelId === "__announcements__" ? (
             <AnnouncementsFeed buildingId={buildingId} />
           ) : selectedChannelId && me ? (
@@ -412,9 +406,13 @@ function BuildingHub() {
               channel={channels.find((c) => c.id === selectedChannelId) ?? null}
               buildingId={buildingId}
             />
-          ) : (
-            <EmptyState onCreate={() => setShowCreate(true)} />
-          )}
+          ) : me ? (
+            <ResidentHome
+              buildingId={buildingId}
+              me={me}
+              buildingName={building?.name}
+            />
+          ) : null}
         </main>
       </div>
 
