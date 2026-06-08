@@ -48,8 +48,8 @@ export function useBuildingSettings(buildingId: string | null | undefined) {
     }
     setLoading(true);
     (async () => {
-      const { data } = await supabase
-        .from("building_settings" as never)
+      const { data } = await (supabase as any)
+        .from("building_settings")
         .select("*")
         .eq("building_id", buildingId)
         .maybeSingle();

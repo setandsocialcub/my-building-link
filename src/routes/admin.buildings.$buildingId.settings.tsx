@@ -110,7 +110,7 @@ function SettingsPage() {
       setLoading(true);
       const [{ data: b }, { data: s }] = await Promise.all([
         supabase.from("buildings").select("name, city").eq("id", buildingId).maybeSingle(),
-        supabase.from("building_settings" as never).select("*").eq("building_id", buildingId).maybeSingle(),
+        (supabase as any).from("building_settings").select("*").eq("building_id", buildingId).maybeSingle(),
       ]);
       if (cancelled) return;
       setBuilding((b as { name: string; city: string } | null) ?? null);
@@ -118,8 +118,8 @@ function SettingsPage() {
         setSettings(s as BuildingSettings);
       } else {
         // Ensure a row exists.
-        const { data: inserted } = await supabase
-          .from("building_settings" as never)
+        const { data: inserted } = await (supabase as any)
+          .from("building_settings")
           .insert({ building_id: buildingId })
           .select("*")
           .maybeSingle();
@@ -142,8 +142,8 @@ function SettingsPage() {
     const { id, building_id, ...rest } = settings;
     void id;
     void building_id;
-    const { error } = await supabase
-      .from("building_settings" as never)
+    const { error } = await (supabase as any)
+      .from("building_settings")
       .update(rest)
       .eq("building_id", buildingId);
     setSaving(false);
