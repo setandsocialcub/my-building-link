@@ -186,7 +186,7 @@ export function NotificationBell({
     return () => {
       void supabase.removeChannel(sub);
     };
-  }, [me.id]);
+  }, [me.id, buildingId, navigate]);
 
   // Close on outside click
   useEffect(() => {
