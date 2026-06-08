@@ -45,7 +45,7 @@ const INTEREST_CATEGORIES = {
 
 const ALL_INTEREST_TAGS = Object.values(INTEREST_CATEGORIES).flat();
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 function OnboardingRoute() {
   const { buildingId } = Route.useParams();
