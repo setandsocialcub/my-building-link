@@ -340,21 +340,21 @@ function BuildingHub() {
             >
               <Pin className="h-3.5 w-3.5 shrink-0" />
               <Megaphone className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">Official Announcements</span>
+              <span className="truncate">Community Updates</span>
             </Link>
           </div>
 
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Interest Groups
+              Circles
             </h2>
             <Button size="sm" variant="ghost" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4" /> New Group
+              <Plus className="h-4 w-4" /> New Circle
             </Button>
           </div>
           {channels.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No groups yet. Start the first one and invite your neighbors.
+              No circles yet. Start the first one and invite your neighbors.
             </p>
           ) : (
             <ul className="space-y-1">
