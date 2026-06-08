@@ -7,8 +7,6 @@ import {
   Plus,
   Send,
   Users,
-  Bell,
-  X,
   Megaphone,
   Flag,
   Pin,
@@ -41,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from "@/components/ResidentNav";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
 import { ResidentHome } from "@/components/ResidentHome";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -97,13 +96,7 @@ type Sender = {
   interest_tags: string[];
 };
 
-type Notification = {
-  id: string;
-  message: string;
-  channel_id: string | null;
-  read: boolean;
-  created_at: string;
-};
+
 
 function BuildingHub() {
   const { buildingId } = Route.useParams();
@@ -117,8 +110,6 @@ function BuildingHub() {
   const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
   const [me, setMe] = useState<{ id: string; first_name: string; user_id: string; interest_tags: string[] } | null>(null);
   const [channels, setChannels] = useState<Channel[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [showNotifs, setShowNotifs] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
   // Identify resident via Supabase auth session
@@ -184,65 +175,6 @@ function BuildingHub() {
     };
   }, [buildingId]);
 
-  // Load + subscribe notifications for me
-  useEffect(() => {
-    if (!me) return;
-    (async () => {
-      const { data } = await supabase
-        .from("notifications")
-        .select("id, message, channel_id, read, created_at")
-        .eq("recipient_id", me.id)
-        .order("created_at", { ascending: false })
-        .limit(30);
-      setNotifications(data ?? []);
-    })();
-
-    const sub = supabase
-      .channel(`notifs-${me.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notifications",
-          filter: `recipient_id=eq.${me.id}`,
-        },
-        (payload) => {
-          const n = payload.new as Notification;
-          setNotifications((prev) => [n, ...prev]);
-          toast(n.message, {
-            action: n.channel_id
-              ? {
-                  label: "Join",
-                  onClick: () =>
-                    navigate({
-                      to: "/building/$buildingId",
-                      params: { buildingId },
-                      search: { c: n.channel_id ?? undefined },
-                    }),
-                }
-              : undefined,
-          });
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(sub);
-    };
-  }, [me, buildingId, navigate]);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAllRead = async () => {
-    if (!me || unreadCount === 0) return;
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    await supabase
-      .from("notifications")
-      .update({ read: true })
-      .eq("recipient_id", me.id)
-      .eq("read", false);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       {/* Header */}
@@ -265,63 +197,9 @@ function BuildingHub() {
                 Signed in as <span className="text-foreground font-medium">{me.first_name}</span>
               </span>
             )}
-            <button
-              onClick={() => {
-                setShowNotifs((v) => !v);
-                if (!showNotifs) void markAllRead();
-              }}
-              className="relative h-9 w-9 grid place-content-center rounded-md hover:bg-muted cursor-pointer"
-              aria-label="Notifications"
-            >
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
-              )}
-            </button>
+            {me && <NotificationBell buildingId={buildingId} me={me} />}
           </div>
         </div>
-
-        {showNotifs && (
-          <div className="absolute right-4 top-14 w-80 max-h-96 overflow-y-auto rounded-xl border border-border bg-card shadow-lg">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-              <span className="text-sm font-medium">Notifications</span>
-              <button
-                onClick={() => setShowNotifs(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            {notifications.length === 0 ? (
-              <p className="p-6 text-sm text-center text-muted-foreground">No alerts yet.</p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {notifications.map((n) => (
-                  <li key={n.id}>
-                    <button
-                      onClick={() => {
-                        if (n.channel_id) {
-                          navigate({
-                            to: "/building/$buildingId",
-                            params: { buildingId },
-                            search: { c: n.channel_id ?? undefined },
-                          });
-                          setShowNotifs(false);
-                        }
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-muted/50 cursor-pointer"
-                    >
-                      <p className="text-sm">{n.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(n.created_at).toLocaleString()}
-                      </p>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6">
