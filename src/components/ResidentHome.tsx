@@ -580,11 +580,13 @@ function RecommendationGrid({
   items,
   loading,
   onRequestIntro,
+  onRespondIntro,
   inflight,
 }: {
   items: RecommendedResident[];
   loading: boolean;
   onRequestIntro: (id: string) => void;
+  onRespondIntro: (profileId: string, introId: string, next: "accepted" | "declined") => void;
   inflight: Record<string, boolean>;
 }) {
   if (loading) {
@@ -616,6 +618,7 @@ function RecommendationGrid({
           key={r.id}
           r={r}
           onRequestIntro={() => onRequestIntro(r.id)}
+          onRespondIntro={(introId, next) => onRespondIntro(r.id, introId, next)}
           inflight={!!inflight[r.id]}
         />
       ))}
