@@ -454,11 +454,11 @@ export function NotificationBell({
             </div>
           )}
 
-          {!loading && notifications.length > 0 && (
+          {!loading && filter !== "introductions" && notifications.length > 0 && (
             <div
               className={cn(
                 "px-4 pt-3 pb-2",
-                introTotal > 0 && "border-t border-border"
+                filter !== "community" && introTotal > 0 && "border-t border-border"
               )}
             >
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
