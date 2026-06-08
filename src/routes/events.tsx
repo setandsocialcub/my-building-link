@@ -246,16 +246,16 @@ function EventsPage() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <header className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Events
+          <h1 className="font-serif text-4xl tracking-tight text-foreground">
+            Experiences
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            What's happening in your building.
+            Gatherings, tastings, and moments happening in the residence.
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Event
+          Host an Experience
         </Button>
       </header>
 

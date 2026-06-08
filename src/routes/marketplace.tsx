@@ -155,11 +155,11 @@ function MarketplacePage() {
       <div className="mx-auto max-w-5xl px-4 py-6">
         <div className="flex items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              <ShoppingBag className="h-7 w-7" /> Marketplace
+            <h1 className="font-serif text-4xl tracking-tight flex items-center gap-3">
+              <ShoppingBag className="h-7 w-7" /> Resident Exchange
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Buy, sell, and give away with your neighbors.
+              Pass along, pick up, and pay it forward between neighbors.
             </p>
           </div>
           <Button onClick={() => setOpenCreate(true)}>List an Item</Button>

@@ -177,16 +177,16 @@ function ForumPage() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <header className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Neighborhood Forum
+          <h1 className="font-serif text-4xl tracking-tight text-foreground">
+            Community Board
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Building-wide discussion for verified residents.
+            A residence-wide salon for verified neighbors.
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          New Post
+          Start a Post
         </Button>
       </header>
 

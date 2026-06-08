@@ -153,9 +153,9 @@ function CommunityHealthSection({ buildingId }: { buildingId: string }) {
       iconColor: "text-blue-500",
     },
     {
-      label: "Connections Made",
+      label: "Introductions Made",
       value: stats.connections,
-      subtitle: "Accepted neighbor links",
+      subtitle: "Accepted neighbor introductions",
       icon: HeartHandshake,
       iconColor: "text-rose-500",
     },
@@ -167,9 +167,9 @@ function CommunityHealthSection({ buildingId }: { buildingId: string }) {
       iconColor: "text-emerald-500",
     },
     {
-      label: "Upcoming Events",
+      label: "Upcoming Experiences",
       value: stats.upcomingEvents,
-      subtitle: "Events on the calendar",
+      subtitle: "On the residence calendar",
       icon: CalendarIcon,
       iconColor: "text-amber-500",
     },
@@ -385,7 +385,7 @@ function ManagerDashboard() {
 
           <TabsList>
             <TabsTrigger value="announcements">
-              <Megaphone className="h-4 w-4" /> Announcements
+              <Megaphone className="h-4 w-4" /> Community Updates
             </TabsTrigger>
             <TabsTrigger value="flags">
               <Flag className="h-4 w-4" /> Flagged Content
@@ -394,7 +394,7 @@ function ManagerDashboard() {
               <Users className="h-4 w-4" /> Resident Directory
             </TabsTrigger>
             <TabsTrigger value="events">
-              <CalendarIcon className="h-4 w-4" /> Events
+              <CalendarIcon className="h-4 w-4" /> Experiences
             </TabsTrigger>
           </TabsList>
           <TabsContent value="announcements" className="mt-6">
