@@ -350,20 +350,46 @@ export function ResidentHome({
 
   const requestIntroduction = async (recipientProfileId: string) => {
     setIntroInflight((s) => ({ ...s, [recipientProfileId]: true }));
-    const { error } = await supabase.from("resident_introductions").insert({
+    const { data, error } = await supabase.from("resident_introductions").insert({
       building_id: buildingId,
       requester_id: me.id,
       recipient_id: recipientProfileId,
       status: "pending",
       message: null,
-    });
+    }).select("id").single();
     setIntroInflight((s) => ({ ...s, [recipientProfileId]: false }));
     if (error) {
       console.error("[home] intro failed", error);
       return;
     }
     setRecommended((prev) =>
-      prev.map((r) => (r.id === recipientProfileId ? { ...r, introStatus: "pending" } : r)),
+      prev.map((r) =>
+        r.id === recipientProfileId
+          ? { ...r, introStatus: "pending" as const, introId: data?.id, iAmRequester: true }
+          : r,
+      ),
+    );
+  };
+
+  const respondIntroduction = async (
+    profileId: string,
+    introId: string,
+    next: "accepted" | "declined",
+  ) => {
+    setIntroInflight((s) => ({ ...s, [profileId]: true }));
+    const { error } = await supabase
+      .from("resident_introductions")
+      .update({ status: next })
+      .eq("id", introId);
+    setIntroInflight((s) => ({ ...s, [profileId]: false }));
+    if (error) {
+      console.error("[home] respond failed", error);
+      return;
+    }
+    setRecommended((prev) =>
+      prev.map((r) =>
+        r.id === profileId ? { ...r, introStatus: next } : r,
+      ),
     );
   };
 
