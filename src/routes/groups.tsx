@@ -31,11 +31,14 @@ type GroupRow = {
   building_id: string;
   name: string;
   emoji: string;
-  category: "system" | "sport" | "lifestyle" | "resident";
+  category: string;
   interest_tag: string | null;
   is_pinned: boolean;
   is_default: boolean;
   member_count: number;
+  circle_type: "resident_created" | "building_sponsored";
+  visibility: "public" | "private";
+  description: string | null;
 };
 
 type MyProfile = {
