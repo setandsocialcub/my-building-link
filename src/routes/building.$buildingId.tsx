@@ -117,8 +117,6 @@ function BuildingHub() {
   const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
   const [me, setMe] = useState<{ id: string; first_name: string; user_id: string; interest_tags: string[] } | null>(null);
   const [channels, setChannels] = useState<Channel[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [showNotifs, setShowNotifs] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
   // Identify resident via Supabase auth session
