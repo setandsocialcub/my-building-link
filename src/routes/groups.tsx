@@ -370,3 +370,163 @@ function GroupCard({
     </div>
   );
 }
+
+function CreateCircleButton({
+  buildingId,
+  onCreated,
+}: {
+  buildingId: string;
+  onCreated: (g: GroupRow) => void;
+}) {
+  const { settings } = useBuildingSettings(buildingId);
+  const [open, setOpen] = useState(false);
+  const [isManager, setIsManager] = useState(false);
+  const [profileId, setProfileId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<string>("custom");
+  const [circleType, setCircleType] = useState<"resident_created" | "building_sponsored">("resident_created");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth?.user || cancelled) return;
+      setUserId(auth.user.id);
+      const [{ data: mgr }, { data: prof }] = await Promise.all([
+        supabase.from("property_managers").select("id").eq("user_id", auth.user.id).eq("building_id", buildingId).maybeSingle(),
+        supabase.from("resident_profiles").select("id").eq("user_id", auth.user.id).eq("building_id", buildingId).maybeSingle(),
+      ]);
+      if (cancelled) return;
+      setIsManager(!!mgr);
+      setProfileId((prof?.id as string | undefined) ?? null);
+      if (mgr) setCircleType("building_sponsored");
+    })();
+    return () => { cancelled = true; };
+  }, [buildingId]);
+
+  const canCreate =
+    isManager ||
+    (settings?.allow_resident_circle_creation ?? true);
+
+  const visibilityLocked = !isManager && (settings?.limit_circle_visibility ?? false);
+
+  if (!canCreate) return null;
+
+  const meta = CIRCLE_CATEGORIES.find((c) => c.key === category);
+
+  const submit = async () => {
+    if (!userId || !name.trim()) return;
+    setSubmitting(true);
+    const payload = {
+      building_id: buildingId,
+      name: name.trim(),
+      emoji: meta?.emoji ?? "✨",
+      category,
+      interest_tag: meta?.interestMatches[0] ?? null,
+      circle_type: isManager ? circleType : "resident_created",
+      visibility: visibilityLocked ? "public" : isPrivate ? "private" : "public",
+      description: description.trim() || null,
+      created_by: profileId,
+      is_default: false,
+      is_pinned: false,
+    };
+    const { data, error } = await supabase
+      .from("groups")
+      .insert(payload)
+      .select("id, building_id, name, emoji, category, interest_tag, is_pinned, is_default, member_count, circle_type, visibility, description")
+      .single();
+    if (error || !data) {
+      setSubmitting(false);
+      toast.error(error?.message ?? "Could not create circle");
+      return;
+    }
+    // Auto-join the creator.
+    await supabase.from("group_members").insert({ group_id: data.id, user_id: userId });
+    setSubmitting(false);
+    setOpen(false);
+    setName("");
+    setDescription("");
+    onCreated(data as GroupRow);
+    toast.success(`${data.name} is live`);
+  };
+
+  return (
+    <>
+      <Button size="sm" onClick={() => setOpen(true)} className="gap-1.5">
+        <Plus className="h-4 w-4" /> Start a Circle
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-serif">
+              <Sparkles className="h-4 w-4 text-accent" /> Start a Circle
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="circle-name">Name</Label>
+              <Input id="circle-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Sunday Run Club" maxLength={80} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="circle-desc">Description (optional)</Label>
+              <Textarea id="circle-desc" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} rows={3} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Category</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CIRCLE_CATEGORIES.map((c) => (
+                      <SelectItem key={c.key} value={c.key}>{c.emoji} {c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {isManager && (
+                <div className="space-y-1.5">
+                  <Label>Type</Label>
+                  <Select value={circleType} onValueChange={(v) => setCircleType(v as typeof circleType)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="building_sponsored">Building Sponsored</SelectItem>
+                      <SelectItem value="resident_created">Resident-Created</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border p-3">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">Private circle</div>
+                <div className="text-xs text-muted-foreground">
+                  {visibilityLocked
+                    ? "Private circles are disabled for this building."
+                    : "Only invited residents can see or join."}
+                </div>
+              </div>
+              <Switch
+                checked={!visibilityLocked && isPrivate}
+                disabled={visibilityLocked}
+                onCheckedChange={setIsPrivate}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Posting in <span className="font-medium text-foreground">{categoryLabel(category)}</span> · auto-approved
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOpen(false)} disabled={submitting}>Cancel</Button>
+            <Button onClick={submit} disabled={submitting || !name.trim()}>
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create circle"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
