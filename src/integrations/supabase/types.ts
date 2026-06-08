@@ -913,7 +913,7 @@ export type Database = {
           building_id: string
           created_at: string
           id: string
-          manager_code: string
+          manager_code: string | null
           name: string
           user_id: string | null
         }
@@ -921,7 +921,7 @@ export type Database = {
           building_id: string
           created_at?: string
           id?: string
-          manager_code?: string
+          manager_code?: string | null
           name?: string
           user_id?: string | null
         }
@@ -929,7 +929,7 @@ export type Database = {
           building_id?: string
           created_at?: string
           id?: string
-          manager_code?: string
+          manager_code?: string | null
           name?: string
           user_id?: string | null
         }
