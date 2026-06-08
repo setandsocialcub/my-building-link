@@ -56,6 +56,27 @@ function ClaimCode() {
   const [error, setError] = useState<string | null>(null);
   const [claimed, setClaimed] = useState<ClaimedBuilding | null>(null);
 
+  // Real-time validation: show a specific error while typing resident invite codes
+  useEffect(() => {
+    const normalized = code.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!normalized) {
+      setError(null);
+      return;
+    }
+    const looksLikeBuildingCode = /^[A-Z]{3}[0-9]{3}$/.test(normalized);
+    if (looksLikeBuildingCode) {
+      setError(
+        "That looks like a resident invite code (e.g. JUK-611). Manager codes start with M (e.g. M93PP5).",
+      );
+      return;
+    }
+    if (!normalized.startsWith("M")) {
+      setError("Manager codes start with M followed by 5 characters (e.g. M93PP5).");
+      return;
+    }
+    setError(null);
+  }, [code]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
