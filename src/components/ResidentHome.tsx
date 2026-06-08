@@ -46,7 +46,9 @@ type RecommendedResident = {
   sharedCircles: number;
   reason: string;
   isNew: boolean;
-  introStatus?: "pending" | "accepted" | null;
+  introStatus?: "pending" | "accepted" | "declined" | "expired" | null;
+  introId?: string;
+  iAmRequester?: boolean;
 };
 
 type Experience = {
@@ -148,7 +150,7 @@ export function ResidentHome({
           .eq("groups.building_id", buildingId),
         supabase
           .from("resident_introductions")
-          .select("recipient_id, requester_id, status")
+          .select("id, recipient_id, requester_id, status")
           .or(`requester_id.eq.${me.id},recipient_id.eq.${me.id}`)
           .eq("building_id", buildingId),
         supabase
@@ -198,12 +200,19 @@ export function ResidentHome({
       }
 
       const myInterests = (me.interest_tags ?? []).map((t) => t.toLowerCase());
-      const introStatusByProfile = new Map<string, "pending" | "accepted">();
+      const introMetaByProfile = new Map<
+        string,
+        { status: "pending" | "accepted" | "declined" | "expired"; id: string; iAmRequester: boolean }
+      >();
       for (const it of myIntros) {
         const other = it.requester_id === me.id ? it.recipient_id : it.requester_id;
-        if (it.status === "accepted") introStatusByProfile.set(other, "accepted");
-        else if (it.status === "pending" && !introStatusByProfile.has(other))
-          introStatusByProfile.set(other, "pending");
+        const status = it.status as "pending" | "accepted" | "declined" | "expired";
+        const iAmRequester = it.requester_id === me.id;
+        if (status === "accepted") {
+          introMetaByProfile.set(other, { status, id: it.id, iAmRequester });
+        } else if (!introMetaByProfile.has(other)) {
+          introMetaByProfile.set(other, { status, id: it.id, iAmRequester });
+        }
       }
 
       const scored = residents.map((r) => {
@@ -224,6 +233,7 @@ export function ResidentHome({
         else if (sc > 0)
           reason = `You belong to ${sc} of the same Circle${sc === 1 ? "" : "s"}.`;
         else if (isNew) reason = "Recently joined the community.";
+        const meta = introMetaByProfile.get(r.id);
         return {
           id: r.id,
           user_id: r.user_id,
@@ -235,7 +245,9 @@ export function ResidentHome({
           sharedCircles: sc,
           reason,
           isNew,
-          introStatus: introStatusByProfile.get(r.id) ?? null,
+          introStatus: meta?.status ?? null,
+          introId: meta?.id,
+          iAmRequester: meta?.iAmRequester,
         };
       });
       setRecommended(top);
@@ -338,20 +350,46 @@ export function ResidentHome({
 
   const requestIntroduction = async (recipientProfileId: string) => {
     setIntroInflight((s) => ({ ...s, [recipientProfileId]: true }));
-    const { error } = await supabase.from("resident_introductions").insert({
+    const { data, error } = await supabase.from("resident_introductions").insert({
       building_id: buildingId,
       requester_id: me.id,
       recipient_id: recipientProfileId,
       status: "pending",
       message: null,
-    });
+    }).select("id").single();
     setIntroInflight((s) => ({ ...s, [recipientProfileId]: false }));
     if (error) {
       console.error("[home] intro failed", error);
       return;
     }
     setRecommended((prev) =>
-      prev.map((r) => (r.id === recipientProfileId ? { ...r, introStatus: "pending" } : r)),
+      prev.map((r) =>
+        r.id === recipientProfileId
+          ? { ...r, introStatus: "pending" as const, introId: data?.id, iAmRequester: true }
+          : r,
+      ),
+    );
+  };
+
+  const respondIntroduction = async (
+    profileId: string,
+    introId: string,
+    next: "accepted" | "declined",
+  ) => {
+    setIntroInflight((s) => ({ ...s, [profileId]: true }));
+    const { error } = await supabase
+      .from("resident_introductions")
+      .update({ status: next })
+      .eq("id", introId);
+    setIntroInflight((s) => ({ ...s, [profileId]: false }));
+    if (error) {
+      console.error("[home] respond failed", error);
+      return;
+    }
+    setRecommended((prev) =>
+      prev.map((r) =>
+        r.id === profileId ? { ...r, introStatus: next } : r,
+      ),
     );
   };
 
@@ -378,6 +416,7 @@ export function ResidentHome({
         items={recommended}
         loading={loading}
         onRequestIntro={requestIntroduction}
+        onRespondIntro={respondIntroduction}
         inflight={introInflight}
       />
 
@@ -541,11 +580,13 @@ function RecommendationGrid({
   items,
   loading,
   onRequestIntro,
+  onRespondIntro,
   inflight,
 }: {
   items: RecommendedResident[];
   loading: boolean;
   onRequestIntro: (id: string) => void;
+  onRespondIntro: (profileId: string, introId: string, next: "accepted" | "declined") => void;
   inflight: Record<string, boolean>;
 }) {
   if (loading) {
@@ -577,6 +618,7 @@ function RecommendationGrid({
           key={r.id}
           r={r}
           onRequestIntro={() => onRequestIntro(r.id)}
+          onRespondIntro={(introId, next) => onRespondIntro(r.id, introId, next)}
           inflight={!!inflight[r.id]}
         />
       ))}
@@ -587,10 +629,12 @@ function RecommendationGrid({
 function ResidentCard({
   r,
   onRequestIntro,
+  onRespondIntro,
   inflight,
 }: {
   r: RecommendedResident;
   onRequestIntro: () => void;
+  onRespondIntro: (introId: string, next: "accepted" | "declined") => void;
   inflight: boolean;
 }) {
   const initials = `${r.first_name?.[0] ?? ""}${r.last_name?.[0] ?? ""}`.toUpperCase() || "·";
@@ -652,9 +696,33 @@ function ResidentCard({
                 <MessageCircle className="h-3.5 w-3.5" /> Open conversation
               </Link>
             </Button>
+          ) : r.introStatus === "pending" && !r.iAmRequester ? (
+            <div className="flex flex-1 gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                disabled={inflight}
+                onClick={() => r.introId && onRespondIntro(r.introId, "declined")}
+              >
+                Decline
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 gap-1.5"
+                disabled={inflight}
+                onClick={() => r.introId && onRespondIntro(r.introId, "accepted")}
+              >
+                <HeartHandshake className="h-3.5 w-3.5" /> Accept
+              </Button>
+            </div>
           ) : r.introStatus === "pending" ? (
             <Button size="sm" variant="secondary" disabled className="flex-1 gap-1.5">
               <Check className="h-3.5 w-3.5" /> Awaiting reply
+            </Button>
+          ) : r.introStatus === "declined" || r.introStatus === "expired" ? (
+            <Button size="sm" variant="ghost" disabled className="flex-1 gap-1.5">
+              <Lock className="h-3.5 w-3.5" /> Introduction closed
             </Button>
           ) : (
             <Button
