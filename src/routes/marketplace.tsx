@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ResidentNav } from "@/components/ResidentNav";
+import { ResidentPageShell } from "@/components/ResidentPageShell";
 import { FeatureGate } from "@/components/FeatureGate";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, ImagePlus, ShoppingBag, X } from "lucide-react";
@@ -147,56 +147,54 @@ function MarketplacePage() {
     });
   }, [listings, filter]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen grid place-items-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="font-serif text-4xl tracking-tight flex items-center gap-3">
-              <ShoppingBag className="h-7 w-7" /> Resident Exchange
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Pass along, pick up, and pay it forward between neighbors.
-            </p>
-          </div>
-          <Button onClick={() => setOpenCreate(true)}>List an Item</Button>
+    <ResidentPageShell title="Resident Exchange" subtitle="Pass along between neighbors">
+      {loading ? (
+        <div className="grid place-items-center min-h-[40vh]">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
-
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterTab)} className="mb-6">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="sale">For Sale</TabsTrigger>
-            <TabsTrigger value="free">Free</TabsTrigger>
-            <TabsTrigger value="sold">Sold</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            <ShoppingBag className="h-12 w-12 mx-auto mb-3 opacity-40" />
-            <p>No listings yet. Be the first to post!</p>
+      ) : (
+        <div className="max-w-5xl">
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-serif text-3xl tracking-tight flex items-center gap-3">
+                <ShoppingBag className="h-7 w-7" /> Resident Exchange
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Pass along, pick up, and pay it forward between neighbors.
+              </p>
+            </div>
+            <Button onClick={() => setOpenCreate(true)}>List an Item</Button>
           </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {filtered.map((l) => (
-              <ListingCard
-                key={l.id}
-                listing={l}
-                imgSrc={l.image_url ? signedUrls[l.image_url] : undefined}
-                onClick={() => setOpenDetail(l)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+
+          <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterTab)} className="mb-6">
+            <TabsList>
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="sale">For Sale</TabsTrigger>
+              <TabsTrigger value="free">Free</TabsTrigger>
+              <TabsTrigger value="sold">Sold</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {filtered.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <ShoppingBag className="h-12 w-12 mx-auto mb-3 opacity-40" />
+              <p>No listings yet. Be the first to post!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {filtered.map((l) => (
+                <ListingCard
+                  key={l.id}
+                  listing={l}
+                  imgSrc={l.image_url ? signedUrls[l.image_url] : undefined}
+                  onClick={() => setOpenDetail(l)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {me && (
         <CreateListingDialog
@@ -214,8 +212,7 @@ function MarketplacePage() {
         onClose={() => setOpenDetail(null)}
         onChanged={() => me && loadListings(me.building_id)}
       />
-      <ResidentNav />
-    </div>
+    </ResidentPageShell>
   );
 }
 

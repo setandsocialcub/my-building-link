@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SuperAdminLoginRouteImport } from './routes/super-admin-login'
 import { Route as ResidentAccessRouteImport } from './routes/resident-access'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
@@ -46,6 +47,11 @@ const ResidentAccessRoute = ResidentAccessRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/profile'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/profile'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/profile'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   ManagerAuthRoute: typeof ManagerAuthRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MessagesRoute: typeof MessagesRouteWithChildren
+  ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResidentAccessRoute: typeof ResidentAccessRoute
   SuperAdminLoginRoute: typeof SuperAdminLoginRoute
@@ -347,6 +360,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -549,6 +569,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerAuthRoute: ManagerAuthRoute,
   MarketplaceRoute: MarketplaceRoute,
   MessagesRoute: MessagesRouteWithChildren,
+  ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ResidentAccessRoute: ResidentAccessRoute,
   SuperAdminLoginRoute: SuperAdminLoginRoute,

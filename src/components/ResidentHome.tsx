@@ -538,11 +538,11 @@ function MomentumWidget({ momentum, loading }: { momentum: Momentum; loading: bo
             className="border-border/60 bg-card/80 backdrop-blur shadow-[0_1px_3px_rgba(30,30,30,0.04),0_8px_24px_-12px_rgba(183,165,141,0.25)]"
           >
             <CardContent className="p-5 sm:p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] uppercase tracking-wider text-muted-foreground leading-tight">
+              <div className="flex items-start gap-3">
+                <Icon className="h-4 w-4 text-primary/70 shrink-0 mt-0.5" />
+                <span className="text-[11px] uppercase tracking-wider text-muted-foreground leading-snug">
                   {label}
                 </span>
-                <Icon className="h-4 w-4 text-primary/70 shrink-0 ml-2" />
               </div>
               <div className="font-serif text-4xl text-foreground">{loading ? "—" : value}</div>
             </CardContent>
@@ -565,7 +565,7 @@ function SectionHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 -mb-4">
+    <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
       <div>
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{eyebrow}</p>
         <h2 className="font-serif text-3xl sm:text-4xl mt-1 leading-tight">{title}</h2>
