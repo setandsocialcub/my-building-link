@@ -1139,6 +1139,7 @@ export type Database = {
           name: string
         }[]
       }
+      group_building_id: { Args: { _group_id: string }; Returns: string }
       has_building_access: { Args: { _building_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -1148,6 +1149,10 @@ export type Database = {
         Returns: boolean
       }
       is_channel_member: { Args: { _channel_id: string }; Returns: boolean }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_manager_of_building: {
         Args: { _building_id: string }
         Returns: boolean
