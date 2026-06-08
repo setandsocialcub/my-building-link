@@ -280,6 +280,25 @@ export function NotificationBell({
             </button>
           </div>
 
+          <div className="flex items-center gap-1 px-4 py-2 border-b border-border">
+            {(["all", "introductions", "community"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "text-xs font-medium px-3 py-1 rounded-full transition-colors cursor-pointer",
+                  filter === f
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f === "all" && "All"}
+                {f === "introductions" && "Introductions"}
+                {f === "community" && "Community"}
+              </button>
+            ))}
+          </div>
+
           {loading && (
             <div className="p-8 text-center text-sm text-muted-foreground">
               Loading…
@@ -298,7 +317,7 @@ export function NotificationBell({
             </div>
           )}
 
-          {!loading && pendingIntros.length > 0 && (
+          {!loading && filter !== "community" && pendingIntros.length > 0 && (
             <div className="px-4 pt-3 pb-1">
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 Introduction Requests
