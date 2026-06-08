@@ -154,13 +154,10 @@ function GroupsPage() {
       <header className="border-b border-border bg-card/50">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
           <div>
-            <h1
-              className="text-3xl text-foreground"
-              style={{ fontFamily: "'DM Serif Display', serif" }}
-            >
-              Groups
+            <h1 className="font-serif text-4xl text-foreground">
+              Circles
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">Find your people.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Curated company, just down the hall.</p>
           </div>
           {me && (
             <Button asChild variant="ghost" size="sm">
@@ -175,7 +172,7 @@ function GroupsPage() {
       <main className="mx-auto max-w-5xl space-y-12 px-6 py-8">
         {/* Section 1 — You're In */}
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-foreground">You're In</h2>
+          <h2 className="mb-4 font-serif text-2xl text-foreground">Your Circles</h2>
           <div className="-mx-6 flex gap-3 overflow-x-auto px-6 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
             {joinedGroups.map((g) => (
               <GroupCard key={g.id} group={g} joined variant="open" />
@@ -186,9 +183,9 @@ function GroupsPage() {
         {/* Section 2 — Suggestions */}
         {suggestions.length > 0 && (
           <section>
-            <h2 className="mb-1 text-lg font-semibold text-foreground">Based on Your Interests</h2>
+            <h2 className="mb-1 font-serif text-2xl text-foreground">Selected for You</h2>
             <p className="mb-4 text-sm text-muted-foreground">
-              Picked from your interest tags.
+              Hand-picked from the interests on your profile.
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {suggestions.map((g) => (
@@ -205,9 +202,9 @@ function GroupsPage() {
           </section>
         )}
 
-        {/* Section 3 — All Groups */}
+        {/* Section 3 — All Circles */}
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-foreground">All Groups</h2>
+          <h2 className="mb-4 font-serif text-2xl text-foreground">All Circles</h2>
           <Tabs defaultValue="sport" className="w-full">
             <TabsList>
               <TabsTrigger value="sport">Sport & Activity</TabsTrigger>

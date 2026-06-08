@@ -120,12 +120,12 @@ export function ResidentSidebarLinks() {
     badge?: number;
     external?: boolean;
   }> = [
-    { to: "/announcements", label: "Announcements", icon: "📢", badge: counts.announcementsUnread },
-    { to: "/marketplace", label: "Marketplace", icon: "🛒" },
-    { to: "/groups", label: "Groups", icon: "👥", badge: counts.groupUnread },
-    { to: "/discover", label: "Discover", icon: "🧭" },
-    { to: "/events", label: "Events", icon: "📅" },
-    { to: "/messages", label: "Messages", icon: "✉️", badge: counts.dmUnread },
+    { to: "/announcements", label: "Community Updates", icon: "📢", badge: counts.announcementsUnread },
+    { to: "/marketplace", label: "Resident Exchange", icon: "🛒" },
+    { to: "/groups", label: "Circles", icon: "👥", badge: counts.groupUnread },
+    { to: "/discover", label: "Community Match", icon: "🧭" },
+    { to: "/events", label: "Experiences", icon: "📅" },
+    { to: "/messages", label: "Conversations", icon: "✉️", badge: counts.dmUnread },
     { to: "/profile", label: "Profile", icon: "👤", external: true },
   ];
 
@@ -186,26 +186,26 @@ export function ResidentBottomNav() {
     },
     {
       href: "/groups",
-      label: "Groups",
+      label: "Circles",
       Icon: Users,
       badge: counts.groupUnread,
       active: pathname === "/groups",
     },
     {
       href: "/discover",
-      label: "Discover",
+      label: "Match",
       Icon: Compass,
       active: pathname === "/discover",
     },
     {
       href: "/events",
-      label: "Events",
+      label: "Experiences",
       Icon: Calendar,
       active: pathname === "/events",
     },
     {
       href: "/messages",
-      label: "Messages",
+      label: "Conversations",
       Icon: Mail,
       badge: counts.dmUnread,
       active: pathname.startsWith("/messages"),

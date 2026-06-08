@@ -282,19 +282,16 @@ function ConnectionsPage() {
       <header className="border-b border-border bg-card/50">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
           <div>
-            <h1
-              className="text-3xl text-foreground"
-              style={{ fontFamily: "'DM Serif Display', serif" }}
-            >
-              Connections
+            <h1 className="font-serif text-4xl text-foreground">
+              Introductions
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage your neighbors and connection requests.
+              Your neighbors and pending introductions.
             </p>
           </div>
           <Button asChild variant="ghost" size="sm">
             <Link to="/discover">
-              <UserPlus className="mr-2 h-4 w-4" /> Discover
+              <UserPlus className="mr-2 h-4 w-4" /> Community Match
             </Link>
           </Button>
         </div>
@@ -352,11 +349,11 @@ function ConnectionsPage() {
               <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
                 <Users className="mx-auto h-8 w-8 text-muted-foreground" />
                 <p className="mt-3 text-sm text-muted-foreground">
-                  No connections yet. Visit Discover to find neighbors.
+                  No introductions yet. Visit Community Match to meet neighbors.
                 </p>
                 <div className="mt-4">
                   <Button asChild>
-                    <Link to="/discover">Discover Neighbors</Link>
+                    <Link to="/discover">Open Community Match</Link>
                   </Button>
                 </div>
               </div>

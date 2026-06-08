@@ -244,11 +244,11 @@ function MessagesInboxPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <header className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Messages
+        <h1 className="font-serif text-4xl tracking-tight text-foreground">
+          Conversations
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Direct conversations with your connected neighbors.
+          Private notes between you and your introduced neighbors.
         </p>
       </header>
 

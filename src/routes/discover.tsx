@@ -234,11 +234,11 @@ function DiscoverPage() {
       <header className="border-b border-border bg-card/50">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
           <div>
-            <h1 className="text-3xl text-foreground" style={{ fontFamily: "'DM Serif Display', serif" }}>
-              Discover Neighbors
+            <h1 className="font-serif text-4xl text-foreground">
+              Community Match
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Find people in your building who share your interests.
+              Meet residents who share your tastes and rhythms.
             </p>
           </div>
           <Button asChild variant="ghost" size="sm">

@@ -119,13 +119,10 @@ function AnnouncementsPage() {
             <Bell className="h-5 w-5" />
           </div>
           <div>
-            <h1
-              className="text-3xl text-foreground"
-              style={{ fontFamily: "'DM Serif Display', serif" }}
-            >
-              Announcements
+            <h1 className="font-serif text-4xl text-foreground">
+              Community Updates
             </h1>
-            <p className="text-sm text-muted-foreground">From building management</p>
+            <p className="text-sm text-muted-foreground">News from your residence team.</p>
           </div>
         </div>
       </header>
