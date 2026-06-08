@@ -150,7 +150,7 @@ export function ResidentHome({
           .eq("groups.building_id", buildingId),
         supabase
           .from("resident_introductions")
-          .select("recipient_id, requester_id, status")
+          .select("id, recipient_id, requester_id, status")
           .or(`requester_id.eq.${me.id},recipient_id.eq.${me.id}`)
           .eq("building_id", buildingId),
         supabase
