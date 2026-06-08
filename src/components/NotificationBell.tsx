@@ -167,6 +167,19 @@ export function NotificationBell({
         (payload) => {
           const n = payload.new as Notification;
           setNotifications((prev) => [n, ...prev]);
+          toast(n.message, {
+            action: n.channel_id
+              ? {
+                  label: "Join",
+                  onClick: () =>
+                    navigate({
+                      to: "/building/$buildingId",
+                      params: { buildingId },
+                      search: { c: n.channel_id ?? undefined },
+                    }),
+                }
+              : undefined,
+          });
         }
       )
       .subscribe();
