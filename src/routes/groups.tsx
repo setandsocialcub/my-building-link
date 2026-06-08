@@ -81,7 +81,7 @@ function GroupsPage() {
       const [{ data: gs, error: gErr }, { data: mems, error: mErr }] = await Promise.all([
         supabase
           .from("groups")
-          .select("id, building_id, name, emoji, category, interest_tag, is_pinned, is_default, member_count")
+          .select("id, building_id, name, emoji, category, interest_tag, is_pinned, is_default, member_count, circle_type, visibility, description")
           .eq("building_id", mine.building_id)
           .order("name"),
         supabase.from("group_members").select("group_id").eq("user_id", auth.user.id),
