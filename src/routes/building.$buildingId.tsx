@@ -114,7 +114,7 @@ function BuildingHub() {
   void updatesEnabled;
 
   const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
-  const [me, setMe] = useState<{ id: string; first_name: string } | null>(null);
+  const [me, setMe] = useState<{ id: string; first_name: string; user_id: string; interest_tags: string[] } | null>(null);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -130,7 +130,7 @@ function BuildingHub() {
       }
       const { data } = await supabase
         .from("resident_profiles")
-        .select("id, first_name")
+        .select("id, first_name, interest_tags")
         .eq("user_id", user.id)
         .eq("building_id", buildingId)
         .maybeSingle();
@@ -138,7 +138,7 @@ function BuildingHub() {
         navigate({ to: "/onboarding/$buildingId", params: { buildingId } });
         return;
       }
-      setMe(data);
+      setMe({ ...data, user_id: user.id, interest_tags: (data.interest_tags ?? []) as string[] });
     })();
   }, [buildingId, navigate]);
 
