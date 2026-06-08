@@ -358,16 +358,23 @@ function ManagerDashboard() {
               <div className="text-xs text-muted-foreground">Property Manager</div>
             </div>
           </Link>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              navigate({ to: "/manager" });
-            }}
-          >
-            Sign out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link to="/pulse/$buildingId" params={{ buildingId }}>
+                <TrendingUp className="h-3.5 w-3.5" /> Pulse
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate({ to: "/manager" });
+              }}
+            >
+              Sign out
+            </Button>
+          </div>
         </div>
       </header>
 
