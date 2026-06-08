@@ -175,13 +175,24 @@ function GroupsPage() {
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">Curated company, just down the hall.</p>
           </div>
-          {me && (
-            <Button asChild variant="ghost" size="sm">
-              <a href={`/building/${me.building_id}`}>
-                <Users className="mr-2 h-4 w-4" /> Building
-              </a>
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {me && (
+              <CreateCircleButton
+                buildingId={me.building_id}
+                onCreated={(g) => {
+                  setGroups((prev) => [...prev, g]);
+                  setJoinedIds((prev) => new Set(prev).add(g.id));
+                }}
+              />
+            )}
+            {me && (
+              <Button asChild variant="ghost" size="sm">
+                <a href={`/building/${me.building_id}`}>
+                  <Users className="mr-2 h-4 w-4" /> Building
+                </a>
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
