@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut } from "lucide-react";
+import { Copy, Plus, LogOut, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -331,6 +331,14 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                           Manager
                         </Button>
                       )}
+                      <Button asChild size="sm" variant="outline" className="gap-1.5">
+                        <Link
+                          to="/admin/buildings/$buildingId/settings"
+                          params={{ buildingId: b.id }}
+                        >
+                          <Settings className="h-3.5 w-3.5" /> Settings
+                        </Link>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
