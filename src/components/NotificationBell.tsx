@@ -67,6 +67,7 @@ export function NotificationBell({
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState<"all" | "introductions" | "community">("all");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [pendingIntros, setPendingIntros] = useState<PendingIntro[]>([]);
   const [respondedIntros, setRespondedIntros] = useState<RespondedIntro[]>([]);
