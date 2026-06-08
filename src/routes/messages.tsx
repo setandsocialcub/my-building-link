@@ -8,8 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { FeatureGate } from "@/components/FeatureGate";
+
 export const Route = createFileRoute("/messages")({
-  component: MessagesInboxPage,
+  component: () => (
+    <FeatureGate feature="enable_conversations" featureLabel="Conversations">
+      <MessagesInboxPage />
+    </FeatureGate>
+  ),
 });
 
 type ConnectionRow = {

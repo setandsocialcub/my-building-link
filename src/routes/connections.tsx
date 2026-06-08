@@ -7,8 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { FeatureGate } from "@/components/FeatureGate";
+
 export const Route = createFileRoute("/connections")({
-  component: ConnectionsPage,
+  component: () => (
+    <FeatureGate feature="enable_introductions" featureLabel="Introductions">
+      <ConnectionsPage />
+    </FeatureGate>
+  ),
 });
 
 type ConnectionRow = {

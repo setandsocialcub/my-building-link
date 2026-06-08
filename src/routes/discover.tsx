@@ -10,8 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
+import { FeatureGate } from "@/components/FeatureGate";
+
 export const Route = createFileRoute("/discover")({
-  component: DiscoverPage,
+  component: () => (
+    <FeatureGate feature="enable_ai_matching" featureLabel="Community Match">
+      <DiscoverPage />
+    </FeatureGate>
+  ),
 });
 
 const INTEREST_CATEGORIES: Record<string, string[]> = {

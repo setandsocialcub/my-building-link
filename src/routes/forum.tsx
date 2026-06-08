@@ -24,8 +24,14 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { FeatureGate } from "@/components/FeatureGate";
+
 export const Route = createFileRoute("/forum")({
-  component: ForumPage,
+  component: () => (
+    <FeatureGate feature="enable_community_board" featureLabel="Community Board">
+      <ForumPage />
+    </FeatureGate>
+  ),
 });
 
 const CATEGORIES: { value: string; label: string }[] = [

@@ -21,8 +21,14 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
+import { FeatureGate } from "@/components/FeatureGate";
+
 export const Route = createFileRoute("/events")({
-  component: EventsPage,
+  component: () => (
+    <FeatureGate feature="enable_experiences" featureLabel="Experiences">
+      <EventsPage />
+    </FeatureGate>
+  ),
 });
 
 type EventRow = {

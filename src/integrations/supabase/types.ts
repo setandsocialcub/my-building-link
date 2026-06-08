@@ -82,6 +82,74 @@ export type Database = {
           },
         ]
       }
+      building_settings: {
+        Row: {
+          allow_resident_circle_creation: boolean
+          building_id: string
+          community_style: string
+          created_at: string
+          enable_ai_matching: boolean
+          enable_circles: boolean
+          enable_community_board: boolean
+          enable_concierge: boolean
+          enable_conversations: boolean
+          enable_experiences: boolean
+          enable_introductions: boolean
+          enable_resident_ambassadors: boolean
+          enable_resident_exchange: boolean
+          id: string
+          require_circle_approval: boolean
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          allow_resident_circle_creation?: boolean
+          building_id: string
+          community_style?: string
+          created_at?: string
+          enable_ai_matching?: boolean
+          enable_circles?: boolean
+          enable_community_board?: boolean
+          enable_concierge?: boolean
+          enable_conversations?: boolean
+          enable_experiences?: boolean
+          enable_introductions?: boolean
+          enable_resident_ambassadors?: boolean
+          enable_resident_exchange?: boolean
+          id?: string
+          require_circle_approval?: boolean
+          theme?: string
+          updated_at?: string
+        }
+        Update: {
+          allow_resident_circle_creation?: boolean
+          building_id?: string
+          community_style?: string
+          created_at?: string
+          enable_ai_matching?: boolean
+          enable_circles?: boolean
+          enable_community_board?: boolean
+          enable_concierge?: boolean
+          enable_conversations?: boolean
+          enable_experiences?: boolean
+          enable_introductions?: boolean
+          enable_resident_ambassadors?: boolean
+          enable_resident_exchange?: boolean
+          id?: string
+          require_circle_approval?: boolean
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "building_settings_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: true
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buildings: {
         Row: {
           access_code: string
