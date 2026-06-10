@@ -165,6 +165,12 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
     if (!acceptedTermsAt) acceptedTermsAt = now;
     if (!acceptedPrivacyAt) acceptedPrivacyAt = now;
 
+    // Fetch current legal document versions to record what the user accepted.
+    const [termsDoc, privacyDoc] = await Promise.all([
+      supabase.from("legal_documents").select("version").eq("slug", "terms").eq("is_current", true).maybeSingle(),
+      supabase.from("legal_documents").select("version").eq("slug", "privacy").eq("is_current", true).maybeSingle(),
+    ]);
+
     const { data, error: insertError } = await supabase
       .from("resident_profiles")
       .insert({
@@ -177,7 +183,9 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
         privacy_level: privacyLevel,
         accepted_terms_at: acceptedTermsAt,
         accepted_privacy_at: acceptedPrivacyAt,
-      } as never)
+        accepted_terms_version: termsDoc.data?.version ?? null,
+        accepted_privacy_version: privacyDoc.data?.version ?? null,
+      })
       .select("id")
       .single();
 

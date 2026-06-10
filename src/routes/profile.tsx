@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { FileText, Loader2, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
+import { CheckCircle2, FileText, Loader2, LogOut, ShieldCheck, User as UserIcon, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ResidentPageShell } from "@/components/ResidentPageShell";
 import { PrivacyLevelPicker, PrivacyBadge } from "@/components/PrivacyLevelPicker";
 import { type PrivacyLevel, privacyOption } from "@/lib/privacy";
+import { fetchLegalDocument, type LegalDocument } from "@/lib/legal";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -26,6 +27,10 @@ type Profile = {
   interest_tags: string[] | null;
   is_visible: boolean | null;
   privacy_level: PrivacyLevel;
+  accepted_terms_at: string | null;
+  accepted_privacy_at: string | null;
+  accepted_terms_version: number | null;
+  accepted_privacy_version: number | null;
 };
 
 function ProfilePage() {
@@ -39,6 +44,9 @@ function ProfilePage() {
   const [jobTitle, setJobTitle] = useState("");
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>("public");
   const [savingPrivacy, setSavingPrivacy] = useState(false);
+  const [currentTerms, setCurrentTerms] = useState<LegalDocument | null>(null);
+  const [currentPrivacy, setCurrentPrivacy] = useState<LegalDocument | null>(null);
+  const [reaccepting, setReaccepting] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +60,7 @@ function ProfilePage() {
 
       const { data } = await supabase
         .from("resident_profiles")
-        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, privacy_level")
+        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, privacy_level, accepted_terms_at, accepted_privacy_at, accepted_terms_version, accepted_privacy_version")
         .eq("user_id", auth.user.id)
         .maybeSingle();
       if (cancelled) return;
@@ -64,6 +72,16 @@ function ProfilePage() {
         setJobTitle(p.job_title ?? "");
         setPrivacyLevel(p.privacy_level ?? "public");
       }
+
+      const [termsDoc, privacyDoc] = await Promise.all([
+        fetchLegalDocument("terms"),
+        fetchLegalDocument("privacy"),
+      ]);
+      if (!cancelled) {
+        setCurrentTerms(termsDoc);
+        setCurrentPrivacy(privacyDoc);
+      }
+
       setLoading(false);
     })();
     return () => {
@@ -115,6 +133,30 @@ function ProfilePage() {
     }
   };
 
+  const reaccept = async (type: "terms" | "privacy") => {
+    if (!profile) return;
+    const doc = type === "terms" ? currentTerms : currentPrivacy;
+    if (!doc) return;
+    setReaccepting(type);
+    const update: any = {
+      [`accepted_${type}_at`]: new Date().toISOString(),
+      [`accepted_${type}_version`]: doc.version,
+    };
+    const { error } = await supabase.from("resident_profiles").update(update).eq("id", profile.id);
+    setReaccepting(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setProfile((prev) => {
+      if (!prev) return prev;
+      if (type === "terms") {
+        return { ...prev, accepted_terms_at: update.accepted_terms_at as string, accepted_terms_version: doc.version };
+      }
+      return { ...prev, accepted_privacy_at: update.accepted_privacy_at as string, accepted_privacy_version: doc.version };
+    });
+    toast.success(`You have accepted the latest ${type === "terms" ? "Terms of Use" : "Privacy Policy"}.`);
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -217,6 +259,134 @@ function ProfilePage() {
                 onChange={updatePrivacy}
                 disabled={savingPrivacy}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground">
+                  <FileText className="h-5 w-5" />
+                </span>
+                <div className="flex-1">
+                  <h2 className="text-base font-semibold">Legal Acceptance</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Documents you have agreed to and when you accepted them.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Terms of Use */}
+                <div className="rounded-lg border border-border p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Terms of Use</span>
+                    {profile.accepted_terms_at ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Accepted
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-amber-600">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        Not accepted
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    {profile.accepted_terms_at ? (
+                      <>
+                        <p>
+                          Accepted on{" "}
+                          {new Date(profile.accepted_terms_at).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </p>
+                        {typeof profile.accepted_terms_version === "number" && (
+                          <p>Version {profile.accepted_terms_version}</p>
+                        )}
+                      </>
+                    ) : (
+                      <p>You have not yet accepted the Terms of Use.</p>
+                    )}
+                    {currentTerms && profile.accepted_terms_version != null && profile.accepted_terms_version < currentTerms.version && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                        <span className="text-amber-700">
+                          A newer version is available (v{currentTerms.version}).
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs ml-auto"
+                          disabled={reaccepting === "terms"}
+                          onClick={() => reaccept("terms")}
+                        >
+                          {reaccepting === "terms" && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                          Accept latest
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Privacy Policy */}
+                <div className="rounded-lg border border-border p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Privacy Policy</span>
+                    {profile.accepted_privacy_at ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Accepted
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-amber-600">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        Not accepted
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    {profile.accepted_privacy_at ? (
+                      <>
+                        <p>
+                          Accepted on{" "}
+                          {new Date(profile.accepted_privacy_at).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </p>
+                        {typeof profile.accepted_privacy_version === "number" && (
+                          <p>Version {profile.accepted_privacy_version}</p>
+                        )}
+                      </>
+                    ) : (
+                      <p>You have not yet acknowledged the Privacy Policy.</p>
+                    )}
+                    {currentPrivacy && profile.accepted_privacy_version != null && profile.accepted_privacy_version < currentPrivacy.version && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                        <span className="text-amber-700">
+                          A newer version is available (v{currentPrivacy.version}).
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs ml-auto"
+                          disabled={reaccepting === "privacy"}
+                          onClick={() => reaccept("privacy")}
+                        >
+                          {reaccepting === "privacy" && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                          Accept latest
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
