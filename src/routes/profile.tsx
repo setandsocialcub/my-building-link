@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut, User as UserIcon } from "lucide-react";
+import { Loader2, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResidentPageShell } from "@/components/ResidentPageShell";
+import { PrivacyLevelPicker, PrivacyBadge } from "@/components/PrivacyLevelPicker";
+import { type PrivacyLevel, privacyOption } from "@/lib/privacy";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -23,6 +25,7 @@ type Profile = {
   job_title: string | null;
   interest_tags: string[] | null;
   is_visible: boolean | null;
+  privacy_level: PrivacyLevel;
 };
 
 function ProfilePage() {
