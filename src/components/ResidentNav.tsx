@@ -125,7 +125,10 @@ type NavItem = {
 export function ResidentSidebarLinks() {
   const { buildingId, counts } = useResidentNavContext();
   const { settings } = useBuildingSettings(buildingId);
+  const { branding } = useBranding();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const communityName = brandingValue(branding, "community_name");
+  const logo = branding?.logo_url;
 
   const all: NavItem[] = [
     { to: "/announcements", label: "Community Updates", icon: "📢", badge: counts.announcementsUnread },
