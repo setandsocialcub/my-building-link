@@ -138,12 +138,16 @@ function ProfilePage() {
         </Card>
       ) : (
         <div className="max-w-2xl space-y-6">
-          <div>
-            <h1 className="font-serif text-3xl">Your profile</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Signed in as {email}
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="font-serif text-3xl">Your profile</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Signed in as {email}
+              </p>
+            </div>
+            <PrivacyBadge level={privacyLevel} />
           </div>
+
 
           <Card>
             <CardContent className="p-6 space-y-4">
