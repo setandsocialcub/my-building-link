@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { AuthGate } from "@/components/AuthGate";
 import { CircleRecommendations } from "@/components/CircleRecommendations";
+import { PrivacyLevelPicker } from "@/components/PrivacyLevelPicker";
+import type { PrivacyLevel } from "@/lib/privacy";
 
 export const Route = createFileRoute("/onboarding/$buildingId")({
   component: OnboardingRoute,
