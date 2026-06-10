@@ -58,7 +58,7 @@ function ProfilePage() {
       }
       setEmail(auth.user.email ?? "");
 
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from("resident_profiles")
         .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, privacy_level, accepted_terms_at, accepted_privacy_at, accepted_terms_version, accepted_privacy_version")
         .eq("user_id", auth.user.id)
