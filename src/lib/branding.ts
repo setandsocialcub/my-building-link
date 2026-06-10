@@ -1,6 +1,4 @@
-export type BuildingBranding = {
-  id: string;
-  building_id: string;
+export type BrandingFields = {
   community_name: string | null;
   logo_url: string | null;
   hero_image_url: string | null;
@@ -11,6 +9,29 @@ export type BuildingBranding = {
   welcome_message: string | null;
   custom_tagline: string | null;
 };
+
+export type BuildingBranding = BrandingFields & {
+  id: string;
+  building_id: string;
+  draft?: Partial<BrandingFields> | null;
+  draft_updated_at?: string | null;
+  published_at?: string | null;
+};
+
+/** Merge live published branding with pending draft overrides (for preview). */
+export function mergeDraft(
+  b: BuildingBranding | null | undefined,
+  draft: Partial<BrandingFields> | null | undefined,
+): BuildingBranding | null {
+  if (!b) return null;
+  if (!draft) return b;
+  const merged: any = { ...b };
+  (Object.keys(draft) as (keyof BrandingFields)[]).forEach((k) => {
+    const v = draft[k];
+    if (v !== undefined) merged[k] = v;
+  });
+  return merged;
+}
 
 export const DEFAULT_BRANDING = {
   community_name: "Residence",

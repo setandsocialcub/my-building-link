@@ -90,10 +90,13 @@ export type Database = {
           community_name: string | null
           created_at: string
           custom_tagline: string | null
+          draft: Json | null
+          draft_updated_at: string | null
           hero_image_url: string | null
           id: string
           logo_url: string | null
           primary_color: string | null
+          published_at: string | null
           secondary_color: string | null
           updated_at: string
           welcome_message: string | null
@@ -105,10 +108,13 @@ export type Database = {
           community_name?: string | null
           created_at?: string
           custom_tagline?: string | null
+          draft?: Json | null
+          draft_updated_at?: string | null
           hero_image_url?: string | null
           id?: string
           logo_url?: string | null
           primary_color?: string | null
+          published_at?: string | null
           secondary_color?: string | null
           updated_at?: string
           welcome_message?: string | null
@@ -120,10 +126,13 @@ export type Database = {
           community_name?: string | null
           created_at?: string
           custom_tagline?: string | null
+          draft?: Json | null
+          draft_updated_at?: string | null
           hero_image_url?: string | null
           id?: string
           logo_url?: string | null
           primary_color?: string | null
+          published_at?: string | null
           secondary_color?: string | null
           updated_at?: string
           welcome_message?: string | null
