@@ -225,6 +225,45 @@ function DiscoverPage() {
     };
   }, [navigate]);
 
+  // Live refresh when any resident in this building changes their privacy/profile.
+  useEffect(() => {
+    if (!me) return;
+    const refetchResidents = async () => {
+      const { data } = await supabase
+        .from("resident_profiles_safe")
+        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, visibility")
+        .eq("building_id", me.building_id)
+        .neq("user_id", me.user_id);
+      setResidents(((data ?? []) as ResidentRow[]).filter((r) => r.is_visible));
+    };
+
+    const channel = supabase
+      .channel(`profiles:${me.building_id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "resident_profiles",
+          filter: `building_id=eq.${me.building_id}`,
+        },
+        () => {
+          void refetchResidents();
+        },
+      )
+      .subscribe();
+
+    const onLocal = () => {
+      void refetchResidents();
+    };
+    window.addEventListener("privacy:changed", onLocal);
+
+    return () => {
+      void supabase.removeChannel(channel);
+      window.removeEventListener("privacy:changed", onLocal);
+    };
+  }, [me]);
+
   const myInterests = useMemo(
     () => new Set((me?.interest_tags ?? []).map((t) => t.toLowerCase())),
     [me],
