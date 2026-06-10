@@ -159,8 +159,8 @@ function DiscoverPage() {
 
       const [othersRes, connsRes, introsRes, myCirclesRes, myRsvpsRes] = await Promise.all([
         supabase
-          .from("resident_profiles")
-          .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible")
+          .from("resident_profiles_safe")
+          .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, visibility")
           .eq("building_id", mine.building_id)
           .neq("user_id", auth.user.id),
         supabase
