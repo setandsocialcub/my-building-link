@@ -148,6 +148,23 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
   const handleSubmit = async () => {
     setSubmitting(true);
     setError(null);
+
+    // Read acceptance timestamps captured at registration time (AuthGate).
+    let acceptedTermsAt: string | null = null;
+    let acceptedPrivacyAt: string | null = null;
+    if (typeof window !== "undefined") {
+      try {
+        acceptedTermsAt = localStorage.getItem("legal:acceptedTermsAt");
+        acceptedPrivacyAt = localStorage.getItem("legal:acceptedPrivacyAt");
+      } catch {
+        /* ignore */
+      }
+    }
+    // Fallback for users who signed up before this flow existed: stamp now.
+    const now = new Date().toISOString();
+    if (!acceptedTermsAt) acceptedTermsAt = now;
+    if (!acceptedPrivacyAt) acceptedPrivacyAt = now;
+
     const { data, error: insertError } = await supabase
       .from("resident_profiles")
       .insert({
@@ -158,7 +175,9 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
         job_title: jobTitle.trim() || null,
         interest_tags: interests,
         privacy_level: privacyLevel,
-      })
+        accepted_terms_at: acceptedTermsAt,
+        accepted_privacy_at: acceptedPrivacyAt,
+      } as never)
       .select("id")
       .single();
 
