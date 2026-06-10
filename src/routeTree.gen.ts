@@ -9,10 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SuperAdminLoginRouteImport } from './routes/super-admin-login'
 import { Route as ResidentAccessRouteImport } from './routes/resident-access'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
@@ -23,6 +25,7 @@ import { Route as ForumRouteImport } from './routes/forum'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ConnectionsRouteImport } from './routes/connections'
+import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -32,8 +35,14 @@ import { Route as MessagesConnectionIdRouteImport } from './routes/messages.$con
 import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
 import { Route as ForumThreadIdRouteImport } from './routes/forum.$threadId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
+import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as AdminBuildingsBuildingIdSettingsRouteImport } from './routes/admin.buildings.$buildingId.settings'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperAdminLoginRoute = SuperAdminLoginRouteImport.update({
   id: '/super-admin-login',
   path: '/super-admin-login',
@@ -52,6 +61,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -104,6 +118,11 @@ const ConnectionsRoute = ConnectionsRouteImport.update({
   path: '/connections',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityStandardsRoute = CommunityStandardsRouteImport.update({
+  id: '/community-standards',
+  path: '/community-standards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnnouncementsRoute = AnnouncementsRouteImport.update({
   id: '/announcements',
   path: '/announcements',
@@ -149,6 +168,11 @@ const BuildingBuildingIdRoute = BuildingBuildingIdRouteImport.update({
   path: '/building/$buildingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLegalRoute = AdminLegalRouteImport.update({
+  id: '/legal',
+  path: '/legal',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBuildingsBuildingIdSettingsRoute =
   AdminBuildingsBuildingIdSettingsRouteImport.update({
     id: '/buildings/$buildingId/settings',
@@ -160,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/announcements': typeof AnnouncementsRoute
+  '/community-standards': typeof CommunityStandardsRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
@@ -170,10 +195,13 @@ export interface FileRoutesByFullPath {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
+  '/terms': typeof TermsRoute
+  '/admin/legal': typeof AdminLegalRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
@@ -186,6 +214,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/announcements': typeof AnnouncementsRoute
+  '/community-standards': typeof CommunityStandardsRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
@@ -196,10 +225,13 @@ export interface FileRoutesByTo {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
+  '/terms': typeof TermsRoute
+  '/admin/legal': typeof AdminLegalRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
@@ -213,6 +245,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/announcements': typeof AnnouncementsRoute
+  '/community-standards': typeof CommunityStandardsRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
@@ -223,10 +256,13 @@ export interface FileRoutesById {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resident-access': typeof ResidentAccessRoute
   '/super-admin-login': typeof SuperAdminLoginRoute
+  '/terms': typeof TermsRoute
+  '/admin/legal': typeof AdminLegalRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRoute
@@ -241,6 +277,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/announcements'
+    | '/community-standards'
     | '/connections'
     | '/discover'
     | '/events'
@@ -251,10 +288,13 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/privacy'
     | '/profile'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
+    | '/terms'
+    | '/admin/legal'
     | '/building/$buildingId'
     | '/forum/$threadId'
     | '/manager/$buildingId'
@@ -267,6 +307,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/announcements'
+    | '/community-standards'
     | '/connections'
     | '/discover'
     | '/events'
@@ -277,10 +318,13 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/privacy'
     | '/profile'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
+    | '/terms'
+    | '/admin/legal'
     | '/building/$buildingId'
     | '/forum/$threadId'
     | '/manager/$buildingId'
@@ -293,6 +337,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/announcements'
+    | '/community-standards'
     | '/connections'
     | '/discover'
     | '/events'
@@ -303,10 +348,13 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/privacy'
     | '/profile'
     | '/reset-password'
     | '/resident-access'
     | '/super-admin-login'
+    | '/terms'
+    | '/admin/legal'
     | '/building/$buildingId'
     | '/forum/$threadId'
     | '/manager/$buildingId'
@@ -320,6 +368,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AnnouncementsRoute: typeof AnnouncementsRoute
+  CommunityStandardsRoute: typeof CommunityStandardsRoute
   ConnectionsRoute: typeof ConnectionsRoute
   DiscoverRoute: typeof DiscoverRoute
   EventsRoute: typeof EventsRoute
@@ -330,10 +379,12 @@ export interface RootRouteChildren {
   ManagerAuthRoute: typeof ManagerAuthRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MessagesRoute: typeof MessagesRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResidentAccessRoute: typeof ResidentAccessRoute
   SuperAdminLoginRoute: typeof SuperAdminLoginRoute
+  TermsRoute: typeof TermsRoute
   BuildingBuildingIdRoute: typeof BuildingBuildingIdRoute
   OnboardingBuildingIdRoute: typeof OnboardingBuildingIdRoute
   PulseBuildingIdRoute: typeof PulseBuildingIdRoute
@@ -341,6 +392,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/super-admin-login': {
       id: '/super-admin-login'
       path: '/super-admin-login'
@@ -367,6 +425,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -439,6 +504,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConnectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community-standards': {
+      id: '/community-standards'
+      path: '/community-standards'
+      fullPath: '/community-standards'
+      preLoaderRoute: typeof CommunityStandardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/announcements': {
       id: '/announcements'
       path: '/announcements'
@@ -502,6 +574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildingBuildingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/legal': {
+      id: '/admin/legal'
+      path: '/legal'
+      fullPath: '/admin/legal'
+      preLoaderRoute: typeof AdminLegalRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/buildings/$buildingId/settings': {
       id: '/admin/buildings/$buildingId/settings'
       path: '/buildings/$buildingId/settings'
@@ -513,10 +592,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminLegalRoute: typeof AdminLegalRoute
   AdminBuildingsBuildingIdSettingsRoute: typeof AdminBuildingsBuildingIdSettingsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminLegalRoute: AdminLegalRoute,
   AdminBuildingsBuildingIdSettingsRoute: AdminBuildingsBuildingIdSettingsRoute,
 }
 
@@ -559,6 +640,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AnnouncementsRoute: AnnouncementsRoute,
+  CommunityStandardsRoute: CommunityStandardsRoute,
   ConnectionsRoute: ConnectionsRoute,
   DiscoverRoute: DiscoverRoute,
   EventsRoute: EventsRoute,
@@ -569,10 +651,12 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerAuthRoute: ManagerAuthRoute,
   MarketplaceRoute: MarketplaceRoute,
   MessagesRoute: MessagesRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ResidentAccessRoute: ResidentAccessRoute,
   SuperAdminLoginRoute: SuperAdminLoginRoute,
+  TermsRoute: TermsRoute,
   BuildingBuildingIdRoute: BuildingBuildingIdRoute,
   OnboardingBuildingIdRoute: OnboardingBuildingIdRoute,
   PulseBuildingIdRoute: PulseBuildingIdRoute,
