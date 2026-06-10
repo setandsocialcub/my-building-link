@@ -44,6 +44,9 @@ function ProfilePage() {
   const [jobTitle, setJobTitle] = useState("");
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>("public");
   const [savingPrivacy, setSavingPrivacy] = useState(false);
+  const [currentTerms, setCurrentTerms] = useState<LegalDocument | null>(null);
+  const [currentPrivacy, setCurrentPrivacy] = useState<LegalDocument | null>(null);
+  const [reaccepting, setReaccepting] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,7 +60,7 @@ function ProfilePage() {
 
       const { data } = await supabase
         .from("resident_profiles")
-        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, privacy_level")
+        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, privacy_level, accepted_terms_at, accepted_privacy_at, accepted_terms_version, accepted_privacy_version")
         .eq("user_id", auth.user.id)
         .maybeSingle();
       if (cancelled) return;
@@ -69,6 +72,16 @@ function ProfilePage() {
         setJobTitle(p.job_title ?? "");
         setPrivacyLevel(p.privacy_level ?? "public");
       }
+
+      const [termsDoc, privacyDoc] = await Promise.all([
+        fetchLegalDocument("terms"),
+        fetchLegalDocument("privacy"),
+      ]);
+      if (!cancelled) {
+        setCurrentTerms(termsDoc);
+        setCurrentPrivacy(privacyDoc);
+      }
+
       setLoading(false);
     })();
     return () => {
@@ -120,6 +133,32 @@ function ProfilePage() {
     }
   };
 
+  const reaccept = async (type: "terms" | "privacy") => {
+    if (!profile) return;
+    const doc = type === "terms" ? currentTerms : currentPrivacy;
+    if (!doc) return;
+    setReaccepting(type);
+    const update: Record<string, unknown> = {
+      [`accepted_${type}_at`]: new Date().toISOString(),
+      [`accepted_${type}_version`]: doc.version,
+    };
+    const { error } = await supabase.from("resident_profiles").update(update).eq("id", profile.id);
+    setReaccepting(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            [`accepted_${type}_at`]: update[`accepted_${type}_at`] as string,
+            [`accepted_${type}_version`]: doc.version,
+          }
+        : prev
+    );
+    toast.success(`You have accepted the latest ${type === "terms" ? "Terms of Use" : "Privacy Policy"}.`);
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
