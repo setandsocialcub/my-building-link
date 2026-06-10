@@ -139,6 +139,38 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
           minLength={8}
         />
         {err && <p className="text-sm text-destructive">{err}</p>}
+        {mode === "signup" && (
+          <div className="space-y-2 rounded-lg border border-border bg-muted/40 p-3">
+            <label className="flex items-start gap-2 text-xs text-foreground cursor-pointer">
+              <Checkbox
+                checked={acceptedTerms}
+                onCheckedChange={(c) => setAcceptedTerms(c === true)}
+                className="mt-0.5"
+              />
+              <span>
+                I agree to the{" "}
+                <Link to="/terms" target="_blank" className="underline text-primary">
+                  Terms of Use
+                </Link>
+                .
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-xs text-foreground cursor-pointer">
+              <Checkbox
+                checked={acceptedPrivacy}
+                onCheckedChange={(c) => setAcceptedPrivacy(c === true)}
+                className="mt-0.5"
+              />
+              <span>
+                I acknowledge the{" "}
+                <Link to="/privacy" target="_blank" className="underline text-primary">
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
+          </div>
+        )}
         <Button type="submit" disabled={busy} className="w-full">
           {busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
         </Button>
@@ -149,6 +181,13 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
         >
           {mode === "signup" ? "Already have an account? Sign in" : "Need an account? Sign up"}
         </button>
+        <div className="pt-2 text-center text-[11px] text-muted-foreground space-x-2">
+          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/community-standards" className="hover:text-foreground">Community Standards</Link>
+        </div>
       </form>
     </main>
   );
