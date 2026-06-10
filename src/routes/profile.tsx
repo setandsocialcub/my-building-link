@@ -37,6 +37,8 @@ function ProfilePage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>("public");
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +52,7 @@ function ProfilePage() {
 
       const { data } = await supabase
         .from("resident_profiles")
-        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible")
+        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, privacy_level")
         .eq("user_id", auth.user.id)
         .maybeSingle();
       if (cancelled) return;
@@ -60,6 +62,7 @@ function ProfilePage() {
         setFirstName(p.first_name ?? "");
         setLastName(p.last_name ?? "");
         setJobTitle(p.job_title ?? "");
+        setPrivacyLevel(p.privacy_level ?? "public");
       }
       setLoading(false);
     })();
@@ -90,6 +93,25 @@ function ProfilePage() {
     }
     toast.success("Profile updated");
   };
+
+  const updatePrivacy = async (next: PrivacyLevel) => {
+    if (!profile || next === privacyLevel) return;
+    const previous = privacyLevel;
+    setPrivacyLevel(next);
+    setSavingPrivacy(true);
+    const { error } = await supabase
+      .from("resident_profiles")
+      .update({ privacy_level: next })
+      .eq("id", profile.id);
+    setSavingPrivacy(false);
+    if (error) {
+      setPrivacyLevel(previous);
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Privacy set to "${privacyOption(next).title}"`);
+  };
+
 
   const signOut = async () => {
     await supabase.auth.signOut();
