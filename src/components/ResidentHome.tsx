@@ -27,6 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { CIRCLE_CATEGORIES, categoryLabel } from "@/lib/circle-categories";
 import heroImg from "@/assets/home-hero.jpg";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 type Me = {
   id: string;
