@@ -1,5 +1,18 @@
-import { useEffect, useRef, useState } from "react";
-import { Loader2, Upload, Palette, Image as ImageIcon, Save, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Loader2,
+  Upload,
+  Palette,
+  Image as ImageIcon,
+  Save,
+  RotateCcw,
+  Eye,
+  EyeOff,
+  Send,
+  Trash2,
+  CheckCircle2,
+  CircleDot,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -7,18 +20,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { DEFAULT_BRANDING, type BuildingBranding } from "@/lib/branding";
+import { Badge } from "@/components/ui/badge";
+import {
+  DEFAULT_BRANDING,
+  mergeDraft,
+  type BrandingFields,
+  type BuildingBranding,
+} from "@/lib/branding";
+import { useBranding } from "@/components/BrandingProvider";
 
-type Field =
-  | "community_name"
-  | "welcome_message"
-  | "custom_tagline"
-  | "primary_color"
-  | "secondary_color"
-  | "accent_color"
-  | "logo_url"
-  | "hero_image_url"
-  | "app_icon_url";
+type Field = keyof BrandingFields;
 
 type Asset = {
   field: "logo_url" | "hero_image_url" | "app_icon_url";
@@ -32,18 +43,42 @@ const ASSETS: Asset[] = [
   { field: "app_icon_url", label: "App icon", hint: "Used on the PWA install screen and home-screen icon (512×512 PNG)." },
 ];
 
+const FIELDS: Field[] = [
+  "community_name",
+  "welcome_message",
+  "custom_tagline",
+  "primary_color",
+  "secondary_color",
+  "accent_color",
+  "logo_url",
+  "hero_image_url",
+  "app_icon_url",
+];
+
+const emptyDraft = (b: BuildingBranding | null): Record<Field, string> => {
+  const source = mergeDraft(b, b?.draft ?? null) ?? (b as any);
+  const out = {} as Record<Field, string>;
+  FIELDS.forEach((k) => {
+    const v = source?.[k as keyof typeof source];
+    out[k] = (typeof v === "string" ? v : "") ?? "";
+  });
+  return out;
+};
+
 export function BrandingEditor({ buildingId }: { buildingId: string }) {
+  const { setPreviewDraft, previewing } = useBranding();
   const [branding, setBranding] = useState<BuildingBranding | null>(null);
-  const [draft, setDraft] = useState<Partial<Record<Field, string>>>({});
+  const [draft, setDraft] = useState<Record<Field, string>>(() => emptyDraft(null));
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
   const [uploading, setUploading] = useState<Asset["field"] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      // Ensure a row exists (the trigger handles new buildings, but be safe)
       await (supabase as any)
         .from("building_branding")
         .upsert({ building_id: buildingId }, { onConflict: "building_id", ignoreDuplicates: true });
@@ -55,23 +90,32 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
       if (cancelled) return;
       const b = (data as BuildingBranding | null) ?? null;
       setBranding(b);
-      setDraft({
-        community_name: b?.community_name ?? "",
-        welcome_message: b?.welcome_message ?? "",
-        custom_tagline: b?.custom_tagline ?? "",
-        primary_color: b?.primary_color ?? "",
-        secondary_color: b?.secondary_color ?? "",
-        accent_color: b?.accent_color ?? "",
-        logo_url: b?.logo_url ?? "",
-        hero_image_url: b?.hero_image_url ?? "",
-        app_icon_url: b?.app_icon_url ?? "",
-      });
+      setDraft(emptyDraft(b));
       setLoading(false);
     })();
     return () => {
       cancelled = true;
+      setPreviewDraft(null);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildingId]);
+
+  // Compute draft payload (only fields that differ from published live values)
+  const draftPayload = useMemo<Partial<BrandingFields>>(() => {
+    const out: Partial<BrandingFields> = {};
+    FIELDS.forEach((k) => {
+      const v = draft[k]?.trim() ?? "";
+      const live = (branding?.[k as keyof BuildingBranding] as string | null | undefined) ?? "";
+      const norm = v === "" ? null : v;
+      const liveNorm = live === "" ? null : live;
+      if (norm !== liveNorm) (out as any)[k] = norm;
+    });
+    return out;
+  }, [draft, branding]);
+
+  const hasPendingChanges = Object.keys(draftPayload).length > 0;
+  const savedDraft = (branding?.draft ?? null) as Partial<BrandingFields> | null;
+  const hasSavedDraft = !!savedDraft && Object.keys(savedDraft).length > 0;
 
   const update = (field: Field, value: string) =>
     setDraft((d) => ({ ...d, [field]: value }));
@@ -90,13 +134,12 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
         .from("branding")
         .upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
-      // Private bucket → long-lived signed URL (1 year, max allowed)
       const { data: signed, error: sErr } = await supabase.storage
         .from("branding")
         .createSignedUrl(path, 60 * 60 * 24 * 365);
       if (sErr || !signed?.signedUrl) throw sErr ?? new Error("Could not sign URL");
       update(field, signed.signedUrl);
-      toast.success("Uploaded.");
+      toast.success("Uploaded to draft.");
     } catch (e: any) {
       toast.error(e?.message ?? "Upload failed");
     } finally {
@@ -104,27 +147,90 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
     }
   };
 
-  const save = async () => {
-    setSaving(true);
-    const payload: Record<string, string | null> = {};
-    (Object.keys(draft) as Field[]).forEach((k) => {
-      const v = draft[k]?.trim() ?? "";
-      payload[k] = v === "" ? null : v;
-    });
-    const { error } = await (supabase as any)
+  const saveDraft = async () => {
+    setSavingDraft(true);
+    const { data, error } = await (supabase as any)
       .from("building_branding")
-      .update(payload)
-      .eq("building_id", buildingId);
-    setSaving(false);
+      .update({
+        draft: draftPayload,
+        draft_updated_at: new Date().toISOString(),
+      })
+      .eq("building_id", buildingId)
+      .select("*")
+      .maybeSingle();
+    setSavingDraft(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success("Branding saved.");
-    setBranding({ ...(branding as BuildingBranding), ...(payload as any) });
-    // Notify provider in-tab
+    if (data) {
+      setBranding(data as BuildingBranding);
+      setDraft(emptyDraft(data as BuildingBranding));
+    }
+    toast.success("Draft saved. Residents still see the published version.");
+  };
+
+  const publish = async () => {
+    setPublishing(true);
+    const merged = mergeDraft(branding, draftPayload);
+    const payload: Record<string, any> = {
+      draft: null,
+      draft_updated_at: null,
+      published_at: new Date().toISOString(),
+    };
+    FIELDS.forEach((k) => {
+      const v = (merged?.[k as keyof BuildingBranding] as string | null | undefined) ?? null;
+      payload[k] = v && String(v).trim() ? v : null;
+    });
+    const { data, error } = await (supabase as any)
+      .from("building_branding")
+      .update(payload)
+      .eq("building_id", buildingId)
+      .select("*")
+      .maybeSingle();
+    setPublishing(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    if (data) {
+      setBranding(data as BuildingBranding);
+      setDraft(emptyDraft(data as BuildingBranding));
+    }
+    setPreviewDraft(null);
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("branding:changed"));
+    }
+    toast.success("Branding published to all residents.");
+  };
+
+  const discardDraft = async () => {
+    setDiscarding(true);
+    const { data, error } = await (supabase as any)
+      .from("building_branding")
+      .update({ draft: null, draft_updated_at: null })
+      .eq("building_id", buildingId)
+      .select("*")
+      .maybeSingle();
+    setDiscarding(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    if (data) {
+      setBranding(data as BuildingBranding);
+      setDraft(emptyDraft(data as BuildingBranding));
+    }
+    setPreviewDraft(null);
+    toast.success("Draft discarded.");
+  };
+
+  const togglePreview = () => {
+    if (previewing) {
+      setPreviewDraft(null);
+    } else {
+      // Apply the in-form draft (including unsaved edits) for local preview
+      setPreviewDraft(draftPayload);
     }
   };
 
@@ -138,8 +244,44 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
     );
   }
 
+  const publishedAt = branding?.published_at
+    ? new Date(branding.published_at).toLocaleString()
+    : null;
+  const draftUpdatedAt = branding?.draft_updated_at
+    ? new Date(branding.draft_updated_at).toLocaleString()
+    : null;
+
   return (
     <div className="space-y-8">
+      {/* Status bar */}
+      <div className="rounded-xl border border-border bg-card p-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {hasSavedDraft || hasPendingChanges ? (
+            <Badge variant="secondary" className="gap-1.5">
+              <CircleDot className="h-3 w-3" /> Draft in progress
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="gap-1.5">
+              <CheckCircle2 className="h-3 w-3" /> Published
+            </Badge>
+          )}
+          {previewing && (
+            <Badge className="gap-1.5 bg-accent text-accent-foreground">
+              <Eye className="h-3 w-3" /> Previewing draft
+            </Badge>
+          )}
+          <div className="text-xs text-muted-foreground">
+            {publishedAt && <span>Last published: {publishedAt}</span>}
+            {publishedAt && draftUpdatedAt && <span className="mx-2">·</span>}
+            {draftUpdatedAt && <span>Draft saved: {draftUpdatedAt}</span>}
+            {!publishedAt && !draftUpdatedAt && <span>No changes yet.</span>}
+          </div>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Residents only see published branding.
+        </div>
+      </div>
+
       {/* Identity */}
       <section className="space-y-4">
         <header>
@@ -241,10 +383,59 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
         </div>
       </section>
 
-      <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-        <Button onClick={save} disabled={saving} className="gap-2">
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save branding
+      {/* Actions */}
+      <div className="sticky bottom-0 -mx-4 sm:mx-0 px-4 sm:px-0 pt-3 pb-4 bg-background/95 backdrop-blur border-t border-border flex flex-wrap items-center justify-end gap-2">
+        <Button
+          variant={previewing ? "default" : "outline"}
+          onClick={togglePreview}
+          className="gap-2"
+          type="button"
+        >
+          {previewing ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {previewing ? "Stop preview" : "Preview draft"}
+        </Button>
+        {(hasSavedDraft || hasPendingChanges) && (
+          <Button
+            variant="ghost"
+            onClick={discardDraft}
+            disabled={discarding || publishing}
+            className="gap-2"
+            type="button"
+          >
+            {discarding ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+            Discard draft
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          onClick={saveDraft}
+          disabled={savingDraft || publishing || !hasPendingChanges}
+          className="gap-2"
+          type="button"
+        >
+          {savingDraft ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          Save draft
+        </Button>
+        <Button
+          onClick={publish}
+          disabled={publishing || (!hasPendingChanges && !hasSavedDraft)}
+          className="gap-2"
+          type="button"
+        >
+          {publishing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
+          Publish to residents
         </Button>
       </div>
     </div>
