@@ -83,6 +83,8 @@ function LandingChooser() {
             System Admin
           </Link>
         </div>
+
+        <LegalFooter />
       </div>
     </main>
   );
