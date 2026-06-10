@@ -148,15 +148,13 @@ function ProfilePage() {
       toast.error(error.message);
       return;
     }
-    setProfile((prev) =>
-      prev
-        ? {
-            ...prev,
-            [`accepted_${type}_at`]: update[`accepted_${type}_at`] as string,
-            [`accepted_${type}_version`]: doc.version,
-          }
-        : prev
-    );
+    setProfile((prev) => {
+      if (!prev) return prev;
+      if (type === "terms") {
+        return { ...prev, accepted_terms_at: update.accepted_terms_at as string, accepted_terms_version: doc.version };
+      }
+      return { ...prev, accepted_privacy_at: update.accepted_privacy_at as string, accepted_privacy_version: doc.version };
+    });
     toast.success(`You have accepted the latest ${type === "terms" ? "Terms of Use" : "Privacy Policy"}.`);
   };
 
