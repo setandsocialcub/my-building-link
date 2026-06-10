@@ -1131,7 +1131,9 @@ export type Database = {
       resident_profiles: {
         Row: {
           accepted_privacy_at: string | null
+          accepted_privacy_version: number | null
           accepted_terms_at: string | null
+          accepted_terms_version: number | null
           building_id: string
           created_at: string
           first_name: string
@@ -1146,7 +1148,9 @@ export type Database = {
         }
         Insert: {
           accepted_privacy_at?: string | null
+          accepted_privacy_version?: number | null
           accepted_terms_at?: string | null
+          accepted_terms_version?: number | null
           building_id: string
           created_at?: string
           first_name: string
@@ -1161,7 +1165,9 @@ export type Database = {
         }
         Update: {
           accepted_privacy_at?: string | null
+          accepted_privacy_version?: number | null
           accepted_terms_at?: string | null
+          accepted_terms_version?: number | null
           building_id?: string
           created_at?: string
           first_name?: string
