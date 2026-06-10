@@ -110,6 +110,9 @@ function ProfilePage() {
       return;
     }
     toast.success(`Privacy set to "${privacyOption(next).title}"`);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("privacy:changed", { detail: { level: next } }));
+    }
   };
 
 
