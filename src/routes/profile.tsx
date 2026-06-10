@@ -192,6 +192,30 @@ function ProfilePage() {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <ShieldCheck className="h-5 w-5" />
+                </span>
+                <div className="flex-1">
+                  <h2 className="text-base font-semibold">Privacy</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    You choose what neighbors can see. Managers of your building always see the full profile. Accepted introductions and conversations always unlock full details for that person.
+                  </p>
+                </div>
+                {savingPrivacy && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              <PrivacyLevelPicker
+                value={privacyLevel}
+                onChange={updatePrivacy}
+                disabled={savingPrivacy}
+              />
+            </CardContent>
+          </Card>
         </div>
       )}
     </ResidentPageShell>
