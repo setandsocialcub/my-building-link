@@ -68,6 +68,7 @@ type ResidentRow = {
   job_title: string | null;
   interest_tags: string[];
   is_visible: boolean;
+  visibility: "self" | "full" | "limited" | "discover" | "hidden";
 };
 
 type ConnectionRow = {
