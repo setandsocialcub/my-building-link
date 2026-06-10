@@ -212,6 +212,13 @@ export type Database = {
             foreignKeyName: "channel_members_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
             referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
           },
@@ -252,6 +259,13 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -301,6 +315,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channels_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -384,6 +405,13 @@ export type Database = {
             foreignKeyName: "connections_addressee_id_fkey"
             columns: ["addressee_id"]
             isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_addressee_id_fkey"
+            columns: ["addressee_id"]
+            isOneToOne: false
             referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
           },
@@ -399,6 +427,13 @@ export type Database = {
             columns: ["requester_id"]
             isOneToOne: false
             referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -705,6 +740,13 @@ export type Database = {
             foreignKeyName: "groups_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
           },
@@ -766,6 +808,13 @@ export type Database = {
             columns: ["seller_id"]
             isOneToOne: false
             referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -844,6 +893,13 @@ export type Database = {
             foreignKeyName: "message_flags_reporter_id_fkey"
             columns: ["reporter_id"]
             isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_flags_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
             referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
           },
@@ -897,6 +953,13 @@ export type Database = {
             columns: ["recipient_id"]
             isOneToOne: false
             referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -996,6 +1059,13 @@ export type Database = {
             foreignKeyName: "resident_introductions_recipient_id_fkey"
             columns: ["recipient_id"]
             isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_introductions_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
             referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
           },
@@ -1004,6 +1074,13 @@ export type Database = {
             columns: ["requester_id"]
             isOneToOne: false
             referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_introductions_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -1026,6 +1103,7 @@ export type Database = {
           job_title: string | null
           last_active_at: string
           last_name: string | null
+          privacy_level: Database["public"]["Enums"]["privacy_level"]
           user_id: string
         }
         Insert: {
@@ -1038,6 +1116,7 @@ export type Database = {
           job_title?: string | null
           last_active_at?: string
           last_name?: string | null
+          privacy_level?: Database["public"]["Enums"]["privacy_level"]
           user_id: string
         }
         Update: {
@@ -1050,6 +1129,7 @@ export type Database = {
           job_title?: string | null
           last_active_at?: string
           last_name?: string | null
+          privacy_level?: Database["public"]["Enums"]["privacy_level"]
           user_id?: string
         }
         Relationships: [
@@ -1085,6 +1165,59 @@ export type Database = {
       }
     }
     Views: {
+      resident_profiles_safe: {
+        Row: {
+          building_id: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string | null
+          interest_tags: string[] | null
+          is_visible: boolean | null
+          job_title: string | null
+          last_active_at: string | null
+          last_name: string | null
+          privacy_level: Database["public"]["Enums"]["privacy_level"] | null
+          user_id: string | null
+          visibility: string | null
+        }
+        Insert: {
+          building_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          interest_tags?: string[] | null
+          is_visible?: boolean | null
+          job_title?: never
+          last_active_at?: string | null
+          last_name?: never
+          privacy_level?: Database["public"]["Enums"]["privacy_level"] | null
+          user_id?: string | null
+          visibility?: never
+        }
+        Update: {
+          building_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          interest_tags?: string[] | null
+          is_visible?: boolean | null
+          job_title?: never
+          last_active_at?: string | null
+          last_name?: never
+          privacy_level?: Database["public"]["Enums"]["privacy_level"] | null
+          user_id?: string | null
+          visibility?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_profiles_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resident_public_profiles: {
         Row: {
           building_id: string | null
@@ -1140,6 +1273,10 @@ export type Database = {
         }[]
       }
       group_building_id: { Args: { _group_id: string }; Returns: string }
+      has_accepted_intro_with: {
+        Args: { _target_profile: string }
+        Returns: boolean
+      }
       has_building_access: { Args: { _building_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -1170,6 +1307,7 @@ export type Database = {
           name: string
         }[]
       }
+      profile_visibility: { Args: { _profile_id: string }; Returns: string }
       regenerate_building_access_code: {
         Args: { _building_id: string }
         Returns: string
@@ -1178,6 +1316,10 @@ export type Database = {
         Args: { _building_id: string }
         Returns: undefined
       }
+      shares_circle_with_profile: {
+        Args: { _target_profile: string }
+        Returns: boolean
+      }
       user_shares_building_with: {
         Args: { _other_uid: string }
         Returns: boolean
@@ -1185,6 +1327,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin"
+      privacy_level: "public" | "introduction_only" | "circle_only" | "limited"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1313,6 +1456,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin"],
+      privacy_level: ["public", "introduction_only", "circle_only", "limited"],
     },
   },
 } as const

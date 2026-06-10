@@ -68,6 +68,7 @@ type ResidentRow = {
   job_title: string | null;
   interest_tags: string[];
   is_visible: boolean;
+  visibility: "self" | "full" | "limited" | "discover" | "hidden";
 };
 
 type ConnectionRow = {
@@ -158,8 +159,8 @@ function DiscoverPage() {
 
       const [othersRes, connsRes, introsRes, myCirclesRes, myRsvpsRes] = await Promise.all([
         supabase
-          .from("resident_profiles")
-          .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible")
+          .from("resident_profiles_safe")
+          .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, visibility")
           .eq("building_id", mine.building_id)
           .neq("user_id", auth.user.id),
         supabase
@@ -614,11 +615,19 @@ function MatchCard({
           <h3 className="truncate font-medium text-foreground">
             {displayName(resident.first_name, resident.last_name)}
           </h3>
-          {resident.job_title && (
+          {resident.job_title ? (
             <p className="truncate text-xs text-muted-foreground">
               {resident.job_title}
             </p>
-          )}
+          ) : resident.visibility === "discover" ? (
+            <p className="truncate text-[11px] text-muted-foreground italic">
+              Profile unlocks after an accepted introduction
+            </p>
+          ) : resident.visibility === "limited" ? (
+            <p className="truncate text-[11px] text-muted-foreground italic">
+              Limited profile
+            </p>
+          ) : null}
         </div>
       </div>
 

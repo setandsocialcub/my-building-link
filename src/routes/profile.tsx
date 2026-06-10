@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut, User as UserIcon } from "lucide-react";
+import { Loader2, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResidentPageShell } from "@/components/ResidentPageShell";
+import { PrivacyLevelPicker, PrivacyBadge } from "@/components/PrivacyLevelPicker";
+import { type PrivacyLevel, privacyOption } from "@/lib/privacy";
 
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
@@ -23,6 +25,7 @@ type Profile = {
   job_title: string | null;
   interest_tags: string[] | null;
   is_visible: boolean | null;
+  privacy_level: PrivacyLevel;
 };
 
 function ProfilePage() {
@@ -34,6 +37,8 @@ function ProfilePage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>("public");
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,7 +52,7 @@ function ProfilePage() {
 
       const { data } = await supabase
         .from("resident_profiles")
-        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible")
+        .select("id, user_id, building_id, first_name, last_name, job_title, interest_tags, is_visible, privacy_level")
         .eq("user_id", auth.user.id)
         .maybeSingle();
       if (cancelled) return;
@@ -57,6 +62,7 @@ function ProfilePage() {
         setFirstName(p.first_name ?? "");
         setLastName(p.last_name ?? "");
         setJobTitle(p.job_title ?? "");
+        setPrivacyLevel(p.privacy_level ?? "public");
       }
       setLoading(false);
     })();
@@ -88,6 +94,25 @@ function ProfilePage() {
     toast.success("Profile updated");
   };
 
+  const updatePrivacy = async (next: PrivacyLevel) => {
+    if (!profile || next === privacyLevel) return;
+    const previous = privacyLevel;
+    setPrivacyLevel(next);
+    setSavingPrivacy(true);
+    const { error } = await supabase
+      .from("resident_profiles")
+      .update({ privacy_level: next })
+      .eq("id", profile.id);
+    setSavingPrivacy(false);
+    if (error) {
+      setPrivacyLevel(previous);
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Privacy set to "${privacyOption(next).title}"`);
+  };
+
+
   const signOut = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/" });
@@ -113,12 +138,16 @@ function ProfilePage() {
         </Card>
       ) : (
         <div className="max-w-2xl space-y-6">
-          <div>
-            <h1 className="font-serif text-3xl">Your profile</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Signed in as {email}
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="font-serif text-3xl">Your profile</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Signed in as {email}
+              </p>
+            </div>
+            <PrivacyBadge level={privacyLevel} />
           </div>
+
 
           <Card>
             <CardContent className="p-6 space-y-4">
@@ -161,6 +190,30 @@ function ProfilePage() {
                   Save changes
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <ShieldCheck className="h-5 w-5" />
+                </span>
+                <div className="flex-1">
+                  <h2 className="text-base font-semibold">Privacy</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    You choose what neighbors can see. Managers of your building always see the full profile. Accepted introductions and conversations always unlock full details for that person.
+                  </p>
+                </div>
+                {savingPrivacy && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              <PrivacyLevelPicker
+                value={privacyLevel}
+                onChange={updatePrivacy}
+                disabled={savingPrivacy}
+              />
             </CardContent>
           </Card>
         </div>

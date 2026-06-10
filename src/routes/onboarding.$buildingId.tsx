@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { AuthGate } from "@/components/AuthGate";
 import { CircleRecommendations } from "@/components/CircleRecommendations";
+import { PrivacyLevelPicker } from "@/components/PrivacyLevelPicker";
+import type { PrivacyLevel } from "@/lib/privacy";
 
 export const Route = createFileRoute("/onboarding/$buildingId")({
   component: OnboardingRoute,
@@ -45,7 +47,7 @@ const INTEREST_CATEGORIES = {
 
 const ALL_INTEREST_TAGS = Object.values(INTEREST_CATEGORIES).flat();
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 function OnboardingRoute() {
   const { buildingId } = Route.useParams();
@@ -70,6 +72,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>("public");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -154,6 +157,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
         last_name: lastName.trim(),
         job_title: jobTitle.trim() || null,
         interest_tags: interests,
+        privacy_level: privacyLevel,
       })
       .select("id")
       .single();
@@ -165,7 +169,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
     }
 
     setSubmitting(false);
-    setStep(4);
+    setStep(5);
   };
 
   if (notFound) {
@@ -215,7 +219,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mt-8 mb-6">
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3, 4, 5].map((n) => (
             <div
               key={n}
               className={cn(
@@ -225,7 +229,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
             />
           ))}
         </div>
-        <p className="text-xs text-muted-foreground mb-4">Step {step} of 4</p>
+        <p className="text-xs text-muted-foreground mb-4">Step {step} of 5</p>
 
         <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
           {step === 1 && (
@@ -344,6 +348,29 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
                 <Button variant="ghost" onClick={() => setStep(2)} disabled={submitting}>
                   <ArrowLeft /> Back
                 </Button>
+                <Button onClick={() => setStep(4)}>
+                  Continue <ArrowRight />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-lg font-semibold">Choose your privacy</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  You decide what neighbors can see. You can change this anytime from your profile. Managers always see the full profile. Accepted introductions unlock full details for that person.
+                </p>
+              </div>
+              <PrivacyLevelPicker value={privacyLevel} onChange={setPrivacyLevel} />
+
+              {error && <p className="text-sm text-destructive">{error}</p>}
+
+              <div className="flex justify-between pt-2">
+                <Button variant="ghost" onClick={() => setStep(3)} disabled={submitting}>
+                  <ArrowLeft /> Back
+                </Button>
                 <Button onClick={handleSubmit} disabled={submitting}>
                   {submitting ? (
                     <>
@@ -359,7 +386,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-semibold">Discover your circles</h2>
