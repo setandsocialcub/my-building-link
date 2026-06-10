@@ -615,11 +615,19 @@ function MatchCard({
           <h3 className="truncate font-medium text-foreground">
             {displayName(resident.first_name, resident.last_name)}
           </h3>
-          {resident.job_title && (
+          {resident.job_title ? (
             <p className="truncate text-xs text-muted-foreground">
               {resident.job_title}
             </p>
-          )}
+          ) : resident.visibility === "discover" ? (
+            <p className="truncate text-[11px] text-muted-foreground italic">
+              Profile unlocks after an accepted introduction
+            </p>
+          ) : resident.visibility === "limited" ? (
+            <p className="truncate text-[11px] text-muted-foreground italic">
+              Limited profile
+            </p>
+          ) : null}
         </div>
       </div>
 
