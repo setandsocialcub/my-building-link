@@ -348,6 +348,29 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
                 <Button variant="ghost" onClick={() => setStep(2)} disabled={submitting}>
                   <ArrowLeft /> Back
                 </Button>
+                <Button onClick={() => setStep(4)}>
+                  Continue <ArrowRight />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-lg font-semibold">Choose your privacy</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  You decide what neighbors can see. You can change this anytime from your profile. Managers always see the full profile. Accepted introductions unlock full details for that person.
+                </p>
+              </div>
+              <PrivacyLevelPicker value={privacyLevel} onChange={setPrivacyLevel} />
+
+              {error && <p className="text-sm text-destructive">{error}</p>}
+
+              <div className="flex justify-between pt-2">
+                <Button variant="ghost" onClick={() => setStep(3)} disabled={submitting}>
+                  <ArrowLeft /> Back
+                </Button>
                 <Button onClick={handleSubmit} disabled={submitting}>
                   {submitting ? (
                     <>
@@ -363,7 +386,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-semibold">Discover your circles</h2>
