@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Download, Share, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 const DISMISS_KEY = "residence:install-prompt-dismissed-at";
 const DISMISS_DAYS = 7;
