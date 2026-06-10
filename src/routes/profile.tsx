@@ -138,7 +138,7 @@ function ProfilePage() {
     const doc = type === "terms" ? currentTerms : currentPrivacy;
     if (!doc) return;
     setReaccepting(type);
-    const update: Record<string, unknown> = {
+    const update: any = {
       [`accepted_${type}_at`]: new Date().toISOString(),
       [`accepted_${type}_version`]: doc.version,
     };
