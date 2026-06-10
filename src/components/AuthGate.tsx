@@ -24,6 +24,8 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -41,9 +43,24 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
     };
   }, []);
 
+  const rememberLegalAcceptance = () => {
+    if (typeof window === "undefined") return;
+    const now = new Date().toISOString();
+    try {
+      localStorage.setItem("legal:acceptedTermsAt", now);
+      localStorage.setItem("legal:acceptedPrivacyAt", now);
+    } catch {
+      /* ignore storage errors */
+    }
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    if (mode === "signup" && (!acceptedTerms || !acceptedPrivacy)) {
+      setErr("Please agree to the Terms of Use and acknowledge the Privacy Policy.");
+      return;
+    }
     setBusy(true);
     const { error } = mode === "signup"
       ? await supabase.auth.signUp({
@@ -53,7 +70,11 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
         })
       : await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) setErr(error.message);
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+    if (mode === "signup") rememberLegalAcceptance();
   };
 
   if (!ready) {
