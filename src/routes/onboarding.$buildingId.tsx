@@ -47,7 +47,7 @@ const INTEREST_CATEGORIES = {
 
 const ALL_INTEREST_TAGS = Object.values(INTEREST_CATEGORIES).flat();
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 function OnboardingRoute() {
   const { buildingId } = Route.useParams();
@@ -72,6 +72,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>("public");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
