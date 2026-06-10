@@ -157,6 +157,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
         last_name: lastName.trim(),
         job_title: jobTitle.trim() || null,
         interest_tags: interests,
+        privacy_level: privacyLevel,
       })
       .select("id")
       .single();
@@ -168,7 +169,7 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
     }
 
     setSubmitting(false);
-    setStep(4);
+    setStep(5);
   };
 
   if (notFound) {
