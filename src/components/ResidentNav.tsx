@@ -13,6 +13,8 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 type Counts = {
@@ -123,7 +125,10 @@ type NavItem = {
 export function ResidentSidebarLinks() {
   const { buildingId, counts } = useResidentNavContext();
   const { settings } = useBuildingSettings(buildingId);
+  const { branding } = useBranding();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const communityName = brandingValue(branding, "community_name");
+  const logo = branding?.logo_url;
 
   const all: NavItem[] = [
     { to: "/announcements", label: "Community Updates", icon: "📢", badge: counts.announcementsUnread },
@@ -148,6 +153,19 @@ export function ResidentSidebarLinks() {
 
   return (
     <div>
+      <div className="mb-4 flex items-center gap-2.5">
+        <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary grid place-items-center overflow-hidden shrink-0">
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-base">🏛️</span>
+          )}
+        </div>
+        <div className="min-w-0">
+          <div className="text-sm font-semibold truncate">{communityName}</div>
+        </div>
+      </div>
       <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
         Community
       </h2>

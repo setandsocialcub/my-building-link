@@ -36,7 +36,9 @@ import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildin
 import { Route as ForumThreadIdRouteImport } from './routes/forum.$threadId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
 import { Route as AdminLegalRouteImport } from './routes/admin.legal'
+import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
 import { Route as AdminBuildingsBuildingIdSettingsRouteImport } from './routes/admin.buildings.$buildingId.settings'
+import { Route as AdminBuildingsBuildingIdBrandingRouteImport } from './routes/admin.buildings.$buildingId.branding'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -173,10 +175,22 @@ const AdminLegalRoute = AdminLegalRouteImport.update({
   path: '/legal',
   getParentRoute: () => AdminRoute,
 } as any)
+const ManagerBuildingIdBrandingRoute =
+  ManagerBuildingIdBrandingRouteImport.update({
+    id: '/branding',
+    path: '/branding',
+    getParentRoute: () => ManagerBuildingIdRoute,
+  } as any)
 const AdminBuildingsBuildingIdSettingsRoute =
   AdminBuildingsBuildingIdSettingsRouteImport.update({
     id: '/buildings/$buildingId/settings',
     path: '/buildings/$buildingId/settings',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminBuildingsBuildingIdBrandingRoute =
+  AdminBuildingsBuildingIdBrandingRouteImport.update({
+    id: '/buildings/$buildingId/branding',
+    path: '/buildings/$buildingId/branding',
     getParentRoute: () => AdminRoute,
   } as any)
 
@@ -204,10 +218,12 @@ export interface FileRoutesByFullPath {
   '/admin/legal': typeof AdminLegalRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
-  '/manager/$buildingId': typeof ManagerBuildingIdRoute
+  '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
 }
 export interface FileRoutesByTo {
@@ -234,10 +250,12 @@ export interface FileRoutesByTo {
   '/admin/legal': typeof AdminLegalRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
-  '/manager/$buildingId': typeof ManagerBuildingIdRoute
+  '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
 }
 export interface FileRoutesById {
@@ -265,10 +283,12 @@ export interface FileRoutesById {
   '/admin/legal': typeof AdminLegalRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
-  '/manager/$buildingId': typeof ManagerBuildingIdRoute
+  '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
 }
 export interface FileRouteTypes {
@@ -301,6 +321,8 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/manager/$buildingId/branding'
+    | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -331,6 +353,8 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/manager/$buildingId/branding'
+    | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
   id:
     | '__root__'
@@ -361,6 +385,8 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/manager/$buildingId/branding'
+    | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
   fileRoutesById: FileRoutesById
 }
@@ -581,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLegalRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/manager/$buildingId/branding': {
+      id: '/manager/$buildingId/branding'
+      path: '/branding'
+      fullPath: '/manager/$buildingId/branding'
+      preLoaderRoute: typeof ManagerBuildingIdBrandingRouteImport
+      parentRoute: typeof ManagerBuildingIdRoute
+    }
     '/admin/buildings/$buildingId/settings': {
       id: '/admin/buildings/$buildingId/settings'
       path: '/buildings/$buildingId/settings'
@@ -588,16 +621,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBuildingsBuildingIdSettingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/buildings/$buildingId/branding': {
+      id: '/admin/buildings/$buildingId/branding'
+      path: '/buildings/$buildingId/branding'
+      fullPath: '/admin/buildings/$buildingId/branding'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdBrandingRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminLegalRoute: typeof AdminLegalRoute
+  AdminBuildingsBuildingIdBrandingRoute: typeof AdminBuildingsBuildingIdBrandingRoute
   AdminBuildingsBuildingIdSettingsRoute: typeof AdminBuildingsBuildingIdSettingsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLegalRoute: AdminLegalRoute,
+  AdminBuildingsBuildingIdBrandingRoute: AdminBuildingsBuildingIdBrandingRoute,
   AdminBuildingsBuildingIdSettingsRoute: AdminBuildingsBuildingIdSettingsRoute,
 }
 
@@ -613,12 +655,23 @@ const ForumRouteChildren: ForumRouteChildren = {
 
 const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
 
+interface ManagerBuildingIdRouteChildren {
+  ManagerBuildingIdBrandingRoute: typeof ManagerBuildingIdBrandingRoute
+}
+
+const ManagerBuildingIdRouteChildren: ManagerBuildingIdRouteChildren = {
+  ManagerBuildingIdBrandingRoute: ManagerBuildingIdBrandingRoute,
+}
+
+const ManagerBuildingIdRouteWithChildren =
+  ManagerBuildingIdRoute._addFileChildren(ManagerBuildingIdRouteChildren)
+
 interface ManagerRouteChildren {
-  ManagerBuildingIdRoute: typeof ManagerBuildingIdRoute
+  ManagerBuildingIdRoute: typeof ManagerBuildingIdRouteWithChildren
 }
 
 const ManagerRouteChildren: ManagerRouteChildren = {
-  ManagerBuildingIdRoute: ManagerBuildingIdRoute,
+  ManagerBuildingIdRoute: ManagerBuildingIdRouteWithChildren,
 }
 
 const ManagerRouteWithChildren =
@@ -664,13 +717,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

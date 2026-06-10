@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut, Settings, Activity, FileText } from "lucide-react";
+import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -341,6 +341,14 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                       <Button asChild size="sm" variant="outline" className="gap-1.5">
                         <Link to="/pulse/$buildingId" params={{ buildingId: b.id }}>
                           <Activity className="h-3.5 w-3.5" /> Pulse
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" variant="outline" className="gap-1.5">
+                        <Link
+                          to="/admin/buildings/$buildingId/branding"
+                          params={{ buildingId: b.id }}
+                        >
+                          <Sparkles className="h-3.5 w-3.5" /> Branding
                         </Link>
                       </Button>
                       <Button asChild size="sm" variant="outline" className="gap-1.5">

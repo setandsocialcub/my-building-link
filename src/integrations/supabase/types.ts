@@ -82,6 +82,62 @@ export type Database = {
           },
         ]
       }
+      building_branding: {
+        Row: {
+          accent_color: string | null
+          app_icon_url: string | null
+          building_id: string
+          community_name: string | null
+          created_at: string
+          custom_tagline: string | null
+          hero_image_url: string | null
+          id: string
+          logo_url: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          updated_at: string
+          welcome_message: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          app_icon_url?: string | null
+          building_id: string
+          community_name?: string | null
+          created_at?: string
+          custom_tagline?: string | null
+          hero_image_url?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          app_icon_url?: string | null
+          building_id?: string
+          community_name?: string | null
+          created_at?: string
+          custom_tagline?: string | null
+          hero_image_url?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "building_branding_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: true
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       building_settings: {
         Row: {
           allow_resident_circle_creation: boolean

@@ -11,6 +11,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { BrandingProvider } from "@/components/BrandingProvider";
 import { registerServiceWorker } from "@/lib/pwa/register-sw";
 
 function NotFoundComponent() {
@@ -132,9 +133,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <InstallPrompt />
+      <BrandingProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <InstallPrompt />
+      </BrandingProvider>
     </QueryClientProvider>
   );
 }

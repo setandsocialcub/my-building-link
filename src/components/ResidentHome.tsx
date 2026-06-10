@@ -27,6 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { CIRCLE_CATEGORIES, categoryLabel } from "@/lib/circle-categories";
 import heroImg from "@/assets/home-hero.jpg";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 type Me = {
   id: string;
@@ -480,14 +482,19 @@ export function ResidentHome({
 // ============================================================================
 
 function WelcomeHero({ firstName, buildingName }: { firstName: string; buildingName?: string }) {
+  const { branding } = useBranding();
   const hour = new Date().getHours();
   const part =
     hour < 5 ? "Good evening" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const customWelcome = branding?.welcome_message?.trim();
+  const tagline = brandingValue(branding, "custom_tagline");
+  const communityName = branding?.community_name?.trim() || buildingName;
+  const heroSrc = branding?.hero_image_url || heroImg;
   return (
     <section className="relative overflow-hidden rounded-3xl">
       <div className="relative h-[360px] sm:h-[440px]">
         <img
-          src={heroImg}
+          src={heroSrc}
           alt=""
           width={1600}
           height={800}
@@ -501,13 +508,13 @@ function WelcomeHero({ firstName, buildingName }: { firstName: string; buildingN
         <div className="relative h-full flex flex-col justify-end p-8 sm:p-12 text-ivory">
           <p className="text-xs uppercase tracking-[0.2em] text-ivory/80 mb-3">
             {part}
-            {buildingName ? ` · ${buildingName}` : ""}
+            {communityName ? ` · ${communityName}` : ""}
           </p>
           <h1 className="font-serif text-4xl sm:text-6xl tracking-tight max-w-3xl leading-[1.05]">
-            Welcome home, {firstName}.
+            {customWelcome ? `${customWelcome}, ${firstName}.` : `Welcome home, ${firstName}.`}
           </h1>
           <p className="mt-4 text-base sm:text-lg text-ivory/90 max-w-xl font-light">
-            Discover what's happening in your community today.
+            {tagline}
           </p>
         </div>
       </div>
