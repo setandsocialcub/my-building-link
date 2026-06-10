@@ -752,6 +752,42 @@ export type Database = {
           },
         ]
       }
+      legal_documents: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_current: boolean
+          slug: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_current?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       marketplace_listings: {
         Row: {
           building_id: string
@@ -1094,6 +1130,8 @@ export type Database = {
       }
       resident_profiles: {
         Row: {
+          accepted_privacy_at: string | null
+          accepted_terms_at: string | null
           building_id: string
           created_at: string
           first_name: string
@@ -1107,6 +1145,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          accepted_privacy_at?: string | null
+          accepted_terms_at?: string | null
           building_id: string
           created_at?: string
           first_name: string
@@ -1120,6 +1160,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          accepted_privacy_at?: string | null
+          accepted_terms_at?: string | null
           building_id?: string
           created_at?: string
           first_name?: string

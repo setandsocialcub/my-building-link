@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
+import { FileText, Loader2, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -217,6 +217,33 @@ function ProfilePage() {
                 onChange={updatePrivacy}
                 disabled={savingPrivacy}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground">
+                  <FileText className="h-5 w-5" />
+                </span>
+                <div className="flex-1">
+                  <h2 className="text-base font-semibold">Legal & Policies</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Review the documents that govern your account.
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                <Link to="/privacy" className="rounded-lg border border-border px-3 py-2 text-sm text-center hover:bg-muted transition-colors">
+                  Privacy Policy
+                </Link>
+                <Link to="/terms" className="rounded-lg border border-border px-3 py-2 text-sm text-center hover:bg-muted transition-colors">
+                  Terms of Use
+                </Link>
+                <Link to="/community-standards" className="rounded-lg border border-border px-3 py-2 text-sm text-center hover:bg-muted transition-colors">
+                  Community Standards
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

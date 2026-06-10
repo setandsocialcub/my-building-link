@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, KeyRound, Shield, ArrowRight } from "lucide-react";
+import { LegalFooter } from "@/components/LegalFooter";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -82,6 +83,8 @@ function LandingChooser() {
             System Admin
           </Link>
         </div>
+
+        <LegalFooter />
       </div>
     </main>
   );

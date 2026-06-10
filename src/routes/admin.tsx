@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut, Settings, Activity } from "lucide-react";
+import { Copy, Plus, LogOut, Settings, Activity, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -225,9 +225,16 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
               Create properties and share their access codes with residents.
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
-            <LogOut className="h-4 w-4" /> Sign out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/admin/legal">
+                <FileText className="h-4 w-4" /> Legal
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
+              <LogOut className="h-4 w-4" /> Sign out
+            </Button>
+          </div>
         </header>
 
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm mb-10">
