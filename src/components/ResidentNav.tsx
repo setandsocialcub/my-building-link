@@ -13,6 +13,8 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 type Counts = {
