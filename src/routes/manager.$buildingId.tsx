@@ -23,6 +23,7 @@ import {
   Link2,
   FileDown,
   KeyRound,
+  Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
