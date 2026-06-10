@@ -99,6 +99,11 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
           className="w-full gap-2"
           onClick={async () => {
             setErr(null);
+            if (mode === "signup" && (!acceptedTerms || !acceptedPrivacy)) {
+              setErr("Please agree to the Terms of Use and acknowledge the Privacy Policy.");
+              return;
+            }
+            if (mode === "signup") rememberLegalAcceptance();
             const result = await lovable.auth.signInWithOAuth("google", {
               redirect_uri: window.location.href,
             });
