@@ -108,7 +108,7 @@ function AnnouncementsPage() {
   }, [loading, rows]);
 
   return (
-    <ResidentPageShell title="Community Updates" subtitle="News from your residence team">
+    <ResidentPageShell title="Community Updates" subtitle={`News from the ${community} team`}>
       {loading ? (
         <div className="flex min-h-[40vh] items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -121,7 +121,7 @@ function AnnouncementsPage() {
             </div>
             <div>
               <h1 className="font-serif text-3xl text-foreground">Community Updates</h1>
-              <p className="text-sm text-muted-foreground">News from your residence team.</p>
+              <p className="text-sm text-muted-foreground">News from the {community} team.</p>
             </div>
           </div>
 
