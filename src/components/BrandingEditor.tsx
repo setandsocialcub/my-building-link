@@ -101,6 +101,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
       const b = (data as BuildingBranding | null) ?? null;
       setBranding(b);
       setDraft(emptyDraft(b));
+      setPoweredBy(b?.enable_powered_by_footer !== false);
       setLoading(false);
     })();
     return () => {
