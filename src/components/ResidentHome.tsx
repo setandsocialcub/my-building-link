@@ -474,6 +474,8 @@ export function ResidentHome({
         subtitle="Curated recommendations, local perks, services, and experiences tailored to your community."
       />
       <ConciergePreview />
+
+      <PoweredByFooter />
     </div>
   );
 }
