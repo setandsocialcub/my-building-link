@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/marketplace")({
   component: () => (
