@@ -29,6 +29,7 @@ import { CIRCLE_CATEGORIES, categoryLabel } from "@/lib/circle-categories";
 import heroImg from "@/assets/home-hero.jpg";
 import { useBranding } from "@/components/BrandingProvider";
 import { brandingValue } from "@/lib/branding";
+import { PoweredByFooter } from "@/components/PoweredByFooter";
 
 type Me = {
   id: string;
