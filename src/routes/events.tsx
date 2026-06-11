@@ -22,6 +22,8 @@ import {
 import { cn } from "@/lib/utils";
 
 import { FeatureGate } from "@/components/FeatureGate";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/events")({
   component: () => (
