@@ -78,6 +78,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
   const { setPreviewDraft, previewing } = useBranding();
   const [branding, setBranding] = useState<BuildingBranding | null>(null);
   const [draft, setDraft] = useState<Record<Field, string>>(() => emptyDraft(null));
+  const [poweredBy, setPoweredBy] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
   const [savingDraft, setSavingDraft] = useState(false);
   const [publishing, setPublishing] = useState(false);
