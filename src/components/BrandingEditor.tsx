@@ -62,7 +62,7 @@ const TEXT_FIELDS: Field[] = [
 
 const ASSET_FIELDS: Field[] = ASSETS.map((a) => a.field);
 
-const FIELDS: Field[] = [...TEXT_FIELDS, ...ASSET_FIELDS, "enable_powered_by_footer"];
+const FIELDS: Field[] = [...TEXT_FIELDS, ...ASSET_FIELDS];
 
 const emptyDraft = (b: BuildingBranding | null): Record<Field, string> => {
   const source = mergeDraft(b, b?.draft ?? null) ?? (b as any);
