@@ -1,13 +1,22 @@
 export type BrandingFields = {
   community_name: string | null;
+  community_tagline: string | null;
+  custom_tagline: string | null; // legacy alias retained for backwards compat
   logo_url: string | null;
   hero_image_url: string | null;
+  community_icon_url: string | null;
   app_icon_url: string | null;
+  splash_screen_image_url: string | null;
   primary_color: string | null;
   secondary_color: string | null;
   accent_color: string | null;
   welcome_message: string | null;
-  custom_tagline: string | null;
+  homepage_headline: string | null;
+  homepage_subheadline: string | null;
+  app_name: string | null;
+  app_short_name: string | null;
+  custom_domain: string | null;
+  enable_powered_by_footer: boolean | null;
 };
 
 export type BuildingBranding = BrandingFields & {
@@ -35,8 +44,13 @@ export function mergeDraft(
 
 export const DEFAULT_BRANDING = {
   community_name: "Residence",
-  welcome_message: "Welcome home",
+  community_tagline: "A hospitality experience for residents",
   custom_tagline: "A hospitality experience for residents",
+  welcome_message: "Welcome home",
+  homepage_headline: "Welcome home",
+  homepage_subheadline: "Your community, curated.",
+  app_name: "Residence",
+  app_short_name: "Residence",
   primary_color: "#1E1E1E",
   secondary_color: "#B7A58D",
   accent_color: "#C97A63",
@@ -48,6 +62,11 @@ export function brandingValue<K extends keyof typeof DEFAULT_BRANDING>(
 ): string {
   const v = b?.[key as keyof BuildingBranding];
   if (typeof v === "string" && v.trim()) return v;
+  // Soft fallbacks between paired fields
+  if (key === "community_tagline" && b?.custom_tagline) return b.custom_tagline;
+  if (key === "homepage_headline" && b?.welcome_message) return b.welcome_message;
+  if (key === "app_name" && b?.community_name) return b.community_name;
+  if (key === "app_short_name" && b?.community_name) return b.community_name;
   return DEFAULT_BRANDING[key];
 }
 
@@ -63,7 +82,48 @@ export function applyBrandingStyles(b: BuildingBranding | null | undefined) {
   set("--secondary", b?.secondary_color ?? null);
   set("--accent", b?.accent_color ?? null);
   set("--ring", b?.secondary_color ?? null);
-  // Update PWA theme color
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta && b?.primary_color) meta.setAttribute("content", b.primary_color);
+
+  // PWA theme color
+  const theme = document.querySelector('meta[name="theme-color"]');
+  if (theme && b?.primary_color) theme.setAttribute("content", b.primary_color);
+
+  // Dynamic manifest per building so installed PWA shows building-specific name/icon
+  if (b?.building_id) {
+    let manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+    if (!manifest) {
+      manifest = document.createElement("link");
+      manifest.rel = "manifest";
+      document.head.appendChild(manifest);
+    }
+    manifest.href = `/api/public/manifest/${b.building_id}.webmanifest`;
+  }
+
+  // Apple touch icon — building app icon when present
+  if (b?.app_icon_url || b?.community_icon_url || b?.logo_url) {
+    const href = (b.app_icon_url || b.community_icon_url || b.logo_url) as string;
+    let apple = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
+    if (!apple) {
+      apple = document.createElement("link");
+      apple.rel = "apple-touch-icon";
+      document.head.appendChild(apple);
+    }
+    apple.href = href;
+
+    // apple-mobile-web-app-title controls installed name on iOS
+    const appName =
+      (b.app_name && b.app_name.trim()) ||
+      (b.community_name && b.community_name.trim()) ||
+      null;
+    if (appName) {
+      let title = document.querySelector<HTMLMetaElement>(
+        'meta[name="apple-mobile-web-app-title"]',
+      );
+      if (!title) {
+        title = document.createElement("meta");
+        title.name = "apple-mobile-web-app-title";
+        document.head.appendChild(title);
+      }
+      title.content = appName;
+    }
+  }
 }
