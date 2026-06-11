@@ -188,6 +188,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
       draft: null,
       draft_updated_at: null,
       published_at: new Date().toISOString(),
+      enable_powered_by_footer: poweredBy,
     };
     FIELDS.forEach((k) => {
       const v = (merged?.[k as keyof BuildingBranding] as string | null | undefined) ?? null;
@@ -207,6 +208,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
     if (data) {
       setBranding(data as BuildingBranding);
       setDraft(emptyDraft(data as BuildingBranding));
+      setPoweredBy((data as BuildingBranding).enable_powered_by_footer !== false);
     }
     setPreviewDraft(null);
     if (typeof window !== "undefined") {
