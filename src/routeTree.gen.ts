@@ -37,9 +37,9 @@ import { Route as ForumThreadIdRouteImport } from './routes/forum.$threadId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
 import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
+import { Route as ApiPublicManifestBuildingIdRouteImport } from './routes/api/public/manifest.$buildingId'
 import { Route as AdminBuildingsBuildingIdSettingsRouteImport } from './routes/admin.buildings.$buildingId.settings'
 import { Route as AdminBuildingsBuildingIdBrandingRouteImport } from './routes/admin.buildings.$buildingId.branding'
-import { Route as ApiPublicManifestBuildingIdWebmanifestRouteImport } from './routes/api/public/manifest.$buildingId.webmanifest'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -182,6 +182,12 @@ const ManagerBuildingIdBrandingRoute =
     path: '/branding',
     getParentRoute: () => ManagerBuildingIdRoute,
   } as any)
+const ApiPublicManifestBuildingIdRoute =
+  ApiPublicManifestBuildingIdRouteImport.update({
+    id: '/api/public/manifest/$buildingId',
+    path: '/api/public/manifest/$buildingId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminBuildingsBuildingIdSettingsRoute =
   AdminBuildingsBuildingIdSettingsRouteImport.update({
     id: '/buildings/$buildingId/settings',
@@ -193,12 +199,6 @@ const AdminBuildingsBuildingIdBrandingRoute =
     id: '/buildings/$buildingId/branding',
     path: '/buildings/$buildingId/branding',
     getParentRoute: () => AdminRoute,
-  } as any)
-const ApiPublicManifestBuildingIdWebmanifestRoute =
-  ApiPublicManifestBuildingIdWebmanifestRouteImport.update({
-    id: '/api/public/manifest/$buildingId/webmanifest',
-    path: '/api/public/manifest/$buildingId/webmanifest',
-    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -232,7 +232,7 @@ export interface FileRoutesByFullPath {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
-  '/api/public/manifest/$buildingId/webmanifest': typeof ApiPublicManifestBuildingIdWebmanifestRoute
+  '/api/public/manifest/$buildingId': typeof ApiPublicManifestBuildingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -265,7 +265,7 @@ export interface FileRoutesByTo {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
-  '/api/public/manifest/$buildingId/webmanifest': typeof ApiPublicManifestBuildingIdWebmanifestRoute
+  '/api/public/manifest/$buildingId': typeof ApiPublicManifestBuildingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -299,7 +299,7 @@ export interface FileRoutesById {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
-  '/api/public/manifest/$buildingId/webmanifest': typeof ApiPublicManifestBuildingIdWebmanifestRoute
+  '/api/public/manifest/$buildingId': typeof ApiPublicManifestBuildingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -334,7 +334,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
-    | '/api/public/manifest/$buildingId/webmanifest'
+    | '/api/public/manifest/$buildingId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -367,7 +367,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
-    | '/api/public/manifest/$buildingId/webmanifest'
+    | '/api/public/manifest/$buildingId'
   id:
     | '__root__'
     | '/'
@@ -400,7 +400,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
-    | '/api/public/manifest/$buildingId/webmanifest'
+    | '/api/public/manifest/$buildingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -427,7 +427,7 @@ export interface RootRouteChildren {
   BuildingBuildingIdRoute: typeof BuildingBuildingIdRoute
   OnboardingBuildingIdRoute: typeof OnboardingBuildingIdRoute
   PulseBuildingIdRoute: typeof PulseBuildingIdRoute
-  ApiPublicManifestBuildingIdWebmanifestRoute: typeof ApiPublicManifestBuildingIdWebmanifestRoute
+  ApiPublicManifestBuildingIdRoute: typeof ApiPublicManifestBuildingIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -628,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerBuildingIdBrandingRouteImport
       parentRoute: typeof ManagerBuildingIdRoute
     }
+    '/api/public/manifest/$buildingId': {
+      id: '/api/public/manifest/$buildingId'
+      path: '/api/public/manifest/$buildingId'
+      fullPath: '/api/public/manifest/$buildingId'
+      preLoaderRoute: typeof ApiPublicManifestBuildingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/buildings/$buildingId/settings': {
       id: '/admin/buildings/$buildingId/settings'
       path: '/buildings/$buildingId/settings'
@@ -641,13 +648,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/buildings/$buildingId/branding'
       preLoaderRoute: typeof AdminBuildingsBuildingIdBrandingRouteImport
       parentRoute: typeof AdminRoute
-    }
-    '/api/public/manifest/$buildingId/webmanifest': {
-      id: '/api/public/manifest/$buildingId/webmanifest'
-      path: '/api/public/manifest/$buildingId/webmanifest'
-      fullPath: '/api/public/manifest/$buildingId/webmanifest'
-      preLoaderRoute: typeof ApiPublicManifestBuildingIdWebmanifestRouteImport
-      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -734,9 +734,18 @@ const rootRouteChildren: RootRouteChildren = {
   BuildingBuildingIdRoute: BuildingBuildingIdRoute,
   OnboardingBuildingIdRoute: OnboardingBuildingIdRoute,
   PulseBuildingIdRoute: PulseBuildingIdRoute,
-  ApiPublicManifestBuildingIdWebmanifestRoute:
-    ApiPublicManifestBuildingIdWebmanifestRoute,
+  ApiPublicManifestBuildingIdRoute: ApiPublicManifestBuildingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
