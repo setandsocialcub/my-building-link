@@ -191,7 +191,7 @@ function ForumPage() {
             Community Board
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            A residence-wide salon for verified neighbors.
+            A {community} salon for verified neighbors.
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>
