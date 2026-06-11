@@ -74,6 +74,8 @@ function timeAgo(iso: string) {
 
 function ForumPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [meId, setMeId] = useState<string | null>(null);
   const [buildingId, setBuildingId] = useState<string | null>(null);
