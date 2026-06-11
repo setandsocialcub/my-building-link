@@ -411,7 +411,7 @@ function DiscoverPage() {
               Community Match
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Hand-curated residents you might enjoy meeting. Request an introduction — they decide what happens next.
+              Hand-curated neighbors from {community} you might enjoy meeting. Request an introduction — they decide what happens next.
             </p>
           </div>
           <Button asChild variant="ghost" size="sm">
