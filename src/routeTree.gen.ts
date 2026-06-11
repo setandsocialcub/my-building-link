@@ -39,6 +39,7 @@ import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
 import { Route as AdminBuildingsBuildingIdSettingsRouteImport } from './routes/admin.buildings.$buildingId.settings'
 import { Route as AdminBuildingsBuildingIdBrandingRouteImport } from './routes/admin.buildings.$buildingId.branding'
+import { Route as ApiPublicManifestBuildingIdWebmanifestRouteImport } from './routes/api/public/manifest.$buildingId.webmanifest'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -193,6 +194,12 @@ const AdminBuildingsBuildingIdBrandingRoute =
     path: '/buildings/$buildingId/branding',
     getParentRoute: () => AdminRoute,
   } as any)
+const ApiPublicManifestBuildingIdWebmanifestRoute =
+  ApiPublicManifestBuildingIdWebmanifestRouteImport.update({
+    id: '/api/public/manifest/$buildingId/webmanifest',
+    path: '/api/public/manifest/$buildingId/webmanifest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
+  '/api/public/manifest/$buildingId/webmanifest': typeof ApiPublicManifestBuildingIdWebmanifestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -257,6 +265,7 @@ export interface FileRoutesByTo {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
+  '/api/public/manifest/$buildingId/webmanifest': typeof ApiPublicManifestBuildingIdWebmanifestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -290,6 +299,7 @@ export interface FileRoutesById {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
+  '/api/public/manifest/$buildingId/webmanifest': typeof ApiPublicManifestBuildingIdWebmanifestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -324,6 +334,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
+    | '/api/public/manifest/$buildingId/webmanifest'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
+    | '/api/public/manifest/$buildingId/webmanifest'
   id:
     | '__root__'
     | '/'
@@ -388,6 +400,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
+    | '/api/public/manifest/$buildingId/webmanifest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -414,6 +427,7 @@ export interface RootRouteChildren {
   BuildingBuildingIdRoute: typeof BuildingBuildingIdRoute
   OnboardingBuildingIdRoute: typeof OnboardingBuildingIdRoute
   PulseBuildingIdRoute: typeof PulseBuildingIdRoute
+  ApiPublicManifestBuildingIdWebmanifestRoute: typeof ApiPublicManifestBuildingIdWebmanifestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -628,6 +642,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBuildingsBuildingIdBrandingRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/manifest/$buildingId/webmanifest': {
+      id: '/api/public/manifest/$buildingId/webmanifest'
+      path: '/api/public/manifest/$buildingId/webmanifest'
+      fullPath: '/api/public/manifest/$buildingId/webmanifest'
+      preLoaderRoute: typeof ApiPublicManifestBuildingIdWebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -713,6 +734,8 @@ const rootRouteChildren: RootRouteChildren = {
   BuildingBuildingIdRoute: BuildingBuildingIdRoute,
   OnboardingBuildingIdRoute: OnboardingBuildingIdRoute,
   PulseBuildingIdRoute: PulseBuildingIdRoute,
+  ApiPublicManifestBuildingIdWebmanifestRoute:
+    ApiPublicManifestBuildingIdWebmanifestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
