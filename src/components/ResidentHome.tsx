@@ -486,8 +486,10 @@ function WelcomeHero({ firstName, buildingName }: { firstName: string; buildingN
   const hour = new Date().getHours();
   const part =
     hour < 5 ? "Good evening" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const customWelcome = branding?.welcome_message?.trim();
-  const tagline = brandingValue(branding, "custom_tagline");
+  const customHeadline = (branding?.homepage_headline || branding?.welcome_message || "").trim();
+  const subheadline =
+    (branding?.homepage_subheadline?.trim()) ||
+    brandingValue(branding, "community_tagline");
   const communityName = branding?.community_name?.trim() || buildingName;
   const heroSrc = branding?.hero_image_url || heroImg;
   return (
@@ -511,10 +513,10 @@ function WelcomeHero({ firstName, buildingName }: { firstName: string; buildingN
             {communityName ? ` · ${communityName}` : ""}
           </p>
           <h1 className="font-serif text-4xl sm:text-6xl tracking-tight max-w-3xl leading-[1.05]">
-            {customWelcome ? `${customWelcome}, ${firstName}.` : `Welcome home, ${firstName}.`}
+            {customHeadline ? `${customHeadline}, ${firstName}.` : `Welcome home, ${firstName}.`}
           </h1>
           <p className="mt-4 text-base sm:text-lg text-ivory/90 max-w-xl font-light">
-            {tagline}
+            {subheadline}
           </p>
         </div>
       </div>
