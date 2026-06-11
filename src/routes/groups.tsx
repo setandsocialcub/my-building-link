@@ -53,6 +53,8 @@ const SYSTEM_ORDER = ["General", "Announcements", "Marketplace"];
 
 function GroupsPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [me, setMe] = useState<MyProfile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
