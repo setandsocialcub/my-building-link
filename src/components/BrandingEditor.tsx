@@ -32,7 +32,7 @@ import { useBranding } from "@/components/BrandingProvider";
 type Field = keyof BrandingFields;
 
 type Asset = {
-  field: "logo_url" | "hero_image_url" | "app_icon_url";
+  field: "logo_url" | "hero_image_url" | "app_icon_url" | "community_icon_url" | "splash_screen_image_url";
   label: string;
   hint: string;
 };
@@ -40,20 +40,29 @@ type Asset = {
 const ASSETS: Asset[] = [
   { field: "logo_url", label: "Logo", hint: "Shown in navigation and dashboard headers." },
   { field: "hero_image_url", label: "Hero image", hint: "Featured on the resident homepage." },
-  { field: "app_icon_url", label: "App icon", hint: "Used on the PWA install screen and home-screen icon (512×512 PNG)." },
+  { field: "community_icon_url", label: "Community icon", hint: "Compact mark used in dense surfaces and tab icons." },
+  { field: "app_icon_url", label: "Installed app icon", hint: "Used on the PWA install screen and home-screen icon (512×512 PNG)." },
+  { field: "splash_screen_image_url", label: "Splash screen", hint: "Shown briefly when the installed app launches." },
 ];
 
-const FIELDS: Field[] = [
+const TEXT_FIELDS: Field[] = [
   "community_name",
-  "welcome_message",
+  "community_tagline",
   "custom_tagline",
+  "welcome_message",
+  "homepage_headline",
+  "homepage_subheadline",
   "primary_color",
   "secondary_color",
   "accent_color",
-  "logo_url",
-  "hero_image_url",
-  "app_icon_url",
+  "app_name",
+  "app_short_name",
+  "custom_domain",
 ];
+
+const ASSET_FIELDS: Field[] = ASSETS.map((a) => a.field);
+
+const FIELDS: Field[] = [...TEXT_FIELDS, ...ASSET_FIELDS, "enable_powered_by_footer"];
 
 const emptyDraft = (b: BuildingBranding | null): Record<Field, string> => {
   const source = mergeDraft(b, b?.draft ?? null) ?? (b as any);
