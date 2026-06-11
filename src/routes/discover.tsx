@@ -399,7 +399,7 @@ function DiscoverPage() {
   }
 
   return (
-    <ResidentPageShell title="Community Match" subtitle="Concierge introductions">
+    <ResidentPageShell title="Community Match" subtitle={`Concierge introductions at ${community}`}>
       <div>
         <header className="border-b border-border bg-card/50 -mx-4 px-4 md:-mx-6 md:px-6">
           <div className="mx-auto flex max-w-5xl items-center justify-between py-5">
