@@ -313,14 +313,17 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
               placeholder={DEFAULT_BRANDING.community_name}
               maxLength={80}
             />
+            <p className="text-xs text-muted-foreground">
+              e.g. The Parker Community · One Ocean Community · Flow Living
+            </p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="custom_tagline">Tagline</Label>
+            <Label htmlFor="community_tagline">Community tagline</Label>
             <Input
-              id="custom_tagline"
-              value={draft.custom_tagline ?? ""}
-              onChange={(e) => update("custom_tagline", e.target.value)}
-              placeholder={DEFAULT_BRANDING.custom_tagline}
+              id="community_tagline"
+              value={draft.community_tagline ?? ""}
+              onChange={(e) => update("community_tagline", e.target.value)}
+              placeholder={DEFAULT_BRANDING.community_tagline}
               maxLength={120}
             />
           </div>
@@ -335,6 +338,38 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
             rows={2}
             maxLength={240}
           />
+        </div>
+      </section>
+
+      {/* Homepage messaging */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Homepage messaging</h2>
+          <p className="text-sm text-muted-foreground">
+            The headline and supporting line at the top of the resident homepage.
+          </p>
+        </header>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="homepage_headline">Headline</Label>
+            <Input
+              id="homepage_headline"
+              value={draft.homepage_headline ?? ""}
+              onChange={(e) => update("homepage_headline", e.target.value)}
+              placeholder={DEFAULT_BRANDING.homepage_headline}
+              maxLength={120}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="homepage_subheadline">Subheadline</Label>
+            <Input
+              id="homepage_subheadline"
+              value={draft.homepage_subheadline ?? ""}
+              onChange={(e) => update("homepage_subheadline", e.target.value)}
+              placeholder={DEFAULT_BRANDING.homepage_subheadline}
+              maxLength={200}
+            />
+          </div>
         </div>
       </section>
 
