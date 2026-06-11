@@ -95,7 +95,7 @@ export function applyBrandingStyles(b: BuildingBranding | null | undefined) {
       manifest.rel = "manifest";
       document.head.appendChild(manifest);
     }
-    manifest.href = `/api/public/manifest/${b.building_id}.webmanifest`;
+    manifest.href = `/api/public/manifest/${b.building_id}`;
   }
 
   // Apple touch icon — building app icon when present
