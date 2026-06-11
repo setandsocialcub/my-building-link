@@ -86,54 +86,81 @@ export type Database = {
         Row: {
           accent_color: string | null
           app_icon_url: string | null
+          app_name: string | null
+          app_short_name: string | null
           building_id: string
+          community_icon_url: string | null
           community_name: string | null
+          community_tagline: string | null
           created_at: string
+          custom_domain: string | null
           custom_tagline: string | null
           draft: Json | null
           draft_updated_at: string | null
+          enable_powered_by_footer: boolean
           hero_image_url: string | null
+          homepage_headline: string | null
+          homepage_subheadline: string | null
           id: string
           logo_url: string | null
           primary_color: string | null
           published_at: string | null
           secondary_color: string | null
+          splash_screen_image_url: string | null
           updated_at: string
           welcome_message: string | null
         }
         Insert: {
           accent_color?: string | null
           app_icon_url?: string | null
+          app_name?: string | null
+          app_short_name?: string | null
           building_id: string
+          community_icon_url?: string | null
           community_name?: string | null
+          community_tagline?: string | null
           created_at?: string
+          custom_domain?: string | null
           custom_tagline?: string | null
           draft?: Json | null
           draft_updated_at?: string | null
+          enable_powered_by_footer?: boolean
           hero_image_url?: string | null
+          homepage_headline?: string | null
+          homepage_subheadline?: string | null
           id?: string
           logo_url?: string | null
           primary_color?: string | null
           published_at?: string | null
           secondary_color?: string | null
+          splash_screen_image_url?: string | null
           updated_at?: string
           welcome_message?: string | null
         }
         Update: {
           accent_color?: string | null
           app_icon_url?: string | null
+          app_name?: string | null
+          app_short_name?: string | null
           building_id?: string
+          community_icon_url?: string | null
           community_name?: string | null
+          community_tagline?: string | null
           created_at?: string
+          custom_domain?: string | null
           custom_tagline?: string | null
           draft?: Json | null
           draft_updated_at?: string | null
+          enable_powered_by_footer?: boolean
           hero_image_url?: string | null
+          homepage_headline?: string | null
+          homepage_subheadline?: string | null
           id?: string
           logo_url?: string | null
           primary_color?: string | null
           published_at?: string | null
           secondary_color?: string | null
+          splash_screen_image_url?: string | null
           updated_at?: string
           welcome_message?: string | null
         }

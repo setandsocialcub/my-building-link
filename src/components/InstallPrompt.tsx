@@ -47,8 +47,8 @@ function wasRecentlyDismissed() {
 
 export function InstallPrompt() {
   const { branding } = useBranding();
-  const communityName = brandingValue(branding, "community_name");
-  const appIcon = branding?.app_icon_url || branding?.logo_url || null;
+  const communityName = brandingValue(branding, "app_name");
+  const appIcon = branding?.app_icon_url || branding?.community_icon_url || branding?.logo_url || null;
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [iosHint, setIosHint] = useState(false);

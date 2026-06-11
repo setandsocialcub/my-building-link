@@ -32,7 +32,7 @@ import { useBranding } from "@/components/BrandingProvider";
 type Field = keyof BrandingFields;
 
 type Asset = {
-  field: "logo_url" | "hero_image_url" | "app_icon_url";
+  field: "logo_url" | "hero_image_url" | "app_icon_url" | "community_icon_url" | "splash_screen_image_url";
   label: string;
   hint: string;
 };
@@ -40,20 +40,29 @@ type Asset = {
 const ASSETS: Asset[] = [
   { field: "logo_url", label: "Logo", hint: "Shown in navigation and dashboard headers." },
   { field: "hero_image_url", label: "Hero image", hint: "Featured on the resident homepage." },
-  { field: "app_icon_url", label: "App icon", hint: "Used on the PWA install screen and home-screen icon (512×512 PNG)." },
+  { field: "community_icon_url", label: "Community icon", hint: "Compact mark used in dense surfaces and tab icons." },
+  { field: "app_icon_url", label: "Installed app icon", hint: "Used on the PWA install screen and home-screen icon (512×512 PNG)." },
+  { field: "splash_screen_image_url", label: "Splash screen", hint: "Shown briefly when the installed app launches." },
 ];
 
-const FIELDS: Field[] = [
+const TEXT_FIELDS: Field[] = [
   "community_name",
-  "welcome_message",
+  "community_tagline",
   "custom_tagline",
+  "welcome_message",
+  "homepage_headline",
+  "homepage_subheadline",
   "primary_color",
   "secondary_color",
   "accent_color",
-  "logo_url",
-  "hero_image_url",
-  "app_icon_url",
+  "app_name",
+  "app_short_name",
+  "custom_domain",
 ];
+
+const ASSET_FIELDS: Field[] = ASSETS.map((a) => a.field);
+
+const FIELDS: Field[] = [...TEXT_FIELDS, ...ASSET_FIELDS];
 
 const emptyDraft = (b: BuildingBranding | null): Record<Field, string> => {
   const source = mergeDraft(b, b?.draft ?? null) ?? (b as any);
@@ -69,6 +78,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
   const { setPreviewDraft, previewing } = useBranding();
   const [branding, setBranding] = useState<BuildingBranding | null>(null);
   const [draft, setDraft] = useState<Record<Field, string>>(() => emptyDraft(null));
+  const [poweredBy, setPoweredBy] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
   const [savingDraft, setSavingDraft] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -91,6 +101,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
       const b = (data as BuildingBranding | null) ?? null;
       setBranding(b);
       setDraft(emptyDraft(b));
+      setPoweredBy(b?.enable_powered_by_footer !== false);
       setLoading(false);
     })();
     return () => {
@@ -177,6 +188,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
       draft: null,
       draft_updated_at: null,
       published_at: new Date().toISOString(),
+      enable_powered_by_footer: poweredBy,
     };
     FIELDS.forEach((k) => {
       const v = (merged?.[k as keyof BuildingBranding] as string | null | undefined) ?? null;
@@ -196,6 +208,7 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
     if (data) {
       setBranding(data as BuildingBranding);
       setDraft(emptyDraft(data as BuildingBranding));
+      setPoweredBy((data as BuildingBranding).enable_powered_by_footer !== false);
     }
     setPreviewDraft(null);
     if (typeof window !== "undefined") {
@@ -300,14 +313,17 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
               placeholder={DEFAULT_BRANDING.community_name}
               maxLength={80}
             />
+            <p className="text-xs text-muted-foreground">
+              e.g. The Parker Community · One Ocean Community · Flow Living
+            </p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="custom_tagline">Tagline</Label>
+            <Label htmlFor="community_tagline">Community tagline</Label>
             <Input
-              id="custom_tagline"
-              value={draft.custom_tagline ?? ""}
-              onChange={(e) => update("custom_tagline", e.target.value)}
-              placeholder={DEFAULT_BRANDING.custom_tagline}
+              id="community_tagline"
+              value={draft.community_tagline ?? ""}
+              onChange={(e) => update("community_tagline", e.target.value)}
+              placeholder={DEFAULT_BRANDING.community_tagline}
               maxLength={120}
             />
           </div>
@@ -322,6 +338,38 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
             rows={2}
             maxLength={240}
           />
+        </div>
+      </section>
+
+      {/* Homepage messaging */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Homepage messaging</h2>
+          <p className="text-sm text-muted-foreground">
+            The headline and supporting line at the top of the resident homepage.
+          </p>
+        </header>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="homepage_headline">Headline</Label>
+            <Input
+              id="homepage_headline"
+              value={draft.homepage_headline ?? ""}
+              onChange={(e) => update("homepage_headline", e.target.value)}
+              placeholder={DEFAULT_BRANDING.homepage_headline}
+              maxLength={120}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="homepage_subheadline">Subheadline</Label>
+            <Input
+              id="homepage_subheadline"
+              value={draft.homepage_subheadline ?? ""}
+              onChange={(e) => update("homepage_subheadline", e.target.value)}
+              placeholder={DEFAULT_BRANDING.homepage_subheadline}
+              maxLength={200}
+            />
+          </div>
         </div>
       </section>
 
@@ -381,6 +429,75 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
             onChange={(v) => update("accent_color", v)}
           />
         </div>
+      </section>
+
+      {/* Installable app */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Installable app</h2>
+          <p className="text-sm text-muted-foreground">
+            When residents add this community to their home screen, it appears with
+            your branded name and icon.
+          </p>
+        </header>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="app_name">App name</Label>
+            <Input
+              id="app_name"
+              value={draft.app_name ?? ""}
+              onChange={(e) => update("app_name", e.target.value)}
+              placeholder={draft.community_name || DEFAULT_BRANDING.app_name}
+              maxLength={45}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="app_short_name">Short name (≤12 chars)</Label>
+            <Input
+              id="app_short_name"
+              value={draft.app_short_name ?? ""}
+              onChange={(e) => update("app_short_name", e.target.value)}
+              placeholder={(draft.community_name || DEFAULT_BRANDING.app_short_name).slice(0, 12)}
+              maxLength={12}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Custom domain (advanced) */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Custom domain</h2>
+          <p className="text-sm text-muted-foreground">
+            Optional. Reserve a custom domain for this community (e.g. <code>app.parker.com</code>).
+            DNS setup is coordinated separately by the Residence team.
+          </p>
+        </header>
+        <Input
+          value={draft.custom_domain ?? ""}
+          onChange={(e) => update("custom_domain", e.target.value)}
+          placeholder="app.your-building.com"
+          maxLength={253}
+        />
+      </section>
+
+      {/* Footer attribution */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Footer attribution</h2>
+          <p className="text-sm text-muted-foreground">
+            Show a subtle "Powered by Residence" line in resident footers.
+          </p>
+        </header>
+        <label className="inline-flex items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            checked={poweredBy}
+            onChange={(e) => setPoweredBy(e.target.checked)}
+            className="h-4 w-4 rounded border-border accent-primary"
+          />
+          Show "Powered by Residence" in footer
+        </label>
       </section>
 
       {/* Actions */}
