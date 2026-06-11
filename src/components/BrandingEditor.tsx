@@ -431,6 +431,75 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
         </div>
       </section>
 
+      {/* Installable app */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Installable app</h2>
+          <p className="text-sm text-muted-foreground">
+            When residents add this community to their home screen, it appears with
+            your branded name and icon.
+          </p>
+        </header>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="app_name">App name</Label>
+            <Input
+              id="app_name"
+              value={draft.app_name ?? ""}
+              onChange={(e) => update("app_name", e.target.value)}
+              placeholder={draft.community_name || DEFAULT_BRANDING.app_name}
+              maxLength={45}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="app_short_name">Short name (≤12 chars)</Label>
+            <Input
+              id="app_short_name"
+              value={draft.app_short_name ?? ""}
+              onChange={(e) => update("app_short_name", e.target.value)}
+              placeholder={(draft.community_name || DEFAULT_BRANDING.app_short_name).slice(0, 12)}
+              maxLength={12}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Custom domain (advanced) */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Custom domain</h2>
+          <p className="text-sm text-muted-foreground">
+            Optional. Reserve a custom domain for this community (e.g. <code>app.parker.com</code>).
+            DNS setup is coordinated separately by the Residence team.
+          </p>
+        </header>
+        <Input
+          value={draft.custom_domain ?? ""}
+          onChange={(e) => update("custom_domain", e.target.value)}
+          placeholder="app.your-building.com"
+          maxLength={253}
+        />
+      </section>
+
+      {/* Footer attribution */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground">Footer attribution</h2>
+          <p className="text-sm text-muted-foreground">
+            Show a subtle "Powered by Residence" line in resident footers.
+          </p>
+        </header>
+        <label className="inline-flex items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            checked={poweredBy}
+            onChange={(e) => setPoweredBy(e.target.checked)}
+            className="h-4 w-4 rounded border-border accent-primary"
+          />
+          Show "Powered by Residence" in footer
+        </label>
+      </section>
+
       {/* Actions */}
       <div className="sticky bottom-0 -mx-4 sm:mx-0 px-4 sm:px-0 pt-3 pb-4 bg-background/95 backdrop-blur border-t border-border flex flex-wrap items-center justify-end gap-2">
         <Button
