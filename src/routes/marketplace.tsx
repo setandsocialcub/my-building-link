@@ -70,6 +70,8 @@ function sellerName(s: { first_name: string | null; last_name: string | null } |
 
 function MarketplacePage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [me, setMe] = useState<MyProfile | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
