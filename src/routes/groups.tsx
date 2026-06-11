@@ -17,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useBuildingSettings } from "@/hooks/use-building-settings";
 import { CIRCLE_CATEGORIES, CIRCLE_TYPE_META, categoryLabel } from "@/lib/circle-categories";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/groups")({
   component: () => (
