@@ -253,7 +253,7 @@ function EventsPage() {
   };
 
   return (
-    <ResidentPageShell title="Experiences" subtitle="Gatherings in your residence">
+    <ResidentPageShell title="Experiences" subtitle={`Gatherings in ${community}`}>
       <div className="mx-auto max-w-3xl">
       <header className="mb-6 flex items-center justify-between gap-3">
         <div>
@@ -261,7 +261,7 @@ function EventsPage() {
             Experiences
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Gatherings, tastings, and moments happening in the residence.
+            Gatherings, tastings, and moments happening in {community}.
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>
