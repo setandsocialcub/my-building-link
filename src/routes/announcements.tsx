@@ -22,6 +22,8 @@ type Row = {
 
 function AnnouncementsPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
