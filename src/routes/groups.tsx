@@ -19,6 +19,7 @@ import { CIRCLE_CATEGORIES, CIRCLE_TYPE_META, categoryLabel } from "@/lib/circle
 import { cn } from "@/lib/utils";
 import { useBranding } from "@/components/BrandingProvider";
 import { brandingValue } from "@/lib/branding";
+import { BrandedSectionIntro } from "@/components/BrandedSectionIntro";
 
 export const Route = createFileRoute("/groups")({
   component: () => (
