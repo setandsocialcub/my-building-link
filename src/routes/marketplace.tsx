@@ -23,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useBranding } from "@/components/BrandingProvider";
 import { brandingValue } from "@/lib/branding";
+import { BrandedSectionIntro } from "@/components/BrandedSectionIntro";
 
 export const Route = createFileRoute("/marketplace")({
   component: () => (
