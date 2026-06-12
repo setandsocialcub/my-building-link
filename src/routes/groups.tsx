@@ -205,6 +205,11 @@ function GroupsPage() {
       </header>
 
         <main className="mx-auto max-w-5xl space-y-12 py-8">
+          <BrandedSectionIntro
+            eyebrow="Circles"
+            title={`Find your people inside ${community}`}
+            description={`Small, intentional groups for ${community} residents who share interests, rhythms, and rituals. Join one — or start your own.`}
+          />
           {/* Section 1 — You're In */}
           <section>
             <h2 className="mb-4 font-serif text-2xl text-foreground">Your Circles</h2>
