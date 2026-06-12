@@ -94,9 +94,25 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-sm space-y-4"
       >
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-          {subtitle && <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>}
+        <div className="flex items-center gap-3">
+          {communityLogo ? (
+            <img
+              src={communityLogo}
+              alt=""
+              className="h-11 w-11 rounded-xl object-cover ring-1 ring-border"
+            />
+          ) : (
+            <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary grid place-items-center text-lg">
+              🏛️
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground truncate">
+              {communityName}
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight leading-tight">{title}</h1>
+            {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+          </div>
         </div>
         <Button
           type="button"
