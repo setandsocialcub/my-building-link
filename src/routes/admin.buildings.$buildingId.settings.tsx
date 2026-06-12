@@ -118,12 +118,6 @@ type AuditEntry = {
   created_at: string;
 };
 
-const _origDup = `// dedupe marker`;
-void _origDup;
-  id: string;
-  template_name: string;
-  enabled_features: Record<string, boolean>;
-};
 
 function SettingsPage() {
   const { buildingId } = Route.useParams();
