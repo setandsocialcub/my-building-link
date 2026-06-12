@@ -197,12 +197,52 @@ function SettingsPage() {
       .from("building_settings")
       .update(rest)
       .eq("building_id", buildingId);
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast.error(error.message);
       return;
     }
+
+    // Log audit entries for each toggle that changed away from (or back toward) template defaults
+    const ALL_KEYS = [...FEATURE_TOGGLES, ...GOVERNANCE_TOGGLES].map((t) => t.key);
+    const auditRows: Array<{
+      building_id: string;
+      action: "override";
+      setting_key: string;
+      old_value: boolean;
+      new_value: boolean;
+      template_id: string | null;
+    }> = [];
+    for (const key of ALL_KEYS) {
+      const before = originalSettings ? Boolean(originalSettings[key as keyof BuildingSettings]) : null;
+      const after = Boolean(settings[key as keyof BuildingSettings]);
+      if (before === null || before === after) continue;
+      auditRows.push({
+        building_id: buildingId,
+        action: "override",
+        setting_key: key as string,
+        old_value: before,
+        new_value: after,
+        template_id: template?.id ?? null,
+      });
+    }
+    if (auditRows.length > 0) {
+      await (supabase as any).from("building_settings_audit").insert(auditRows);
+    }
+
+    setOriginalSettings({ ...settings });
+    setSaving(false);
     toast.success("Settings saved");
+    // Refresh audit list
+    const { data: audit } = await (supabase as any)
+      .from("building_settings_audit")
+      .select("*")
+      .eq("building_id", buildingId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    const rows = (audit as AuditEntry[] | null) ?? [];
+    setAuditEntries(rows);
+    setLastReset(rows.find((r) => r.action === "reset_to_template") ?? null);
   };
 
   const resetToTemplate = async () => {
