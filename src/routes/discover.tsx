@@ -423,6 +423,11 @@ function DiscoverPage() {
       </header>
 
       <main className="mx-auto max-w-5xl py-8 space-y-10">
+        <BrandedSectionIntro
+          eyebrow="Community Match"
+          title={`Meet your neighbors at ${community}`}
+          description={`Concierge-curated introductions between verified residents of ${community}. You decide who you meet — and when.`}
+        />
         {/* Concierge recommendations */}
         {recommended.length > 0 && (
           <section>
