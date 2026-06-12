@@ -271,7 +271,7 @@ function GroupsPage() {
                 {residentGroups.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
                     <p className="text-sm text-muted-foreground">
-                      No resident-created groups yet. Be the first to start one.
+                      No resident-created circles in {community} yet. Be the first to start one.
                     </p>
                   </div>
                 ) : (
