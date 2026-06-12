@@ -147,6 +147,7 @@ function SettingsPage() {
       row = inserted as BuildingSettings | null;
     }
     setSettings(row);
+    setOriginalSettings(row ? { ...row } : null);
     const tplId = (b as any)?.template_id as string | null;
     if (tplId) {
       const { data: t } = await (supabase as any)
@@ -158,6 +159,15 @@ function SettingsPage() {
     } else {
       setTemplate(null);
     }
+    const { data: audit } = await (supabase as any)
+      .from("building_settings_audit")
+      .select("*")
+      .eq("building_id", buildingId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    const rows = (audit as AuditEntry[] | null) ?? [];
+    setAuditEntries(rows);
+    setLastReset(rows.find((r) => r.action === "reset_to_template") ?? null);
   };
 
   useEffect(() => {
