@@ -454,12 +454,55 @@ function SettingsPage() {
           </div>
         </section>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end mb-6">
           <Button onClick={save} disabled={saving} className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save changes
           </Button>
         </div>
+
+        <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <History className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-serif text-xl font-semibold">Audit Log</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-5">
+            Recent manager overrides and template resets for this building.
+          </p>
+          {auditEntries.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">No changes recorded yet.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {auditEntries.map((entry) => (
+                <li key={entry.id} className="py-3 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    {entry.action === "reset_to_template" ? (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-300">
+                          Reset to template
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">All toggles restored to template defaults</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
+                          Override
+                        </Badge>
+                        <span className="text-sm font-medium">{entry.setting_key}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {String(entry.old_value)} → <span className="font-medium text-foreground">{String(entry.new_value)}</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap" title={new Date(entry.created_at).toLocaleString()}>
+                    {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </main>
   );
