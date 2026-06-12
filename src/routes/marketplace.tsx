@@ -23,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useBranding } from "@/components/BrandingProvider";
 import { brandingValue } from "@/lib/branding";
+import { BrandedSectionIntro } from "@/components/BrandedSectionIntro";
 
 export const Route = createFileRoute("/marketplace")({
   component: () => (
@@ -171,6 +172,14 @@ function MarketplacePage() {
             <Button onClick={() => setOpenCreate(true)}>List an Item</Button>
           </div>
 
+          <div className="mb-6">
+            <BrandedSectionIntro
+              eyebrow="Resident Exchange"
+              title={`Trade and share with neighbors at ${community}`}
+              description={`A trusted marketplace just for ${community} residents — pass along what you no longer need, find a great deal, or gift something forward.`}
+            />
+          </div>
+
           <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterTab)} className="mb-6">
             <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
@@ -183,7 +192,7 @@ function MarketplacePage() {
           {filtered.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
               <ShoppingBag className="h-12 w-12 mx-auto mb-3 opacity-40" />
-              <p>No listings yet. Be the first to post!</p>
+              <p>Nothing listed at {community} yet. Be the first to post!</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

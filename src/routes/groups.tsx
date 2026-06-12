@@ -19,6 +19,7 @@ import { CIRCLE_CATEGORIES, CIRCLE_TYPE_META, categoryLabel } from "@/lib/circle
 import { cn } from "@/lib/utils";
 import { useBranding } from "@/components/BrandingProvider";
 import { brandingValue } from "@/lib/branding";
+import { BrandedSectionIntro } from "@/components/BrandedSectionIntro";
 
 export const Route = createFileRoute("/groups")({
   component: () => (
@@ -204,6 +205,11 @@ function GroupsPage() {
       </header>
 
         <main className="mx-auto max-w-5xl space-y-12 py-8">
+          <BrandedSectionIntro
+            eyebrow="Circles"
+            title={`Find your people inside ${community}`}
+            description={`Small, intentional groups for ${community} residents who share interests, rhythms, and rituals. Join one — or start your own.`}
+          />
           {/* Section 1 — You're In */}
           <section>
             <h2 className="mb-4 font-serif text-2xl text-foreground">Your Circles</h2>
@@ -265,7 +271,7 @@ function GroupsPage() {
                 {residentGroups.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center">
                     <p className="text-sm text-muted-foreground">
-                      No resident-created groups yet. Be the first to start one.
+                      No resident-created circles in {community} yet. Be the first to start one.
                     </p>
                   </div>
                 ) : (
