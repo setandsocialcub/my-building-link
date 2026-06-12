@@ -271,6 +271,12 @@ function EventsPage() {
         </Button>
       </header>
 
+      <BrandedSectionIntro
+        eyebrow="Experiences"
+        title={`What's happening at ${community}`}
+        description={`Dinners, tastings, classes, and quiet moments hosted by ${community} and its residents. Reserve your spot or host one of your own.`}
+      />
+
       {loading ? (
         <div className="flex items-center justify-center py-20 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -278,8 +284,8 @@ function EventsPage() {
       ) : (
         <>
           {upcoming.length === 0 ? (
-            <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
-              No upcoming events. Be the first to host one.
+            <div className="mt-6 rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+              No upcoming experiences at {community} yet. Be the first to host one.
             </div>
           ) : (
             <ul className="space-y-4">
