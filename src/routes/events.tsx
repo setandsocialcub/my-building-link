@@ -288,7 +288,7 @@ function EventsPage() {
               No upcoming experiences at {community} yet. Be the first to host one.
             </div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="mt-6 space-y-4">
               {upcoming.map((ev) => (
                 <EventCard
                   key={ev.id}
