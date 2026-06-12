@@ -265,6 +265,11 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/admin/templates">
+                <LayoutTemplate className="h-4 w-4" /> Templates
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
               <Link to="/admin/legal">
                 <FileText className="h-4 w-4" /> Legal
               </Link>
