@@ -99,39 +99,61 @@ const GOVERNANCE_TOGGLES: Array<{
   { key: "limit_circle_visibility", label: "Limit Circle Visibility", description: "Block residents from creating private (invite-only) circles." },
 ];
 
+type Template = {
+  id: string;
+  template_name: string;
+  enabled_features: Record<string, boolean>;
+};
+
 function SettingsPage() {
   const { buildingId } = Route.useParams();
-  const [building, setBuilding] = useState<{ name: string; city: string } | null>(null);
+  const [building, setBuilding] = useState<{ name: string; city: string; template_id: string | null } | null>(null);
+  const [template, setTemplate] = useState<Template | null>(null);
   const [settings, setSettings] = useState<BuildingSettings | null>(null);
   const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const loadAll = async () => {
+    const [{ data: b }, { data: s }] = await Promise.all([
+      (supabase as any).from("buildings").select("name, city, template_id").eq("id", buildingId).maybeSingle(),
+      (supabase as any).from("building_settings").select("*").eq("building_id", buildingId).maybeSingle(),
+    ]);
+    setBuilding((b as any) ?? null);
+    let row = s as BuildingSettings | null;
+    if (!row) {
+      const { data: inserted } = await (supabase as any)
+        .from("building_settings")
+        .insert({ building_id: buildingId })
+        .select("*")
+        .maybeSingle();
+      row = inserted as BuildingSettings | null;
+    }
+    setSettings(row);
+    const tplId = (b as any)?.template_id as string | null;
+    if (tplId) {
+      const { data: t } = await (supabase as any)
+        .from("building_templates")
+        .select("id, template_name, enabled_features")
+        .eq("id", tplId)
+        .maybeSingle();
+      setTemplate((t as Template | null) ?? null);
+    } else {
+      setTemplate(null);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const [{ data: b }, { data: s }] = await Promise.all([
-        supabase.from("buildings").select("name, city").eq("id", buildingId).maybeSingle(),
-        (supabase as any).from("building_settings").select("*").eq("building_id", buildingId).maybeSingle(),
-      ]);
-      if (cancelled) return;
-      setBuilding((b as { name: string; city: string } | null) ?? null);
-      if (s) {
-        setSettings(s as BuildingSettings);
-      } else {
-        // Ensure a row exists.
-        const { data: inserted } = await (supabase as any)
-          .from("building_settings")
-          .insert({ building_id: buildingId })
-          .select("*")
-          .maybeSingle();
-        if (!cancelled && inserted) setSettings(inserted as BuildingSettings);
-      }
-      setLoading(false);
+      await loadAll();
+      if (!cancelled) setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildingId]);
 
   const update = (patch: Partial<BuildingSettings>) => {
@@ -156,6 +178,24 @@ function SettingsPage() {
     toast.success("Settings saved");
   };
 
+  const resetToTemplate = async () => {
+    if (!template) return;
+    if (!confirm(`Reset feature toggles to match the "${template.template_name}" template?`)) return;
+    setResetting(true);
+    const { error } = await (supabase as any).rpc("apply_template_to_building", {
+      _building_id: buildingId,
+      _template_id: template.id,
+    });
+    if (error) {
+      setResetting(false);
+      toast.error(error.message);
+      return;
+    }
+    await loadAll();
+    setResetting(false);
+    toast.success("Settings reset to template");
+  };
+
   if (loading || !settings) {
     return (
       <main className="min-h-screen grid place-items-center text-muted-foreground">
@@ -164,6 +204,32 @@ function SettingsPage() {
     );
   }
 
+  // Compute the expected value from the template for any toggle.
+  // Returns null when the template has no opinion (e.g. governance toggles).
+  const expectedFromTemplate = (key: keyof typeof DEFAULT_SETTINGS): boolean | null => {
+    if (!template) return null;
+    const features = template.enabled_features ?? {};
+    if (Object.prototype.hasOwnProperty.call(features, key)) {
+      return Boolean(features[key]);
+    }
+    // The apply RPC turns off everything not listed (except conversations, which stays on)
+    // for the feature-toggle set. Mirror that so "off" toggles still show parity.
+    const FEATURE_KEYS = new Set([
+      "enable_circles", "enable_experiences", "enable_concierge", "enable_community_board",
+      "enable_resident_exchange", "enable_introductions", "enable_ai_matching",
+      "enable_resident_ambassadors", "allow_resident_circle_creation",
+    ]);
+    if (FEATURE_KEYS.has(key as string)) return false;
+    if (key === "enable_conversations") return true;
+    return null;
+  };
+
+  const overrideCount = [...FEATURE_TOGGLES, ...GOVERNANCE_TOGGLES].filter((t) => {
+    const expected = expectedFromTemplate(t.key);
+    if (expected === null) return false;
+    return Boolean(settings[t.key]) !== expected;
+  }).length;
+
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-6 py-10">
@@ -171,7 +237,7 @@ function SettingsPage() {
           <ArrowLeft className="h-4 w-4" /> Back to Buildings
         </Link>
 
-        <header className="mb-8">
+        <header className="mb-6">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Building Settings</p>
           <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight">
             {building?.name ?? "Building"}
@@ -180,6 +246,50 @@ function SettingsPage() {
             <p className="text-sm text-muted-foreground mt-1">{building.city}</p>
           )}
         </header>
+
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm mb-6 flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-primary/10 text-primary p-2">
+              <LayoutTemplate className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs uppercase tracking-widest text-muted-foreground">Template</span>
+                {template ? (
+                  <Badge variant="secondary" className="font-medium">{template.template_name}</Badge>
+                ) : (
+                  <Badge variant="outline" className="font-normal text-muted-foreground">None assigned</Badge>
+                )}
+                {template && (
+                  overrideCount > 0 ? (
+                    <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
+                      {overrideCount} manager override{overrideCount === 1 ? "" : "s"}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-300">
+                      Inheriting template
+                    </Badge>
+                  )
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Toggles differing from the template are marked “Overridden”. Reset any time to return to template defaults.
+              </p>
+            </div>
+          </div>
+          {template && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetToTemplate}
+              disabled={resetting || overrideCount === 0}
+              className="gap-2"
+            >
+              {resetting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+              Reset to template
+            </Button>
+          )}
+        </section>
 
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm mb-6">
           <h2 className="font-serif text-xl font-semibold mb-1">Features</h2>
@@ -193,7 +303,12 @@ function SettingsPage() {
                 label={t.label}
                 description={t.description}
                 checked={settings[t.key] as boolean}
+                expected={expectedFromTemplate(t.key)}
                 onChange={(v) => update({ [t.key]: v } as Partial<BuildingSettings>)}
+                onReset={() => {
+                  const e = expectedFromTemplate(t.key);
+                  if (e !== null) update({ [t.key]: e } as Partial<BuildingSettings>);
+                }}
               />
             ))}
           </div>
@@ -211,7 +326,12 @@ function SettingsPage() {
                 label={t.label}
                 description={t.description}
                 checked={settings[t.key] as boolean}
+                expected={expectedFromTemplate(t.key)}
                 onChange={(v) => update({ [t.key]: v } as Partial<BuildingSettings>)}
+                onReset={() => {
+                  const e = expectedFromTemplate(t.key);
+                  if (e !== null) update({ [t.key]: e } as Partial<BuildingSettings>);
+                }}
               />
             ))}
           </div>
@@ -277,20 +397,43 @@ function ToggleRow({
   label,
   description,
   checked,
+  expected,
   onChange,
+  onReset,
 }: {
   label: string;
   description: string;
   checked: boolean;
+  expected: boolean | null;
   onChange: (v: boolean) => void;
+  onReset: () => void;
 }) {
+  const overridden = expected !== null && checked !== expected;
   return (
     <div className="flex items-center justify-between gap-4 py-4">
       <div className="min-w-0">
-        <div className="font-medium text-sm">{label}</div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-medium text-sm">{label}</span>
+          {overridden && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 transition-colors"
+              title={`Template default: ${expected ? "On" : "Off"} — click to reset`}
+            >
+              <RotateCcw className="h-3 w-3" /> Overridden
+            </button>
+          )}
+        </div>
         <div className="text-xs text-muted-foreground">{description}</div>
+        {overridden && (
+          <div className="text-[11px] text-amber-700/80 dark:text-amber-300/80 mt-1">
+            Template default: <span className="font-medium">{expected ? "On" : "Off"}</span>
+          </div>
+        )}
       </div>
       <Switch checked={checked} onCheckedChange={onChange} />
     </div>
   );
 }
+
