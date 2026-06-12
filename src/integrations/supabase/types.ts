@@ -245,6 +245,57 @@ export type Database = {
           },
         ]
       }
+      building_settings_audit: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          building_id: string
+          created_at: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          setting_key: string | null
+          template_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          building_id: string
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          setting_key?: string | null
+          template_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          building_id?: string
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          setting_key?: string | null
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "building_settings_audit_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "building_settings_audit_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "building_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       building_templates: {
         Row: {
           created_at: string

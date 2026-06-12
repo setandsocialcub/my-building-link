@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Loader2, Save, LogOut, LayoutTemplate, RotateCcw } from "lucide-react";
+import { ArrowLeft, Loader2, Save, LogOut, LayoutTemplate, RotateCcw, History } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,11 +106,27 @@ type Template = {
   enabled_features: Record<string, boolean>;
 };
 
+type AuditEntry = {
+  id: string;
+  building_id: string;
+  actor_user_id: string | null;
+  action: "override" | "reset_to_template";
+  setting_key: string | null;
+  old_value: unknown;
+  new_value: unknown;
+  template_id: string | null;
+  created_at: string;
+};
+
+
 function SettingsPage() {
   const { buildingId } = Route.useParams();
   const [building, setBuilding] = useState<{ name: string; city: string; template_id: string | null } | null>(null);
   const [template, setTemplate] = useState<Template | null>(null);
   const [settings, setSettings] = useState<BuildingSettings | null>(null);
+  const [originalSettings, setOriginalSettings] = useState<BuildingSettings | null>(null);
+  const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
+  const [lastReset, setLastReset] = useState<AuditEntry | null>(null);
   const [saving, setSaving] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -130,6 +147,7 @@ function SettingsPage() {
       row = inserted as BuildingSettings | null;
     }
     setSettings(row);
+    setOriginalSettings(row ? { ...row } : null);
     const tplId = (b as any)?.template_id as string | null;
     if (tplId) {
       const { data: t } = await (supabase as any)
@@ -141,6 +159,15 @@ function SettingsPage() {
     } else {
       setTemplate(null);
     }
+    const { data: audit } = await (supabase as any)
+      .from("building_settings_audit")
+      .select("*")
+      .eq("building_id", buildingId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    const rows = (audit as AuditEntry[] | null) ?? [];
+    setAuditEntries(rows);
+    setLastReset(rows.find((r) => r.action === "reset_to_template") ?? null);
   };
 
   useEffect(() => {
@@ -170,12 +197,52 @@ function SettingsPage() {
       .from("building_settings")
       .update(rest)
       .eq("building_id", buildingId);
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast.error(error.message);
       return;
     }
+
+    // Log audit entries for each toggle that changed away from (or back toward) template defaults
+    const ALL_KEYS = [...FEATURE_TOGGLES, ...GOVERNANCE_TOGGLES].map((t) => t.key);
+    const auditRows: Array<{
+      building_id: string;
+      action: "override";
+      setting_key: string;
+      old_value: boolean;
+      new_value: boolean;
+      template_id: string | null;
+    }> = [];
+    for (const key of ALL_KEYS) {
+      const before = originalSettings ? Boolean(originalSettings[key as keyof BuildingSettings]) : null;
+      const after = Boolean(settings[key as keyof BuildingSettings]);
+      if (before === null || before === after) continue;
+      auditRows.push({
+        building_id: buildingId,
+        action: "override",
+        setting_key: key as string,
+        old_value: before,
+        new_value: after,
+        template_id: template?.id ?? null,
+      });
+    }
+    if (auditRows.length > 0) {
+      await (supabase as any).from("building_settings_audit").insert(auditRows);
+    }
+
+    setOriginalSettings({ ...settings });
+    setSaving(false);
     toast.success("Settings saved");
+    // Refresh audit list
+    const { data: audit } = await (supabase as any)
+      .from("building_settings_audit")
+      .select("*")
+      .eq("building_id", buildingId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    const rows = (audit as AuditEntry[] | null) ?? [];
+    setAuditEntries(rows);
+    setLastReset(rows.find((r) => r.action === "reset_to_template") ?? null);
   };
 
   const resetToTemplate = async () => {
@@ -275,6 +342,11 @@ function SettingsPage() {
               <p className="text-xs text-muted-foreground mt-1">
                 Toggles differing from the template are marked “Overridden”. Reset any time to return to template defaults.
               </p>
+              {lastReset && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last reset to template {formatDistanceToNow(new Date(lastReset.created_at), { addSuffix: true })}
+                </p>
+              )}
             </div>
           </div>
           {template && (
@@ -382,12 +454,55 @@ function SettingsPage() {
           </div>
         </section>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end mb-6">
           <Button onClick={save} disabled={saving} className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save changes
           </Button>
         </div>
+
+        <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <History className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-serif text-xl font-semibold">Audit Log</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-5">
+            Recent manager overrides and template resets for this building.
+          </p>
+          {auditEntries.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">No changes recorded yet.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {auditEntries.map((entry) => (
+                <li key={entry.id} className="py-3 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    {entry.action === "reset_to_template" ? (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 dark:text-emerald-300">
+                          Reset to template
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">All toggles restored to template defaults</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300">
+                          Override
+                        </Badge>
+                        <span className="text-sm font-medium">{entry.setting_key}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {String(entry.old_value)} → <span className="font-medium text-foreground">{String(entry.new_value)}</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap" title={new Date(entry.created_at).toLocaleString()}>
+                    {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </main>
   );
