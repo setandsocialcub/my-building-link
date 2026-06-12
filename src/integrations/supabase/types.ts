@@ -245,6 +245,42 @@ export type Database = {
           },
         ]
       }
+      building_templates: {
+        Row: {
+          created_at: string
+          enabled_features: Json
+          homepage_priority: Json
+          id: string
+          is_system: boolean
+          recommended_circles: Json
+          template_description: string | null
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled_features?: Json
+          homepage_priority?: Json
+          id?: string
+          is_system?: boolean
+          recommended_circles?: Json
+          template_description?: string | null
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled_features?: Json
+          homepage_priority?: Json
+          id?: string
+          is_system?: boolean
+          recommended_circles?: Json
+          template_description?: string | null
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       buildings: {
         Row: {
           access_code: string
@@ -252,6 +288,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          template_id: string | null
         }
         Insert: {
           access_code?: string
@@ -259,6 +296,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          template_id?: string | null
         }
         Update: {
           access_code?: string
@@ -266,8 +304,17 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          template_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "buildings_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "building_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       channel_members: {
         Row: {
@@ -1398,6 +1445,10 @@ export type Database = {
       }
     }
     Functions: {
+      apply_template_to_building: {
+        Args: { _building_id: string; _template_id: string }
+        Returns: undefined
+      }
       building_exists: { Args: { _building_id: string }; Returns: boolean }
       channel_building: { Args: { _channel_id: string }; Returns: string }
       claim_manager_code: { Args: { _code: string }; Returns: string }

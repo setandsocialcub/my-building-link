@@ -35,6 +35,7 @@ import { Route as MessagesConnectionIdRouteImport } from './routes/messages.$con
 import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
 import { Route as ForumThreadIdRouteImport } from './routes/forum.$threadId'
 import { Route as BuildingBuildingIdRouteImport } from './routes/building.$buildingId'
+import { Route as AdminTemplatesRouteImport } from './routes/admin.templates'
 import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
 import { Route as ApiPublicManifestBuildingIdRouteImport } from './routes/api/public/manifest.$buildingId'
@@ -171,6 +172,11 @@ const BuildingBuildingIdRoute = BuildingBuildingIdRouteImport.update({
   path: '/building/$buildingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTemplatesRoute = AdminTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLegalRoute = AdminLegalRouteImport.update({
   id: '/legal',
   path: '/legal',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/terms': typeof TermsRoute
   '/admin/legal': typeof AdminLegalRoute
+  '/admin/templates': typeof AdminTemplatesRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
@@ -256,6 +263,7 @@ export interface FileRoutesByTo {
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/terms': typeof TermsRoute
   '/admin/legal': typeof AdminLegalRoute
+  '/admin/templates': typeof AdminTemplatesRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/super-admin-login': typeof SuperAdminLoginRoute
   '/terms': typeof TermsRoute
   '/admin/legal': typeof AdminLegalRoute
+  '/admin/templates': typeof AdminTemplatesRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/super-admin-login'
     | '/terms'
     | '/admin/legal'
+    | '/admin/templates'
     | '/building/$buildingId'
     | '/forum/$threadId'
     | '/manager/$buildingId'
@@ -358,6 +368,7 @@ export interface FileRouteTypes {
     | '/super-admin-login'
     | '/terms'
     | '/admin/legal'
+    | '/admin/templates'
     | '/building/$buildingId'
     | '/forum/$threadId'
     | '/manager/$buildingId'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/super-admin-login'
     | '/terms'
     | '/admin/legal'
+    | '/admin/templates'
     | '/building/$buildingId'
     | '/forum/$threadId'
     | '/manager/$buildingId'
@@ -614,6 +626,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildingBuildingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/templates': {
+      id: '/admin/templates'
+      path: '/templates'
+      fullPath: '/admin/templates'
+      preLoaderRoute: typeof AdminTemplatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/legal': {
       id: '/admin/legal'
       path: '/legal'
@@ -654,12 +673,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminLegalRoute: typeof AdminLegalRoute
+  AdminTemplatesRoute: typeof AdminTemplatesRoute
   AdminBuildingsBuildingIdBrandingRoute: typeof AdminBuildingsBuildingIdBrandingRoute
   AdminBuildingsBuildingIdSettingsRoute: typeof AdminBuildingsBuildingIdSettingsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLegalRoute: AdminLegalRoute,
+  AdminTemplatesRoute: AdminTemplatesRoute,
   AdminBuildingsBuildingIdBrandingRoute: AdminBuildingsBuildingIdBrandingRoute,
   AdminBuildingsBuildingIdSettingsRoute: AdminBuildingsBuildingIdSettingsRoute,
 }

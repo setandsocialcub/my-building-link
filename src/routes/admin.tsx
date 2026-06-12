@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles } from "lucide-react";
+import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin")({
@@ -30,9 +37,14 @@ type Building = {
   city: string;
   access_code: string;
   created_at: string;
+  template_id?: string | null;
+  template_name?: string | null;
   manager_code?: string | null;
   active_residents?: number;
 };
+
+type Template = { id: string; template_name: string; template_description: string | null };
+
 
 type AuthState = "loading" | "not-admin" | "admin";
 
@@ -127,20 +139,22 @@ function AdminGate() {
 
 function AdminPage({ onSignOut }: { onSignOut: () => void }) {
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
+  const [templateId, setTemplateId] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
-    const { data, error: qErr } = await supabase
+    const { data, error: qErr } = await (supabase as any)
       .from("buildings")
-      .select("id, name, city, access_code, created_at")
+      .select("id, name, city, access_code, created_at, template_id")
       .order("created_at", { ascending: false });
     if (qErr || !data) return;
 
     const buildingIds = (data as any[]).map((b) => b.id);
-    const [{ data: managers }, { data: residents }] = await Promise.all([
+    const [{ data: managers }, { data: residents }, { data: tpls }] = await Promise.all([
       supabase
         .from("property_managers")
         .select("building_id, manager_code")
@@ -149,6 +163,7 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
           buildingIds.length ? buildingIds : ["00000000-0000-0000-0000-000000000000"],
         ),
       supabase.from("resident_profiles").select("building_id"),
+      (supabase as any).from("building_templates").select("id, template_name, template_description").order("is_system", { ascending: false }).order("template_name"),
     ]);
 
     const managerByBuilding = new Map<string, string>();
@@ -163,9 +178,14 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
       counts.set(r.building_id, (counts.get(r.building_id) ?? 0) + 1);
     });
 
+    const tplList = (tpls as Template[]) ?? [];
+    setTemplates(tplList);
+    const tplById = new Map(tplList.map((t) => [t.id, t.template_name]));
+
     setBuildings(
       (data as any[]).map((b) => ({
         ...b,
+        template_name: b.template_id ? tplById.get(b.template_id) ?? null : null,
         manager_code: managerByBuilding.get(b.id) ?? null,
         active_residents: counts.get(b.id) ?? 0,
       })),
@@ -194,19 +214,37 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
       setError("Building name and city are required.");
       return;
     }
+    if (!templateId) {
+      setError("Please select a template for this building.");
+      return;
+    }
     setSaving(true);
-    const { error: insErr } = await supabase
+    const { data: created, error: insErr } = await (supabase as any)
       .from("buildings")
-      .insert({ name: name.trim(), city: city.trim() });
-    setSaving(false);
+      .insert({ name: name.trim(), city: city.trim(), template_id: templateId })
+      .select("id")
+      .single();
     if (insErr) {
+      setSaving(false);
       setError(insErr.message);
       return;
     }
+    // Apply template features to the new building's settings
+    const { error: applyErr } = await (supabase as any).rpc("apply_template_to_building", {
+      _building_id: created.id,
+      _template_id: templateId,
+    });
+    setSaving(false);
+    if (applyErr) {
+      setError(`Building created, but template not applied: ${applyErr.message}`);
+    }
     setName("");
     setCity("");
+    setTemplateId("");
     load();
   };
+
+
 
   const copy = (code: string) => navigator.clipboard.writeText(code);
 
@@ -227,6 +265,11 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="outline" size="sm" className="gap-2">
+              <Link to="/admin/templates">
+                <LayoutTemplate className="h-4 w-4" /> Templates
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-2">
               <Link to="/admin/legal">
                 <FileText className="h-4 w-4" /> Legal
               </Link>
@@ -238,27 +281,48 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
         </header>
 
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm mb-10">
-          <h2 className="text-base font-semibold text-foreground mb-4">
+          <h2 className="text-base font-semibold text-foreground mb-1">
             Add a building
           </h2>
-          <form
-            onSubmit={onCreate}
-            className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3"
-          >
-            <Input
-              placeholder="Building name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Input
-              placeholder="City / Location"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-            <Button type="submit" disabled={saving} className="gap-2">
-              <Plus className="h-4 w-4" />
-              {saving ? "Creating…" : "Create"}
-            </Button>
+          <p className="text-xs text-muted-foreground mb-4">
+            Select a template to apply default features and engagement settings. Managers can customize them later.
+          </p>
+          <form onSubmit={onCreate} className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Input
+                placeholder="Building name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Input
+                placeholder="City / Location"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+              <Select value={templateId} onValueChange={setTemplateId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a template…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.template_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="submit" disabled={saving} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {saving ? "Creating…" : "Create"}
+              </Button>
+            </div>
+            {templateId && (
+              <p className="text-xs text-muted-foreground">
+                {templates.find((t) => t.id === templateId)?.template_description}
+              </p>
+            )}
           </form>
           {error && (
             <p className="mt-3 text-sm text-destructive" role="alert">
@@ -293,7 +357,14 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
               ) : (
                 buildings.map((b) => (
                   <TableRow key={b.id}>
-                    <TableCell className="pl-6 font-medium">{b.name}</TableCell>
+                    <TableCell className="pl-6 font-medium">
+                      <div>{b.name}</div>
+                      {b.template_name && (
+                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                          {b.template_name}
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell>{b.city}</TableCell>
                     <TableCell>
                       <code className="px-2 py-1 rounded-md bg-muted font-mono text-sm tracking-widest">
