@@ -106,6 +106,25 @@ type Template = {
   enabled_features: Record<string, boolean>;
 };
 
+type AuditEntry = {
+  id: string;
+  building_id: string;
+  actor_user_id: string | null;
+  action: "override" | "reset_to_template";
+  setting_key: string | null;
+  old_value: unknown;
+  new_value: unknown;
+  template_id: string | null;
+  created_at: string;
+};
+
+const _origDup = `// dedupe marker`;
+void _origDup;
+  id: string;
+  template_name: string;
+  enabled_features: Record<string, boolean>;
+};
+
 function SettingsPage() {
   const { buildingId } = Route.useParams();
   const [building, setBuilding] = useState<{ name: string; city: string; template_id: string | null } | null>(null);
