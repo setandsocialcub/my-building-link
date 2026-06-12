@@ -111,6 +111,9 @@ function SettingsPage() {
   const [building, setBuilding] = useState<{ name: string; city: string; template_id: string | null } | null>(null);
   const [template, setTemplate] = useState<Template | null>(null);
   const [settings, setSettings] = useState<BuildingSettings | null>(null);
+  const [originalSettings, setOriginalSettings] = useState<BuildingSettings | null>(null);
+  const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
+  const [lastReset, setLastReset] = useState<AuditEntry | null>(null);
   const [saving, setSaving] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [loading, setLoading] = useState(true);
