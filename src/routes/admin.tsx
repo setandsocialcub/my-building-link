@@ -357,7 +357,14 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
               ) : (
                 buildings.map((b) => (
                   <TableRow key={b.id}>
-                    <TableCell className="pl-6 font-medium">{b.name}</TableCell>
+                    <TableCell className="pl-6 font-medium">
+                      <div>{b.name}</div>
+                      {b.template_name && (
+                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                          {b.template_name}
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell>{b.city}</TableCell>
                     <TableCell>
                       <code className="px-2 py-1 rounded-md bg-muted font-mono text-sm tracking-widest">
