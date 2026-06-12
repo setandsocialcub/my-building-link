@@ -22,6 +22,8 @@ import {
 import { cn } from "@/lib/utils";
 
 import { FeatureGate } from "@/components/FeatureGate";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/events")({
   component: () => (
@@ -62,6 +64,8 @@ function formatWhen(iso: string) {
 
 function EventsPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [meId, setMeId] = useState<string | null>(null);
   const [buildingId, setBuildingId] = useState<string | null>(null);
@@ -249,7 +253,7 @@ function EventsPage() {
   };
 
   return (
-    <ResidentPageShell title="Experiences" subtitle="Gatherings in your residence">
+    <ResidentPageShell title="Experiences" subtitle={`Gatherings in ${community}`}>
       <div className="mx-auto max-w-3xl">
       <header className="mb-6 flex items-center justify-between gap-3">
         <div>
@@ -257,7 +261,7 @@ function EventsPage() {
             Experiences
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Gatherings, tastings, and moments happening in the residence.
+            Gatherings, tastings, and moments happening in {community}.
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>

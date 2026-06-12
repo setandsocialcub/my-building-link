@@ -17,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useBuildingSettings } from "@/hooks/use-building-settings";
 import { CIRCLE_CATEGORIES, CIRCLE_TYPE_META, categoryLabel } from "@/lib/circle-categories";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/groups")({
   component: () => (
@@ -51,6 +53,8 @@ const SYSTEM_ORDER = ["General", "Announcements", "Marketplace"];
 
 function GroupsPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [me, setMe] = useState<MyProfile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -168,7 +172,7 @@ function GroupsPage() {
   }
 
   return (
-    <ResidentPageShell title="Circles" subtitle="Curated company, just down the hall">
+    <ResidentPageShell title="Circles" subtitle={`Curated company inside ${community}`}>
       <div>
         <header className="border-b border-border bg-card/50 -mx-4 px-4 md:-mx-6 md:px-6">
           <div className="mx-auto flex max-w-5xl items-center justify-between py-5">
@@ -176,7 +180,7 @@ function GroupsPage() {
             <h1 className="font-serif text-4xl text-foreground">
               Circles
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">Curated company, just down the hall.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Curated company inside {community}.</p>
           </div>
           <div className="flex items-center gap-2">
             {me && (

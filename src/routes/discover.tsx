@@ -14,6 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { cn } from "@/lib/utils";
 
 import { FeatureGate } from "@/components/FeatureGate";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/discover")({
   component: () => (
@@ -114,6 +116,8 @@ type Match = {
 
 function DiscoverPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [me, setMe] = useState<MyProfile | null>(null);
   const [residents, setResidents] = useState<ResidentRow[]>([]);
@@ -395,7 +399,7 @@ function DiscoverPage() {
   }
 
   return (
-    <ResidentPageShell title="Community Match" subtitle="Concierge introductions">
+    <ResidentPageShell title="Community Match" subtitle={`Concierge introductions at ${community}`}>
       <div>
         <header className="border-b border-border bg-card/50 -mx-4 px-4 md:-mx-6 md:px-6">
           <div className="mx-auto flex max-w-5xl items-center justify-between py-5">
@@ -407,7 +411,7 @@ function DiscoverPage() {
               Community Match
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Hand-curated residents you might enjoy meeting. Request an introduction — they decide what happens next.
+              Hand-curated neighbors from {community} you might enjoy meeting. Request an introduction — they decide what happens next.
             </p>
           </div>
           <Button asChild variant="ghost" size="sm">

@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/announcements")({
   component: AnnouncementsPage,
@@ -20,6 +22,8 @@ type Row = {
 
 function AnnouncementsPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
@@ -104,7 +108,7 @@ function AnnouncementsPage() {
   }, [loading, rows]);
 
   return (
-    <ResidentPageShell title="Community Updates" subtitle="News from your residence team">
+    <ResidentPageShell title="Community Updates" subtitle={`News from the ${community} team`}>
       {loading ? (
         <div className="flex min-h-[40vh] items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -117,7 +121,7 @@ function AnnouncementsPage() {
             </div>
             <div>
               <h1 className="font-serif text-3xl text-foreground">Community Updates</h1>
-              <p className="text-sm text-muted-foreground">News from your residence team.</p>
+              <p className="text-sm text-muted-foreground">News from the {community} team.</p>
             </div>
           </div>
 

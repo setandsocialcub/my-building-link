@@ -25,6 +25,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { FeatureGate } from "@/components/FeatureGate";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/forum")({
   component: () => (
@@ -72,6 +74,8 @@ function timeAgo(iso: string) {
 
 function ForumPage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [meId, setMeId] = useState<string | null>(null);
   const [buildingId, setBuildingId] = useState<string | null>(null);
@@ -187,7 +191,7 @@ function ForumPage() {
             Community Board
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            A residence-wide salon for verified neighbors.
+            A {community} salon for verified neighbors.
           </p>
         </div>
         <Button onClick={() => setOpen(true)}>

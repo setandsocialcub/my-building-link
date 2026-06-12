@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/components/BrandingProvider";
+import { brandingValue } from "@/lib/branding";
 
 export const Route = createFileRoute("/marketplace")({
   component: () => (
@@ -68,6 +70,8 @@ function sellerName(s: { first_name: string | null; last_name: string | null } |
 
 function MarketplacePage() {
   const navigate = useNavigate();
+  const { branding } = useBranding();
+  const community = brandingValue(branding, "community_name");
   const [loading, setLoading] = useState(true);
   const [me, setMe] = useState<MyProfile | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
@@ -148,7 +152,7 @@ function MarketplacePage() {
   }, [listings, filter]);
 
   return (
-    <ResidentPageShell title="Resident Exchange" subtitle="Pass along between neighbors">
+    <ResidentPageShell title="Resident Exchange" subtitle={`Pass along inside ${community}`}>
       {loading ? (
         <div className="grid place-items-center min-h-[40vh]">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -161,7 +165,7 @@ function MarketplacePage() {
                 <ShoppingBag className="h-7 w-7" /> Resident Exchange
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Pass along, pick up, and pay it forward between neighbors.
+                Pass along, pick up, and pay it forward inside {community}.
               </p>
             </div>
             <Button onClick={() => setOpenCreate(true)}>List an Item</Button>
