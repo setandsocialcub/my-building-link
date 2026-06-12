@@ -342,6 +342,11 @@ function SettingsPage() {
               <p className="text-xs text-muted-foreground mt-1">
                 Toggles differing from the template are marked “Overridden”. Reset any time to return to template defaults.
               </p>
+              {lastReset && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last reset to template {formatDistanceToNow(new Date(lastReset.created_at), { addSuffix: true })}
+                </p>
+              )}
             </div>
           </div>
           {template && (
