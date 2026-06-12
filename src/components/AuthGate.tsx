@@ -18,6 +18,9 @@ type Props = {
 };
 
 export function AuthGate({ title = "Sign in or create an account", subtitle, children }: Props) {
+  const { branding } = useBranding();
+  const communityName = brandingValue(branding, "community_name");
+  const communityLogo = branding?.logo_url ?? branding?.community_icon_url ?? null;
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
 
