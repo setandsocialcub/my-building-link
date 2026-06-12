@@ -139,20 +139,22 @@ function AdminGate() {
 
 function AdminPage({ onSignOut }: { onSignOut: () => void }) {
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
+  const [templateId, setTemplateId] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
-    const { data, error: qErr } = await supabase
+    const { data, error: qErr } = await (supabase as any)
       .from("buildings")
-      .select("id, name, city, access_code, created_at")
+      .select("id, name, city, access_code, created_at, template_id")
       .order("created_at", { ascending: false });
     if (qErr || !data) return;
 
     const buildingIds = (data as any[]).map((b) => b.id);
-    const [{ data: managers }, { data: residents }] = await Promise.all([
+    const [{ data: managers }, { data: residents }, { data: tpls }] = await Promise.all([
       supabase
         .from("property_managers")
         .select("building_id, manager_code")
@@ -161,6 +163,7 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
           buildingIds.length ? buildingIds : ["00000000-0000-0000-0000-000000000000"],
         ),
       supabase.from("resident_profiles").select("building_id"),
+      (supabase as any).from("building_templates").select("id, template_name, template_description").order("is_system", { ascending: false }).order("template_name"),
     ]);
 
     const managerByBuilding = new Map<string, string>();
@@ -175,9 +178,14 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
       counts.set(r.building_id, (counts.get(r.building_id) ?? 0) + 1);
     });
 
+    const tplList = (tpls as Template[]) ?? [];
+    setTemplates(tplList);
+    const tplById = new Map(tplList.map((t) => [t.id, t.template_name]));
+
     setBuildings(
       (data as any[]).map((b) => ({
         ...b,
+        template_name: b.template_id ? tplById.get(b.template_id) ?? null : null,
         manager_code: managerByBuilding.get(b.id) ?? null,
         active_residents: counts.get(b.id) ?? 0,
       })),
@@ -206,19 +214,37 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
       setError("Building name and city are required.");
       return;
     }
+    if (!templateId) {
+      setError("Please select a template for this building.");
+      return;
+    }
     setSaving(true);
-    const { error: insErr } = await supabase
+    const { data: created, error: insErr } = await (supabase as any)
       .from("buildings")
-      .insert({ name: name.trim(), city: city.trim() });
-    setSaving(false);
+      .insert({ name: name.trim(), city: city.trim(), template_id: templateId })
+      .select("id")
+      .single();
     if (insErr) {
+      setSaving(false);
       setError(insErr.message);
       return;
     }
+    // Apply template features to the new building's settings
+    const { error: applyErr } = await (supabase as any).rpc("apply_template_to_building", {
+      _building_id: created.id,
+      _template_id: templateId,
+    });
+    setSaving(false);
+    if (applyErr) {
+      setError(`Building created, but template not applied: ${applyErr.message}`);
+    }
     setName("");
     setCity("");
+    setTemplateId("");
     load();
   };
+
+
 
   const copy = (code: string) => navigator.clipboard.writeText(code);
 
