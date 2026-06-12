@@ -281,27 +281,48 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
         </header>
 
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm mb-10">
-          <h2 className="text-base font-semibold text-foreground mb-4">
+          <h2 className="text-base font-semibold text-foreground mb-1">
             Add a building
           </h2>
-          <form
-            onSubmit={onCreate}
-            className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3"
-          >
-            <Input
-              placeholder="Building name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Input
-              placeholder="City / Location"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-            <Button type="submit" disabled={saving} className="gap-2">
-              <Plus className="h-4 w-4" />
-              {saving ? "Creating…" : "Create"}
-            </Button>
+          <p className="text-xs text-muted-foreground mb-4">
+            Select a template to apply default features and engagement settings. Managers can customize them later.
+          </p>
+          <form onSubmit={onCreate} className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Input
+                placeholder="Building name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Input
+                placeholder="City / Location"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+              <Select value={templateId} onValueChange={setTemplateId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a template…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.template_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="submit" disabled={saving} className="gap-2">
+                <Plus className="h-4 w-4" />
+                {saving ? "Creating…" : "Create"}
+              </Button>
+            </div>
+            {templateId && (
+              <p className="text-xs text-muted-foreground">
+                {templates.find((t) => t.id === templateId)?.template_description}
+              </p>
+            )}
           </form>
           {error && (
             <p className="mt-3 text-sm text-destructive" role="alert">
