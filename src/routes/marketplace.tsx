@@ -152,7 +152,7 @@ function MarketplacePage() {
   }, [listings, filter]);
 
   return (
-    <ResidentPageShell title="Resident Exchange" subtitle="Pass along between neighbors">
+    <ResidentPageShell title="Resident Exchange" subtitle={`Pass along inside ${community}`}>
       {loading ? (
         <div className="grid place-items-center min-h-[40vh]">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
