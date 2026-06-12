@@ -165,7 +165,7 @@ function MarketplacePage() {
                 <ShoppingBag className="h-7 w-7" /> Resident Exchange
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Pass along, pick up, and pay it forward between neighbors.
+                Pass along, pick up, and pay it forward inside {community}.
               </p>
             </div>
             <Button onClick={() => setOpenCreate(true)}>List an Item</Button>
