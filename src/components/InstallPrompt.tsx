@@ -1,36 +1,16 @@
 import { useEffect, useState } from "react";
-import { Download, Share, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useBranding } from "@/components/BrandingProvider";
-import { brandingValue } from "@/lib/branding";
+import { InstallOonahModal } from "@/components/InstallOonahModal";
+import { usePwaInstall, trackInstallEvent } from "@/hooks/use-pwa-install";
 
-const DISMISS_KEY = "residence:install-prompt-dismissed-at";
+const DISMISS_KEY = "oonah:install-prompt-dismissed-at";
 const DISMISS_DAYS = 7;
-
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
 
 function isMobile() {
   if (typeof navigator === "undefined") return false;
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-function isIos() {
-  if (typeof navigator === "undefined") return false;
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-function isStandalone() {
-  if (typeof window === "undefined") return false;
-  const mq = window.matchMedia?.("(display-mode: standalone)").matches;
-  // iOS Safari uses navigator.standalone
-  const iosStandalone =
-    typeof navigator !== "undefined" &&
-    (navigator as unknown as { standalone?: boolean }).standalone === true;
-  return Boolean(mq || iosStandalone);
 }
 
 function wasRecentlyDismissed() {
@@ -38,46 +18,32 @@ function wasRecentlyDismissed() {
     const raw = localStorage.getItem(DISMISS_KEY);
     if (!raw) return false;
     const ts = Number(raw);
-    if (!Number.isFinite(ts)) return false;
-    return Date.now() - ts < DISMISS_DAYS * 24 * 60 * 60 * 1000;
+    return Number.isFinite(ts) && Date.now() - ts < DISMISS_DAYS * 24 * 60 * 60 * 1000;
   } catch {
     return false;
   }
 }
 
 export function InstallPrompt() {
-  const { branding } = useBranding();
-  const communityName = brandingValue(branding, "app_name");
-  const appIcon = branding?.app_icon_url || branding?.community_icon_url || branding?.logo_url || null;
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+  const { isInstalled, canPrompt, platform } = usePwaInstall();
   const [visible, setVisible] = useState(false);
-  const [iosHint, setIosHint] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (isStandalone() || wasRecentlyDismissed() || !isMobile()) return;
+    if (isInstalled || wasRecentlyDismissed() || !isMobile()) return;
 
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
+    // Show once the browser signals installability, or after a short delay on iOS
+    // (which never fires beforeinstallprompt).
+    if (canPrompt) {
       setVisible(true);
-    };
-    window.addEventListener("beforeinstallprompt", handler as EventListener);
-
-    // iOS Safari doesn't fire beforeinstallprompt — show a manual hint after a short delay.
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    if (isIos()) {
-      timer = setTimeout(() => {
-        setIosHint(true);
-        setVisible(true);
-      }, 2500);
+      return;
     }
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler as EventListener);
-      if (timer) clearTimeout(timer);
-    };
-  }, []);
+    if (platform === "ios") {
+      const t = setTimeout(() => setVisible(true), 2500);
+      return () => clearTimeout(t);
+    }
+  }, [canPrompt, isInstalled, platform]);
 
   const dismiss = () => {
     try {
@@ -88,72 +54,59 @@ export function InstallPrompt() {
     setVisible(false);
   };
 
-  const install = async () => {
-    if (!deferred) return;
-    try {
-      await deferred.prompt();
-      const choice = await deferred.userChoice;
-      if (choice.outcome === "accepted") {
-        setVisible(false);
-      } else {
-        dismiss();
-      }
-    } catch {
-      dismiss();
-    }
-  };
-
-  if (!visible) return null;
+  if (isInstalled || !visible) return null;
 
   return (
-    <div
-      className="fixed inset-x-3 bottom-3 z-50 md:left-auto md:right-4 md:bottom-4 md:max-w-sm"
-      role="dialog"
-      aria-label={`Install ${communityName} app`}
-    >
-      <div className="rounded-2xl border border-border bg-card/95 backdrop-blur p-4 shadow-lg">
-        <div className="flex items-start gap-3">
-          <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 text-primary grid place-items-center overflow-hidden">
-            {appIcon ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={appIcon} alt="" className="h-full w-full object-cover" />
-            ) : (
+    <>
+      <div
+        className="fixed inset-x-3 bottom-3 z-50 md:left-auto md:right-4 md:bottom-4 md:max-w-sm animate-fade-in"
+        role="dialog"
+        aria-label="Install OONAH app"
+      >
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-card/95 backdrop-blur-xl p-4 shadow-lg">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-primary/15 blur-3xl"
+          />
+          <div className="relative flex items-start gap-3">
+            <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/15 text-primary grid place-items-center ring-1 ring-primary/20">
               <Download className="h-5 w-5" />
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-foreground">Install {communityName}</p>
-            {iosHint ? (
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground">Install OONAH</p>
               <p className="mt-1 text-xs text-muted-foreground leading-snug">
-                Tap <Share className="inline h-3.5 w-3.5 align-text-bottom" /> in Safari, then
-                choose <span className="font-medium">Add to Home Screen</span>.
+                Add OONAH to your home screen for a faster, app-like experience.
               </p>
-            ) : (
-              <p className="mt-1 text-xs text-muted-foreground leading-snug">
-                Add {communityName} to your home screen for a faster, app-like experience.
-              </p>
-            )}
-            {!iosHint && (
               <div className="mt-3 flex gap-2">
-                <Button size="sm" onClick={install} className="h-8">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    trackInstallEvent("install_button_click", { source: "mobile_toast" });
+                    setModalOpen(true);
+                  }}
+                  className="h-8 rounded-lg gap-1.5"
+                >
+                  <Download className="h-3.5 w-3.5" />
                   Install
                 </Button>
-                <Button size="sm" variant="ghost" onClick={dismiss} className="h-8">
+                <Button size="sm" variant="ghost" onClick={dismiss} className="h-8 rounded-lg">
                   Not now
                 </Button>
               </div>
-            )}
+            </div>
+            <button
+              type="button"
+              onClick={dismiss}
+              aria-label="Dismiss"
+              className="text-muted-foreground hover:text-foreground rounded-md p-1"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={dismiss}
-            aria-label="Dismiss"
-            className="text-muted-foreground hover:text-foreground rounded-md p-1"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </div>
       </div>
-    </div>
+
+      <InstallOonahModal open={modalOpen} onOpenChange={setModalOpen} />
+    </>
   );
 }
