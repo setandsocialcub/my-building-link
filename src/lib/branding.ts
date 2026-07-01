@@ -43,18 +43,19 @@ export function mergeDraft(
 }
 
 export const DEFAULT_BRANDING = {
-  community_name: "Residence",
+  community_name: "OONAH",
   community_tagline: "A hospitality experience for residents",
   custom_tagline: "A hospitality experience for residents",
   welcome_message: "Welcome home",
   homepage_headline: "Welcome home",
   homepage_subheadline: "Your community, curated.",
-  app_name: "Residence",
-  app_short_name: "Residence",
-  primary_color: "#1E1E1E",
+  app_name: "OONAH",
+  app_short_name: "OONAH",
+  primary_color: "#0F172A",
   secondary_color: "#B7A58D",
   accent_color: "#C97A63",
 } as const;
+
 
 export function brandingValue<K extends keyof typeof DEFAULT_BRANDING>(
   b: BuildingBranding | null | undefined,
