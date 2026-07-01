@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, KeyRound, Shield, ArrowRight } from "lucide-react";
 import { LegalFooter } from "@/components/LegalFooter";
+import { InstallHeroBanner } from "@/components/InstallHeroBanner";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,7 +22,11 @@ function LandingChooser() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-2xl">
+        <div className="mb-8">
+          <InstallHeroBanner />
+        </div>
         <div className="text-center mb-12">
+
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-5">
             <Building2 className="h-7 w-7" />
           </div>
