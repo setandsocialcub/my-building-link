@@ -175,3 +175,77 @@
     letter-spacing: -0.01em;
   }
 }
+
+/* ===============================================
+ * OONAH micro-interactions
+ * =============================================== */
+
+@keyframes oonah-enter {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.oonah-enter {
+  opacity: 0;
+  animation: oonah-enter 520ms cubic-bezier(.2,.7,.2,1) both;
+}
+
+@keyframes oonah-logo-pop {
+  0%   { opacity: 0; transform: scale(0.9); }
+  60%  { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.oonah-logo-pop {
+  animation: oonah-logo-pop 620ms cubic-bezier(.2,.8,.2,1) 120ms both;
+}
+
+/* Card lift + press */
+.oonah-card {
+  transition:
+    transform 220ms cubic-bezier(.2,.7,.2,1),
+    box-shadow 220ms cubic-bezier(.2,.7,.2,1),
+    border-color 220ms ease;
+}
+.oonah-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+.oonah-card:active {
+  transform: translateY(0) scale(0.995);
+  transition-duration: 120ms;
+}
+
+/* Button micro-interaction — subtle lift on hover, gentle press */
+button, [role="button"], .btn {
+  transition:
+    transform 160ms cubic-bezier(.2,.7,.2,1),
+    box-shadow 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active {
+  transform: translateY(0.5px) scale(0.985);
+}
+
+/* Page transitions — applied by route shells opting in */
+@keyframes oonah-page-in {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.oonah-page {
+  animation: oonah-page-in 380ms cubic-bezier(.2,.7,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oonah-enter,
+  .oonah-logo-pop,
+  .oonah-page {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .oonah-card:hover { transform: none; }
+  button, [role="button"], .btn { transition: none; }
+}
+
