@@ -92,17 +92,24 @@ export type Database = {
           community_icon_url: string | null
           community_name: string | null
           community_tagline: string | null
+          cover_image_url: string | null
           created_at: string
           custom_domain: string | null
           custom_tagline: string | null
           draft: Json | null
           draft_updated_at: string | null
+          email_accent_color: string | null
+          email_logo_url: string | null
+          email_primary_color: string | null
           enable_powered_by_footer: boolean
+          favicon_url: string | null
           hero_image_url: string | null
           homepage_headline: string | null
           homepage_subheadline: string | null
           id: string
+          login_screen_image_url: string | null
           logo_url: string | null
+          playbook_cover_image_url: string | null
           primary_color: string | null
           published_at: string | null
           secondary_color: string | null
@@ -119,17 +126,24 @@ export type Database = {
           community_icon_url?: string | null
           community_name?: string | null
           community_tagline?: string | null
+          cover_image_url?: string | null
           created_at?: string
           custom_domain?: string | null
           custom_tagline?: string | null
           draft?: Json | null
           draft_updated_at?: string | null
+          email_accent_color?: string | null
+          email_logo_url?: string | null
+          email_primary_color?: string | null
           enable_powered_by_footer?: boolean
+          favicon_url?: string | null
           hero_image_url?: string | null
           homepage_headline?: string | null
           homepage_subheadline?: string | null
           id?: string
+          login_screen_image_url?: string | null
           logo_url?: string | null
+          playbook_cover_image_url?: string | null
           primary_color?: string | null
           published_at?: string | null
           secondary_color?: string | null
@@ -146,17 +160,24 @@ export type Database = {
           community_icon_url?: string | null
           community_name?: string | null
           community_tagline?: string | null
+          cover_image_url?: string | null
           created_at?: string
           custom_domain?: string | null
           custom_tagline?: string | null
           draft?: Json | null
           draft_updated_at?: string | null
+          email_accent_color?: string | null
+          email_logo_url?: string | null
+          email_primary_color?: string | null
           enable_powered_by_footer?: boolean
+          favicon_url?: string | null
           hero_image_url?: string | null
           homepage_headline?: string | null
           homepage_subheadline?: string | null
           id?: string
+          login_screen_image_url?: string | null
           logo_url?: string | null
+          playbook_cover_image_url?: string | null
           primary_color?: string | null
           published_at?: string | null
           secondary_color?: string | null
