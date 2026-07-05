@@ -31,18 +31,36 @@ import { useBranding } from "@/components/BrandingProvider";
 
 type Field = keyof BrandingFields;
 
+type AssetField =
+  | "logo_url"
+  | "hero_image_url"
+  | "cover_image_url"
+  | "app_icon_url"
+  | "community_icon_url"
+  | "splash_screen_image_url"
+  | "favicon_url"
+  | "login_screen_image_url"
+  | "playbook_cover_image_url"
+  | "email_logo_url";
+
 type Asset = {
-  field: "logo_url" | "hero_image_url" | "app_icon_url" | "community_icon_url" | "splash_screen_image_url";
+  field: AssetField;
   label: string;
   hint: string;
+  group: "identity" | "app" | "email";
 };
 
 const ASSETS: Asset[] = [
-  { field: "logo_url", label: "Logo", hint: "Shown in navigation and dashboard headers." },
-  { field: "hero_image_url", label: "Hero image", hint: "Featured on the resident homepage." },
-  { field: "community_icon_url", label: "Community icon", hint: "Compact mark used in dense surfaces and tab icons." },
-  { field: "app_icon_url", label: "Installed app icon", hint: "Used on the PWA install screen and home-screen icon (512×512 PNG)." },
-  { field: "splash_screen_image_url", label: "Splash screen", hint: "Shown briefly when the installed app launches." },
+  { field: "logo_url", label: "Property logo", hint: "Shown in navigation and dashboard headers.", group: "identity" },
+  { field: "cover_image_url", label: "Cover image", hint: "Wide banner used on public building pages.", group: "identity" },
+  { field: "hero_image_url", label: "Hero image", hint: "Featured on the resident homepage.", group: "identity" },
+  { field: "community_icon_url", label: "Community icon", hint: "Compact mark used in dense surfaces and tab icons.", group: "identity" },
+  { field: "playbook_cover_image_url", label: "Playbook cover", hint: "Cover image on the Community Playbook™.", group: "identity" },
+  { field: "favicon_url", label: "Favicon", hint: "Browser tab icon (32×32 or 64×64 PNG).", group: "app" },
+  { field: "app_icon_url", label: "App icon", hint: "PWA install & home-screen icon (512×512 PNG).", group: "app" },
+  { field: "splash_screen_image_url", label: "Splash screen", hint: "Shown briefly when the installed app launches.", group: "app" },
+  { field: "login_screen_image_url", label: "Login screen", hint: "Background artwork on the sign-in screen.", group: "app" },
+  { field: "email_logo_url", label: "Email logo", hint: "Logo used on transactional emails.", group: "email" },
 ];
 
 const TEXT_FIELDS: Field[] = [
@@ -55,6 +73,8 @@ const TEXT_FIELDS: Field[] = [
   "primary_color",
   "secondary_color",
   "accent_color",
+  "email_primary_color",
+  "email_accent_color",
   "app_name",
   "app_short_name",
   "custom_domain",
@@ -63,6 +83,7 @@ const TEXT_FIELDS: Field[] = [
 const ASSET_FIELDS: Field[] = ASSETS.map((a) => a.field);
 
 const FIELDS: Field[] = [...TEXT_FIELDS, ...ASSET_FIELDS];
+
 
 const emptyDraft = (b: BuildingBranding | null): Record<Field, string> => {
   const source = mergeDraft(b, b?.draft ?? null) ?? (b as any);
