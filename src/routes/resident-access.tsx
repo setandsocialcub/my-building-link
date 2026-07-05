@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
+import { friendlyAuthError, validateEmail, validatePassword } from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/resident-access")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -293,8 +294,10 @@ function ProfileCreationCard({ building }: { building: Building }) {
     e.preventDefault();
     setError(null);
     if (!firstName.trim()) return setError("Please enter your first name.");
-    if (password.length < 8)
-      return setError("Password must be at least 8 characters.");
+    const emailErr = validateEmail(email);
+    if (emailErr) return setError(emailErr);
+    const pwErr = validatePassword(password, "signup");
+    if (pwErr) return setError(pwErr);
 
     setBusy(true);
     const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
@@ -308,7 +311,7 @@ function ProfileCreationCard({ building }: { building: Building }) {
 
     if (signUpErr) {
       setBusy(false);
-      setError(signUpErr.message);
+      setError(friendlyAuthError(signUpErr, "signup"));
       return;
     }
 
@@ -457,6 +460,10 @@ function LoginView({ onBack }: { onBack: () => void }) {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    const emailErr = validateEmail(email);
+    if (emailErr) { setError(emailErr); return; }
+    const pwErr = validatePassword(password, "signin");
+    if (pwErr) { setError(pwErr); return; }
     setBusy(true);
     const { data, error: signInErr } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -464,7 +471,7 @@ function LoginView({ onBack }: { onBack: () => void }) {
     });
     if (signInErr || !data.user) {
       setBusy(false);
-      setError(signInErr?.message ?? "Sign in failed.");
+      setError(friendlyAuthError(signInErr ?? new Error("Sign in failed."), "signin"));
       return;
     }
 
@@ -481,7 +488,7 @@ function LoginView({ onBack }: { onBack: () => void }) {
       return;
     }
     if (!profile) {
-      setError("No resident profile found for this account.");
+      setError("This account isn't linked to a building yet. Ask your property manager for an invitation code.");
       return;
     }
     navigate({

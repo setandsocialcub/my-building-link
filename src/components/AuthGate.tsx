@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { lovable } from "@/integrations/lovable";
 import { useBranding } from "@/components/BrandingProvider";
 import { brandingValue } from "@/lib/branding";
+import { friendlyAuthError, validateEmail, validatePassword } from "@/lib/auth-errors";
 
 type Props = {
   /** Optional intro shown above the form */
@@ -62,6 +63,10 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    const emailErr = validateEmail(email);
+    if (emailErr) { setErr(emailErr); return; }
+    const pwErr = validatePassword(password, mode === "signup" ? "signup" : "signin");
+    if (pwErr) { setErr(pwErr); return; }
     if (mode === "signup" && (!acceptedTerms || !acceptedPrivacy)) {
       setErr("Please agree to the Terms of Use and acknowledge the Privacy Policy.");
       return;
@@ -69,14 +74,14 @@ export function AuthGate({ title = "Sign in or create an account", subtitle, chi
     setBusy(true);
     const { error } = mode === "signup"
       ? await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
           options: { emailRedirectTo: window.location.href },
         })
-      : await supabase.auth.signInWithPassword({ email, password });
+      : await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyAuthError(error, mode === "signup" ? "signup" : "signin"));
       return;
     }
     if (mode === "signup") rememberLegalAcceptance();

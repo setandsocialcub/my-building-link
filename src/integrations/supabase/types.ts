@@ -195,6 +195,53 @@ export type Database = {
           },
         ]
       }
+      building_legal_documents: {
+        Row: {
+          building_id: string
+          content: string
+          created_at: string
+          doc_type: string
+          id: string
+          is_current: boolean
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          building_id: string
+          content?: string
+          created_at?: string
+          doc_type: string
+          id?: string
+          is_current?: boolean
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          building_id?: string
+          content?: string
+          created_at?: string
+          doc_type?: string
+          id?: string
+          is_current?: boolean
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "building_legal_documents_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       building_playbook_items: {
         Row: {
           building_id: string

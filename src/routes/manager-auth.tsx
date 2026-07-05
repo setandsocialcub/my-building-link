@@ -8,6 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
+import { toast } from "sonner";
+import {
+  friendlyAuthError,
+  friendlyAuthSuccess,
+  validateEmail,
+  validatePassword,
+} from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/manager-auth")({
   head: () => ({
@@ -88,10 +95,18 @@ function SignInForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    const emailErr = validateEmail(email);
+    if (emailErr) { setErr(emailErr); return; }
+    const pwErr = validatePassword(password, "signin");
+    if (pwErr) { setErr(pwErr); return; }
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setBusy(false);
-    if (error) setErr(error.message);
+    if (error) {
+      setErr(friendlyAuthError(error, "signin"));
+      return;
+    }
+    toast.success(friendlyAuthSuccess("signin"));
   };
 
   return (
@@ -142,17 +157,26 @@ function SignUpForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    if (!name.trim()) { setErr("Please enter your full name."); return; }
+    const emailErr = validateEmail(email);
+    if (emailErr) { setErr(emailErr); return; }
+    const pwErr = validatePassword(password, "signup");
+    if (pwErr) { setErr(pwErr); return; }
     setBusy(true);
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/manager`,
-        data: { full_name: name, company },
+        data: { full_name: name.trim(), company: company.trim() },
       },
     });
     setBusy(false);
-    if (error) setErr(error.message);
+    if (error) {
+      setErr(friendlyAuthError(error, "signup"));
+      return;
+    }
+    toast.success(friendlyAuthSuccess("signup"));
   };
 
   return (

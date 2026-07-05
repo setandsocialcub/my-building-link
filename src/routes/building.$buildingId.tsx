@@ -40,6 +40,7 @@ import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
 import { ResidentHome } from "@/components/ResidentHome";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LegalAcceptanceGate } from "@/components/LegalAcceptanceGate";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -177,6 +178,13 @@ function BuildingHub() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
+      {me && (
+        <LegalAcceptanceGate
+          buildingId={buildingId}
+          residentProfileId={me.id}
+          buildingName={building?.name}
+        />
+      )}
       {/* Header */}
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">

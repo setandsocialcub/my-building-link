@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { friendlyAuthError, validateEmail, validatePassword } from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -80,13 +81,15 @@ function RequestResetForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    const emailErr = validateEmail(email);
+    if (emailErr) { setErr(emailErr); return; }
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyAuthError(error, "reset"));
       return;
     }
     setSent(true);
@@ -135,10 +138,8 @@ function UpdatePasswordForm({ onDone }: { onDone: () => void }) {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
-    if (password.length < 8) {
-      setErr("Password must be at least 8 characters.");
-      return;
-    }
+    const pwErr = validatePassword(password, "signup");
+    if (pwErr) { setErr(pwErr); return; }
     if (password !== confirm) {
       setErr("Passwords do not match.");
       return;
@@ -147,7 +148,7 @@ function UpdatePasswordForm({ onDone }: { onDone: () => void }) {
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyAuthError(error, "reset"));
       return;
     }
     setDone(true);
