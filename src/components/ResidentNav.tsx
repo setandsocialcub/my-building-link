@@ -125,6 +125,7 @@ type NavItem = {
 };
 
 export function ResidentSidebarLinks() {
+  const navigate = useNavigate();
   const { buildingId, counts } = useResidentNavContext();
   const { settings } = useBuildingSettings(buildingId);
   const { branding } = useBranding();
