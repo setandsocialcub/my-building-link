@@ -96,6 +96,16 @@ export function applyBrandingStyles(b: BuildingBranding | null | undefined) {
   const theme = document.querySelector('meta[name="theme-color"]');
   if (theme && b?.primary_color) theme.setAttribute("content", b.primary_color);
 
+  // Favicon (per-building override)
+  if (b?.favicon_url) {
+    document
+      .querySelectorAll<HTMLLinkElement>('link[rel="icon"], link[rel="shortcut icon"]')
+      .forEach((el) => {
+        el.href = b.favicon_url as string;
+      });
+  }
+
+
   // Dynamic manifest per building so installed PWA shows building-specific name/icon
   if (b?.building_id) {
     let manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
