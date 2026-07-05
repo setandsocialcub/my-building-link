@@ -477,6 +477,40 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
           </Table>
         </section>
       </div>
+
+      <Dialog open={!!qrBuilding} onOpenChange={(o) => !o && setQrBuilding(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{qrBuilding?.name}</DialogTitle>
+            <DialogDescription>
+              Scan to open the resident join page for this building.
+            </DialogDescription>
+          </DialogHeader>
+          {qrBuilding && (
+            <div className="flex flex-col items-center gap-4 py-2">
+              <div className="rounded-xl bg-white p-4 border border-border">
+                <QRCodeSVG
+                  value={`${typeof window !== "undefined" ? window.location.origin : ""}/join?code=${qrBuilding.access_code}`}
+                  size={220}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <div className="text-center space-y-1">
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">Community ID</div>
+                <code className="px-2 py-1 rounded-md bg-accent/40 font-mono text-sm tracking-wider">
+                  {qrBuilding.community_id}
+                </code>
+                <div className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">Resident Code</div>
+                <code className="px-2 py-1 rounded-md bg-muted font-mono text-sm tracking-widest">
+                  {qrBuilding.access_code}
+                </code>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
+
   );
 }
