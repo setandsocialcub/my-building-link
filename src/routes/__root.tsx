@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { BrandingProvider } from "@/components/BrandingProvider";
 import { registerServiceWorker } from "@/lib/pwa/register-sw";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 function NotFoundComponent() {
   return (
