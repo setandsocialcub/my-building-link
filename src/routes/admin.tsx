@@ -45,12 +45,14 @@ type Building = {
   name: string;
   city: string;
   access_code: string;
+  community_id: string;
   created_at: string;
   template_id?: string | null;
   template_name?: string | null;
   manager_code?: string | null;
   active_residents?: number;
 };
+
 
 type Template = { id: string; template_name: string; template_description: string | null };
 
