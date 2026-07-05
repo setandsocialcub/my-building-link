@@ -40,6 +40,7 @@ import { ResidentBottomNav, ResidentBottomNavSpacer, ResidentSidebarLinks } from
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
 import { ResidentHome } from "@/components/ResidentHome";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LegalAcceptanceGate } from "@/components/LegalAcceptanceGate";
 
 export const Route = createFileRoute("/building/$buildingId")({
   validateSearch: (s: Record<string, unknown>) => ({
