@@ -760,3 +760,208 @@ function AssetUploader({
     </div>
   );
 }
+
+function LivePreview({ branding }: { branding: BuildingBranding }) {
+  const name = branding.community_name?.trim() || DEFAULT_BRANDING.community_name;
+  const short = branding.app_short_name?.trim() || name.slice(0, 12);
+  const tagline =
+    branding.community_tagline?.trim() ||
+    branding.custom_tagline?.trim() ||
+    DEFAULT_BRANDING.community_tagline;
+  const headline =
+    branding.homepage_headline?.trim() || branding.welcome_message?.trim() || DEFAULT_BRANDING.homepage_headline;
+  const sub = branding.homepage_subheadline?.trim() || DEFAULT_BRANDING.homepage_subheadline;
+  const primary = branding.primary_color?.trim() || DEFAULT_BRANDING.primary_color;
+  const secondary = branding.secondary_color?.trim() || DEFAULT_BRANDING.secondary_color;
+  const accent = branding.accent_color?.trim() || DEFAULT_BRANDING.accent_color;
+  const emailPrimary = branding.email_primary_color?.trim() || primary;
+  const emailAccent = branding.email_accent_color?.trim() || accent;
+  const logo = branding.logo_url || null;
+  const hero = branding.hero_image_url || branding.cover_image_url || null;
+  const cover = branding.cover_image_url || branding.hero_image_url || null;
+  const appIcon = branding.app_icon_url || branding.community_icon_url || logo;
+  const emailLogo = branding.email_logo_url || logo;
+  const login = branding.login_screen_image_url || hero;
+  const playbookCover = branding.playbook_cover_image_url || cover;
+
+  return (
+    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+        <div className="text-xs uppercase tracking-widest text-muted-foreground">Live preview</div>
+        <Badge variant="outline" className="text-[10px]">Draft</Badge>
+      </div>
+      <div className="p-4 space-y-4 max-h-[75vh] overflow-y-auto">
+        {/* Resident homepage */}
+        <PreviewCard title="Resident homepage">
+          <div className="rounded-lg overflow-hidden border border-border" style={{ background: "#fff" }}>
+            <div className="h-24 relative" style={{ background: `linear-gradient(135deg, ${primary}, ${secondary})` }}>
+              {hero && (
+                <img src={hero} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
+              )}
+              <div className="absolute inset-0 flex items-center gap-2 px-3">
+                {logo ? (
+                  <img src={logo} alt="" className="h-7 w-auto max-w-[80px] object-contain drop-shadow" />
+                ) : (
+                  <div className="text-[11px] font-semibold text-white/95 drop-shadow">{name}</div>
+                )}
+              </div>
+            </div>
+            <div className="p-3 space-y-1.5">
+              <div className="text-sm font-semibold leading-tight" style={{ color: primary }}>{headline}</div>
+              <div className="text-[11px] text-muted-foreground line-clamp-2">{sub}</div>
+              <div className="flex gap-1.5 pt-1">
+                <span className="text-[10px] px-2 py-0.5 rounded-full text-white" style={{ background: primary }}>Explore</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: `${accent}22`, color: accent }}>RSVP</span>
+              </div>
+            </div>
+          </div>
+        </PreviewCard>
+
+        {/* Cover / marketing */}
+        <PreviewCard title="Building cover">
+          <div className="rounded-lg overflow-hidden border border-border aspect-[16/7] relative" style={{ background: secondary }}>
+            {cover && <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+            <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+              <div className="text-white text-xs font-medium truncate">{name}</div>
+              <div className="text-white/80 text-[10px] truncate">{tagline}</div>
+            </div>
+          </div>
+        </PreviewCard>
+
+        {/* App icons */}
+        <PreviewCard title="App icon & favicon">
+          <div className="flex items-center gap-4">
+            <div className="text-center">
+              <div
+                className="h-14 w-14 rounded-2xl overflow-hidden border border-border grid place-items-center"
+                style={{ background: primary }}
+              >
+                {appIcon ? (
+                  <img src={appIcon} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-white text-xs font-bold">{short.slice(0, 2)}</span>
+                )}
+              </div>
+              <div className="text-[10px] mt-1 text-muted-foreground">{short}</div>
+            </div>
+            <div className="text-center">
+              <div
+                className="h-8 w-8 rounded overflow-hidden border border-border grid place-items-center"
+                style={{ background: "#fff" }}
+              >
+                {branding.favicon_url ? (
+                  <img src={branding.favicon_url} alt="" className="h-full w-full object-cover" />
+                ) : appIcon ? (
+                  <img src={appIcon} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-[9px] font-bold" style={{ color: primary }}>{short.slice(0, 1)}</span>
+                )}
+              </div>
+              <div className="text-[10px] mt-1 text-muted-foreground">Favicon</div>
+            </div>
+          </div>
+        </PreviewCard>
+
+        {/* Splash screen */}
+        <PreviewCard title="Splash screen">
+          <div
+            className="rounded-lg border border-border aspect-[9/16] max-h-48 mx-auto relative overflow-hidden grid place-items-center"
+            style={{ background: primary }}
+          >
+            {branding.splash_screen_image_url && (
+              <img src={branding.splash_screen_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            )}
+            <div className="relative text-center">
+              {logo ? (
+                <img src={logo} alt="" className="h-10 w-auto max-w-[120px] object-contain mx-auto" />
+              ) : (
+                <div className="text-white font-semibold">{name}</div>
+              )}
+              <div className="text-white/70 text-[10px] mt-1">{tagline}</div>
+            </div>
+          </div>
+        </PreviewCard>
+
+        {/* Login screen */}
+        <PreviewCard title="Login screen">
+          <div className="rounded-lg overflow-hidden border border-border aspect-[16/10] relative" style={{ background: secondary }}>
+            {login && <img src={login} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute inset-0 p-3 flex flex-col justify-center items-center text-center">
+              {logo && <img src={logo} alt="" className="h-6 w-auto mb-2 drop-shadow" />}
+              <div className="text-white text-xs font-semibold drop-shadow">Sign in to {short}</div>
+              <div className="mt-2 h-5 w-32 rounded" style={{ background: "#ffffffee" }} />
+              <div className="mt-1 h-5 w-32 rounded" style={{ background: "#ffffffee" }} />
+              <div className="mt-2 h-5 w-24 rounded text-[9px] text-white font-medium grid place-items-center" style={{ background: primary }}>
+                Continue
+              </div>
+            </div>
+          </div>
+        </PreviewCard>
+
+        {/* Playbook cover */}
+        <PreviewCard title="Community Playbook™">
+          <div className="rounded-lg overflow-hidden border border-border aspect-[4/5] max-h-56 mx-auto relative" style={{ background: accent }}>
+            {playbookCover && <img src={playbookCover} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+            <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+              <div className="text-white text-[10px] uppercase tracking-widest">Playbook</div>
+              <div className="text-white text-sm font-semibold truncate">{name}</div>
+            </div>
+          </div>
+        </PreviewCard>
+
+        {/* Email */}
+        <PreviewCard title="Transactional email">
+          <div className="rounded-lg border border-border overflow-hidden bg-white">
+            <div className="p-2 flex items-center gap-2" style={{ background: emailPrimary }}>
+              {emailLogo ? (
+                <img src={emailLogo} alt="" className="h-5 w-auto max-w-[80px] object-contain" />
+              ) : (
+                <span className="text-white text-xs font-semibold">{name}</span>
+              )}
+            </div>
+            <div className="p-3 space-y-1.5">
+              <div className="text-xs font-semibold text-neutral-800">Welcome to {name}</div>
+              <div className="text-[10px] text-neutral-600">
+                Your neighbors are already gathering. Tap below to activate your account.
+              </div>
+              <div
+                className="mt-1 inline-block text-[10px] font-medium text-white px-2 py-1 rounded"
+                style={{ background: emailAccent }}
+              >
+                Activate account
+              </div>
+            </div>
+          </div>
+        </PreviewCard>
+
+        {/* Palette swatch */}
+        <PreviewCard title="Palette">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: "Primary", color: primary },
+              { label: "Secondary", color: secondary },
+              { label: "Accent", color: accent },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="h-10 rounded border border-border" style={{ background: s.color }} />
+                <div className="text-[10px] mt-1 text-muted-foreground">{s.label}</div>
+                <div className="text-[9px] font-mono text-muted-foreground/80">{s.color}</div>
+              </div>
+            ))}
+          </div>
+        </PreviewCard>
+      </div>
+    </div>
+  );
+}
+
+function PreviewCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{title}</div>
+      {children}
+    </div>
+  );
+}
+
