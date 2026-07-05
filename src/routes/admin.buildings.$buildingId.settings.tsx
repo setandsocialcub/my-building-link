@@ -252,21 +252,13 @@ function SettingsPage() {
   }).length;
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-6 py-10">
-        <Link to="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to Buildings
-        </Link>
+    <div className="max-w-3xl">
+      <header className="mb-6">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Building Settings</p>
+        <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight">Features & governance</h1>
+        <p className="text-sm text-muted-foreground mt-1">Toggle resident-facing features and reset to template.</p>
+      </header>
 
-        <header className="mb-6">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Building Settings</p>
-          <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight">
-            {building?.name ?? "Building"}
-          </h1>
-          {building?.city && (
-            <p className="text-sm text-muted-foreground mt-1">{building.city}</p>
-          )}
-        </header>
 
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm mb-6 flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-start gap-3">
