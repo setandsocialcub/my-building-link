@@ -589,9 +589,16 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
           Publish to residents
         </Button>
       </div>
+      </div>
+
+      {/* Live preview panel */}
+      <aside className="lg:sticky lg:top-4 lg:self-start">
+        <LivePreview branding={previewBranding} />
+      </aside>
     </div>
   );
 }
+
 
 function ColorField({
   label,
