@@ -415,11 +415,11 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
             Visual identity
           </h2>
           <p className="text-sm text-muted-foreground">
-            Upload your logo, hero image, and app icon. PNG or JPG, max 5MB.
+            Logo, cover, hero, community icon, and playbook cover. PNG, JPG, WebP or SVG — max 5MB.
           </p>
         </header>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {ASSETS.map((a) => (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {ASSETS.filter((a) => a.group === "identity").map((a) => (
             <AssetUploader
               key={a.field}
               asset={a}
@@ -432,12 +432,12 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
         </div>
       </section>
 
-      {/* Colors */}
+      {/* Community colors */}
       <section className="space-y-4">
         <header>
           <h2 className="font-serif text-xl text-foreground flex items-center gap-2">
             <Palette className="h-5 w-5 text-muted-foreground" />
-            Brand colors
+            Community colors
           </h2>
           <p className="text-sm text-muted-foreground">
             Apply your palette across buttons, accents, and surfaces.
@@ -464,6 +464,69 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
           />
         </div>
       </section>
+
+      {/* App assets */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground flex items-center gap-2">
+            <ImageIcon className="h-5 w-5 text-muted-foreground" />
+            App assets
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Favicon, installable app icon, splash & login screens.
+          </p>
+        </header>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {ASSETS.filter((a) => a.group === "app").map((a) => (
+            <AssetUploader
+              key={a.field}
+              asset={a}
+              value={draft[a.field] ?? ""}
+              uploading={uploading === a.field}
+              onUpload={(f) => handleUpload(a.field, f)}
+              onClear={() => resetField(a.field)}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Email branding */}
+      <section className="space-y-4">
+        <header>
+          <h2 className="font-serif text-xl text-foreground flex items-center gap-2">
+            <Palette className="h-5 w-5 text-muted-foreground" />
+            Email branding
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Logo and colors applied to transactional emails sent to residents.
+          </p>
+        </header>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {ASSETS.filter((a) => a.group === "email").map((a) => (
+            <AssetUploader
+              key={a.field}
+              asset={a}
+              value={draft[a.field] ?? ""}
+              uploading={uploading === a.field}
+              onUpload={(f) => handleUpload(a.field, f)}
+              onClear={() => resetField(a.field)}
+            />
+          ))}
+          <ColorField
+            label="Email primary"
+            value={draft.email_primary_color ?? ""}
+            placeholder={draft.primary_color || DEFAULT_BRANDING.primary_color}
+            onChange={(v) => update("email_primary_color", v)}
+          />
+          <ColorField
+            label="Email accent"
+            value={draft.email_accent_color ?? ""}
+            placeholder={draft.accent_color || DEFAULT_BRANDING.accent_color}
+            onChange={(v) => update("email_accent_color", v)}
+          />
+        </div>
+      </section>
+
 
       {/* Installable app */}
       <section className="space-y-4">
