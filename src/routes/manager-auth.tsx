@@ -95,10 +95,18 @@ function SignInForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    const emailErr = validateEmail(email);
+    if (emailErr) { setErr(emailErr); return; }
+    const pwErr = validatePassword(password, "signin");
+    if (pwErr) { setErr(pwErr); return; }
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setBusy(false);
-    if (error) setErr(error.message);
+    if (error) {
+      setErr(friendlyAuthError(error, "signin"));
+      return;
+    }
+    toast.success(friendlyAuthSuccess("signin"));
   };
 
   return (
