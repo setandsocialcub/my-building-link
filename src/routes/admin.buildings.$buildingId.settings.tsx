@@ -448,11 +448,11 @@ function SettingsPage() {
               ))}
             </ul>
           )}
-        </section>
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }
+
 
 function ToggleRow({
   label,
