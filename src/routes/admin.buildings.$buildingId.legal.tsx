@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { FileText, Loader2, Save, Eye, ExternalLink, ShieldCheck } from "lucide-react";
+import { Loader2, Save, Eye, ExternalLink, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
