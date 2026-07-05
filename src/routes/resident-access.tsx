@@ -460,6 +460,10 @@ function LoginView({ onBack }: { onBack: () => void }) {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    const emailErr = validateEmail(email);
+    if (emailErr) { setError(emailErr); return; }
+    const pwErr = validatePassword(password, "signin");
+    if (pwErr) { setError(pwErr); return; }
     setBusy(true);
     const { data, error: signInErr } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -467,7 +471,7 @@ function LoginView({ onBack }: { onBack: () => void }) {
     });
     if (signInErr || !data.user) {
       setBusy(false);
-      setError(signInErr?.message ?? "Sign in failed.");
+      setError(friendlyAuthError(signInErr ?? new Error("Sign in failed."), "signin"));
       return;
     }
 
@@ -484,7 +488,7 @@ function LoginView({ onBack }: { onBack: () => void }) {
       return;
     }
     if (!profile) {
-      setError("No resident profile found for this account.");
+      setError("This account isn't linked to a building yet. Ask your property manager for an invitation code.");
       return;
     }
     navigate({
