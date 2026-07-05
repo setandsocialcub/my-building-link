@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
+import { friendlyAuthError, validateEmail, validatePassword } from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/resident-access")({
   validateSearch: (search: Record<string, unknown>) => ({
