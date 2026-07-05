@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 
 import {
   fetchLegalDocument,
@@ -17,6 +17,7 @@ export function LegalDocView({
   slug: LegalSlug;
   fallbackTitle: string;
 }) {
+  const router = useRouter();
   const [doc, setDoc] = useState<LegalDocument | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,16 +34,27 @@ export function LegalDocView({
     };
   }, [slug]);
 
+  // NEVER sign the user out. Prefer returning to the previous page; fall back
+  // to the app root if there's no history (direct link, new tab).
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.history.back();
+    } else if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
-        <Link
-          to="/"
+        <button
+          type="button"
+          onClick={handleBack}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
-        </Link>
+        </button>
 
         {loading ? (
           <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
