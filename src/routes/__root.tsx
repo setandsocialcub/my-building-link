@@ -140,9 +140,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrandingProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <InstallPrompt />
+        <TooltipProvider delayDuration={200}>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <InstallPrompt />
+          <Toaster position="top-center" richColors closeButton />
+        </TooltipProvider>
       </BrandingProvider>
     </QueryClientProvider>
   );
