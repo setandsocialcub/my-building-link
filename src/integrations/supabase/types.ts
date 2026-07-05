@@ -659,6 +659,47 @@ export type Database = {
           },
         ]
       }
+      circle_join_requests: {
+        Row: {
+          circle_id: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          message: string | null
+          requested_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          circle_id: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          message?: string | null
+          requested_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          circle_id?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          message?: string | null
+          requested_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_join_requests_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           addressee_id: string
@@ -965,52 +1006,67 @@ export type Database = {
       }
       groups: {
         Row: {
+          archived_at: string | null
           building_id: string
           category: string
           circle_type: string
+          color: string | null
           created_at: string
           created_by: string | null
           description: string | null
           emoji: string
+          icon: string | null
           id: string
           interest_tag: string | null
           is_default: boolean
           is_pinned: boolean
+          join_requirement: string
           member_count: number
+          moderator_id: string | null
           name: string
           updated_at: string
           visibility: string
         }
         Insert: {
+          archived_at?: string | null
           building_id: string
           category: string
           circle_type?: string
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           emoji?: string
+          icon?: string | null
           id?: string
           interest_tag?: string | null
           is_default?: boolean
           is_pinned?: boolean
+          join_requirement?: string
           member_count?: number
+          moderator_id?: string | null
           name: string
           updated_at?: string
           visibility?: string
         }
         Update: {
+          archived_at?: string | null
           building_id?: string
           category?: string
           circle_type?: string
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           emoji?: string
+          icon?: string | null
           id?: string
           interest_tag?: string | null
           is_default?: boolean
           is_pinned?: boolean
+          join_requirement?: string
           member_count?: number
+          moderator_id?: string | null
           name?: string
           updated_at?: string
           visibility?: string
@@ -1040,6 +1096,27 @@ export type Database = {
           {
             foreignKeyName: "groups_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_moderator_id_fkey"
+            columns: ["moderator_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_moderator_id_fkey"
+            columns: ["moderator_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_moderator_id_fkey"
+            columns: ["moderator_id"]
             isOneToOne: false
             referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
@@ -1787,6 +1864,10 @@ export type Database = {
     Functions: {
       apply_template_to_building: {
         Args: { _building_id: string; _template_id: string }
+        Returns: undefined
+      }
+      approve_circle_join: {
+        Args: { _decision: string; _request_id: string }
         Returns: undefined
       }
       building_exists: { Args: { _building_id: string }; Returns: boolean }
