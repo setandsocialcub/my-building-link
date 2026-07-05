@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { RoleAwareBackButton } from "@/components/RoleAwareBackButton";
 
 export const Route = createFileRoute("/admin/buildings/$buildingId")({
   head: () => ({
