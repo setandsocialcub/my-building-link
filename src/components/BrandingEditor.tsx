@@ -285,8 +285,21 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
     ? new Date(branding.draft_updated_at).toLocaleString()
     : null;
 
+  // Effective values used by the live preview (draft on top of published branding)
+  const previewBranding = useMemo(() => {
+    const overlay: any = { ...(branding ?? {}) };
+    FIELDS.forEach((k) => {
+      const v = draft[k]?.trim();
+      if (v) overlay[k] = v;
+      else if (v === "") overlay[k] = null;
+    });
+    return overlay as BuildingBranding;
+  }, [draft, branding]);
+
   return (
-    <div className="space-y-8">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="space-y-8 min-w-0">
+
       {/* Status bar */}
       <div className="rounded-xl border border-border bg-card p-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
