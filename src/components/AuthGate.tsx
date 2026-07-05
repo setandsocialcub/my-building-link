@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { lovable } from "@/integrations/lovable";
 import { useBranding } from "@/components/BrandingProvider";
 import { brandingValue } from "@/lib/branding";
+import { friendlyAuthError, validateEmail, validatePassword } from "@/lib/auth-errors";
 
 type Props = {
   /** Optional intro shown above the form */
