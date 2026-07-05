@@ -15,7 +15,7 @@ export const Route = createFileRoute("/admin/buildings/$buildingId/branding")({
 function AdminBrandingPage() {
   const { buildingId } = Route.useParams();
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-[1400px]">
       <header className="mb-6">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Branding</p>
         <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight">White label branding</h1>

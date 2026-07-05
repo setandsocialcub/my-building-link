@@ -4,12 +4,19 @@ export type BrandingFields = {
   custom_tagline: string | null; // legacy alias retained for backwards compat
   logo_url: string | null;
   hero_image_url: string | null;
+  cover_image_url: string | null;
   community_icon_url: string | null;
   app_icon_url: string | null;
   splash_screen_image_url: string | null;
+  favicon_url: string | null;
+  login_screen_image_url: string | null;
+  playbook_cover_image_url: string | null;
+  email_logo_url: string | null;
   primary_color: string | null;
   secondary_color: string | null;
   accent_color: string | null;
+  email_primary_color: string | null;
+  email_accent_color: string | null;
   welcome_message: string | null;
   homepage_headline: string | null;
   homepage_subheadline: string | null;
@@ -18,6 +25,7 @@ export type BrandingFields = {
   custom_domain: string | null;
   enable_powered_by_footer: boolean | null;
 };
+
 
 export type BuildingBranding = BrandingFields & {
   id: string;
@@ -87,6 +95,16 @@ export function applyBrandingStyles(b: BuildingBranding | null | undefined) {
   // PWA theme color
   const theme = document.querySelector('meta[name="theme-color"]');
   if (theme && b?.primary_color) theme.setAttribute("content", b.primary_color);
+
+  // Favicon (per-building override)
+  if (b?.favicon_url) {
+    document
+      .querySelectorAll<HTMLLinkElement>('link[rel="icon"], link[rel="shortcut icon"]')
+      .forEach((el) => {
+        el.href = b.favicon_url as string;
+      });
+  }
+
 
   // Dynamic manifest per building so installed PWA shows building-specific name/icon
   if (b?.building_id) {
