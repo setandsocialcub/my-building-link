@@ -8,6 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
+import { toast } from "sonner";
+import {
+  friendlyAuthError,
+  friendlyAuthSuccess,
+  validateEmail,
+  validatePassword,
+} from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/manager-auth")({
   head: () => ({
