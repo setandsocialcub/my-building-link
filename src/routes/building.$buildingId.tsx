@@ -178,6 +178,13 @@ function BuildingHub() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
+      {me && (
+        <LegalAcceptanceGate
+          buildingId={buildingId}
+          residentProfileId={me.id}
+          buildingName={building?.name}
+        />
+      )}
       {/* Header */}
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
