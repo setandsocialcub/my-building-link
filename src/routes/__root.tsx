@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { BrandingProvider } from "@/components/BrandingProvider";
 import { registerServiceWorker } from "@/lib/pwa/register-sw";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 function NotFoundComponent() {
   return (
@@ -138,9 +140,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrandingProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <InstallPrompt />
+        <TooltipProvider delayDuration={200}>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <InstallPrompt />
+          <Toaster position="top-center" richColors closeButton />
+        </TooltipProvider>
       </BrandingProvider>
     </QueryClientProvider>
   );
