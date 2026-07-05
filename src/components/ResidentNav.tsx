@@ -201,6 +201,20 @@ export function ResidentSidebarLinks() {
           );
         })}
       </ul>
+      <div className="mt-4 pt-3 border-t border-border">
+        <button
+          type="button"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            toast.success("Signed out");
+            navigate({ to: "/" });
+          }}
+          className="w-full inline-flex items-center gap-2 rounded-md px-2.5 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+          <span>Sign out</span>
+        </button>
+      </div>
     </div>
   );
 }
