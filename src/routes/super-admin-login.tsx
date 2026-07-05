@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton, AuthDivider } from "@/components/auth/GoogleSignInButton";
+import { friendlyAuthError, validateEmail, validatePassword } from "@/lib/auth-errors";
 
 export const Route = createFileRoute("/super-admin-login")({
   head: () => ({
