@@ -81,13 +81,15 @@ function RequestResetForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    const emailErr = validateEmail(email);
+    if (emailErr) { setErr(emailErr); return; }
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr(friendlyAuthError(error, "reset"));
       return;
     }
     setSent(true);
