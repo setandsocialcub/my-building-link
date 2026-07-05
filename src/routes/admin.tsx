@@ -391,10 +391,16 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
 
                     <TableCell>{b.city}</TableCell>
                     <TableCell>
+                      <code className="px-2 py-1 rounded-md bg-accent/40 font-mono text-xs tracking-wider">
+                        {b.community_id}
+                      </code>
+                    </TableCell>
+                    <TableCell>
                       <code className="px-2 py-1 rounded-md bg-muted font-mono text-sm tracking-widest">
                         {b.access_code}
                       </code>
                     </TableCell>
+
                     <TableCell>
                       {b.manager_code ? (
                         <code className="px-2 py-1 rounded-md bg-primary/10 text-primary font-mono text-sm tracking-widest">
