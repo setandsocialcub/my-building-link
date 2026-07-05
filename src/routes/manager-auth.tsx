@@ -157,17 +157,26 @@ function SignUpForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(null);
+    if (!name.trim()) { setErr("Please enter your full name."); return; }
+    const emailErr = validateEmail(email);
+    if (emailErr) { setErr(emailErr); return; }
+    const pwErr = validatePassword(password, "signup");
+    if (pwErr) { setErr(pwErr); return; }
     setBusy(true);
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/manager`,
-        data: { full_name: name, company },
+        data: { full_name: name.trim(), company: company.trim() },
       },
     });
     setBusy(false);
-    if (error) setErr(error.message);
+    if (error) {
+      setErr(friendlyAuthError(error, "signup"));
+      return;
+    }
+    toast.success(friendlyAuthSuccess("signup"));
   };
 
   return (
