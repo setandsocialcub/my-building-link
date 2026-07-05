@@ -1,6 +1,15 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate } from "lucide-react";
+import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
