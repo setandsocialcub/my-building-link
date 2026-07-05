@@ -364,7 +364,8 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
               {buildings.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
+
                     className="text-center text-muted-foreground py-10"
                   >
                     No buildings yet. Create your first one above.
