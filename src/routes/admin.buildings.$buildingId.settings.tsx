@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Loader2, Save, LogOut, LayoutTemplate, RotateCcw, History } from "lucide-react";
+import { Loader2, Save, LayoutTemplate, RotateCcw, History } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -23,56 +23,9 @@ export const Route = createFileRoute("/admin/buildings/$buildingId/settings")({
       { name: "description", content: "Configure features for this building." },
     ],
   }),
-  component: BuildingSettingsGate,
+  component: SettingsPage,
 });
 
-type AuthState = "loading" | "not-admin" | "admin";
-
-function BuildingSettingsGate() {
-  const navigate = useNavigate();
-  const [state, setState] = useState<AuthState>("loading");
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data: session } = await supabase.auth.getSession();
-      const uid = session.session?.user?.id;
-      if (!uid) {
-        navigate({ to: "/super-admin-login" });
-        return;
-      }
-      const { data: role } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", uid)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (cancelled) return;
-      setState(role ? "admin" : "not-admin");
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate]);
-
-  if (state === "loading") {
-    return <main className="min-h-screen grid place-items-center text-muted-foreground">Loading…</main>;
-  }
-  if (state === "not-admin") {
-    return (
-      <main className="min-h-screen grid place-items-center bg-background px-6">
-        <div className="max-w-sm text-center space-y-4">
-          <h1 className="text-2xl font-semibold">Access denied</h1>
-          <p className="text-sm text-muted-foreground">Only super admins can manage building settings.</p>
-          <Button variant="outline" onClick={() => supabase.auth.signOut()} className="gap-2">
-            <LogOut className="h-4 w-4" /> Sign out
-          </Button>
-        </div>
-      </main>
-    );
-  }
-  return <SettingsPage />;
-}
 
 const FEATURE_TOGGLES: Array<{
   key: keyof typeof DEFAULT_SETTINGS;
@@ -265,11 +218,12 @@ function SettingsPage() {
 
   if (loading || !settings) {
     return (
-      <main className="min-h-screen grid place-items-center text-muted-foreground">
+      <div className="grid place-items-center py-24 text-muted-foreground">
         <Loader2 className="h-5 w-5 animate-spin" />
-      </main>
+      </div>
     );
   }
+
 
   // Compute the expected value from the template for any toggle.
   // Returns null when the template has no opinion (e.g. governance toggles).
@@ -298,21 +252,13 @@ function SettingsPage() {
   }).length;
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-6 py-10">
-        <Link to="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to Buildings
-        </Link>
+    <div className="max-w-3xl">
+      <header className="mb-6">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Building Settings</p>
+        <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight">Features & governance</h1>
+        <p className="text-sm text-muted-foreground mt-1">Toggle resident-facing features and reset to template.</p>
+      </header>
 
-        <header className="mb-6">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Building Settings</p>
-          <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight">
-            {building?.name ?? "Building"}
-          </h1>
-          {building?.city && (
-            <p className="text-sm text-muted-foreground mt-1">{building.city}</p>
-          )}
-        </header>
 
         <section className="rounded-2xl border border-border bg-card p-5 shadow-sm mb-6 flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-start gap-3">
@@ -502,11 +448,11 @@ function SettingsPage() {
               ))}
             </ul>
           )}
-        </section>
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }
+
 
 function ToggleRow({
   label,

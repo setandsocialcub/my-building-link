@@ -38,9 +38,20 @@ import { Route as BuildingBuildingIdRouteImport } from './routes/building.$build
 import { Route as AdminTemplatesRouteImport } from './routes/admin.templates'
 import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
+import { Route as AdminBuildingsBuildingIdRouteImport } from './routes/admin.buildings.$buildingId'
+import { Route as AdminBuildingsBuildingIdIndexRouteImport } from './routes/admin.buildings.$buildingId.index'
 import { Route as ApiPublicManifestBuildingIdRouteImport } from './routes/api/public/manifest.$buildingId'
 import { Route as AdminBuildingsBuildingIdSettingsRouteImport } from './routes/admin.buildings.$buildingId.settings'
+import { Route as AdminBuildingsBuildingIdResidentsRouteImport } from './routes/admin.buildings.$buildingId.residents'
+import { Route as AdminBuildingsBuildingIdPulseRouteImport } from './routes/admin.buildings.$buildingId.pulse'
+import { Route as AdminBuildingsBuildingIdPlaybookRouteImport } from './routes/admin.buildings.$buildingId.playbook'
+import { Route as AdminBuildingsBuildingIdNeighborhoodRouteImport } from './routes/admin.buildings.$buildingId.neighborhood'
+import { Route as AdminBuildingsBuildingIdManagersRouteImport } from './routes/admin.buildings.$buildingId.managers'
+import { Route as AdminBuildingsBuildingIdLegalRouteImport } from './routes/admin.buildings.$buildingId.legal'
+import { Route as AdminBuildingsBuildingIdEventsRouteImport } from './routes/admin.buildings.$buildingId.events'
+import { Route as AdminBuildingsBuildingIdDangerRouteImport } from './routes/admin.buildings.$buildingId.danger'
 import { Route as AdminBuildingsBuildingIdBrandingRouteImport } from './routes/admin.buildings.$buildingId.branding'
+import { Route as AdminBuildingsBuildingIdAnalyticsRouteImport } from './routes/admin.buildings.$buildingId.analytics'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -188,6 +199,18 @@ const ManagerBuildingIdBrandingRoute =
     path: '/branding',
     getParentRoute: () => ManagerBuildingIdRoute,
   } as any)
+const AdminBuildingsBuildingIdRoute =
+  AdminBuildingsBuildingIdRouteImport.update({
+    id: '/buildings/$buildingId',
+    path: '/buildings/$buildingId',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminBuildingsBuildingIdIndexRoute =
+  AdminBuildingsBuildingIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
 const ApiPublicManifestBuildingIdRoute =
   ApiPublicManifestBuildingIdRouteImport.update({
     id: '/api/public/manifest/$buildingId',
@@ -196,15 +219,69 @@ const ApiPublicManifestBuildingIdRoute =
   } as any)
 const AdminBuildingsBuildingIdSettingsRoute =
   AdminBuildingsBuildingIdSettingsRouteImport.update({
-    id: '/buildings/$buildingId/settings',
-    path: '/buildings/$buildingId/settings',
-    getParentRoute: () => AdminRoute,
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdResidentsRoute =
+  AdminBuildingsBuildingIdResidentsRouteImport.update({
+    id: '/residents',
+    path: '/residents',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdPulseRoute =
+  AdminBuildingsBuildingIdPulseRouteImport.update({
+    id: '/pulse',
+    path: '/pulse',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdPlaybookRoute =
+  AdminBuildingsBuildingIdPlaybookRouteImport.update({
+    id: '/playbook',
+    path: '/playbook',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdNeighborhoodRoute =
+  AdminBuildingsBuildingIdNeighborhoodRouteImport.update({
+    id: '/neighborhood',
+    path: '/neighborhood',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdManagersRoute =
+  AdminBuildingsBuildingIdManagersRouteImport.update({
+    id: '/managers',
+    path: '/managers',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdLegalRoute =
+  AdminBuildingsBuildingIdLegalRouteImport.update({
+    id: '/legal',
+    path: '/legal',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdEventsRoute =
+  AdminBuildingsBuildingIdEventsRouteImport.update({
+    id: '/events',
+    path: '/events',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdDangerRoute =
+  AdminBuildingsBuildingIdDangerRouteImport.update({
+    id: '/danger',
+    path: '/danger',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
   } as any)
 const AdminBuildingsBuildingIdBrandingRoute =
   AdminBuildingsBuildingIdBrandingRouteImport.update({
-    id: '/buildings/$buildingId/branding',
-    path: '/buildings/$buildingId/branding',
-    getParentRoute: () => AdminRoute,
+    id: '/branding',
+    path: '/branding',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
+  } as any)
+const AdminBuildingsBuildingIdAnalyticsRoute =
+  AdminBuildingsBuildingIdAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -236,10 +313,21 @@ export interface FileRoutesByFullPath {
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
+  '/admin/buildings/$buildingId/events': typeof AdminBuildingsBuildingIdEventsRoute
+  '/admin/buildings/$buildingId/legal': typeof AdminBuildingsBuildingIdLegalRoute
+  '/admin/buildings/$buildingId/managers': typeof AdminBuildingsBuildingIdManagersRoute
+  '/admin/buildings/$buildingId/neighborhood': typeof AdminBuildingsBuildingIdNeighborhoodRoute
+  '/admin/buildings/$buildingId/playbook': typeof AdminBuildingsBuildingIdPlaybookRoute
+  '/admin/buildings/$buildingId/pulse': typeof AdminBuildingsBuildingIdPulseRoute
+  '/admin/buildings/$buildingId/residents': typeof AdminBuildingsBuildingIdResidentsRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
   '/api/public/manifest/$buildingId': typeof ApiPublicManifestBuildingIdRoute
+  '/admin/buildings/$buildingId/': typeof AdminBuildingsBuildingIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -271,9 +359,19 @@ export interface FileRoutesByTo {
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
+  '/admin/buildings/$buildingId/events': typeof AdminBuildingsBuildingIdEventsRoute
+  '/admin/buildings/$buildingId/legal': typeof AdminBuildingsBuildingIdLegalRoute
+  '/admin/buildings/$buildingId/managers': typeof AdminBuildingsBuildingIdManagersRoute
+  '/admin/buildings/$buildingId/neighborhood': typeof AdminBuildingsBuildingIdNeighborhoodRoute
+  '/admin/buildings/$buildingId/playbook': typeof AdminBuildingsBuildingIdPlaybookRoute
+  '/admin/buildings/$buildingId/pulse': typeof AdminBuildingsBuildingIdPulseRoute
+  '/admin/buildings/$buildingId/residents': typeof AdminBuildingsBuildingIdResidentsRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
   '/api/public/manifest/$buildingId': typeof ApiPublicManifestBuildingIdRoute
+  '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -305,10 +403,21 @@ export interface FileRoutesById {
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
+  '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
+  '/admin/buildings/$buildingId/events': typeof AdminBuildingsBuildingIdEventsRoute
+  '/admin/buildings/$buildingId/legal': typeof AdminBuildingsBuildingIdLegalRoute
+  '/admin/buildings/$buildingId/managers': typeof AdminBuildingsBuildingIdManagersRoute
+  '/admin/buildings/$buildingId/neighborhood': typeof AdminBuildingsBuildingIdNeighborhoodRoute
+  '/admin/buildings/$buildingId/playbook': typeof AdminBuildingsBuildingIdPlaybookRoute
+  '/admin/buildings/$buildingId/pulse': typeof AdminBuildingsBuildingIdPulseRoute
+  '/admin/buildings/$buildingId/residents': typeof AdminBuildingsBuildingIdResidentsRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
   '/api/public/manifest/$buildingId': typeof ApiPublicManifestBuildingIdRoute
+  '/admin/buildings/$buildingId/': typeof AdminBuildingsBuildingIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -341,10 +450,21 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
+    | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
+    | '/admin/buildings/$buildingId/danger'
+    | '/admin/buildings/$buildingId/events'
+    | '/admin/buildings/$buildingId/legal'
+    | '/admin/buildings/$buildingId/managers'
+    | '/admin/buildings/$buildingId/neighborhood'
+    | '/admin/buildings/$buildingId/playbook'
+    | '/admin/buildings/$buildingId/pulse'
+    | '/admin/buildings/$buildingId/residents'
     | '/admin/buildings/$buildingId/settings'
     | '/api/public/manifest/$buildingId'
+    | '/admin/buildings/$buildingId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -376,9 +496,19 @@ export interface FileRouteTypes {
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
     | '/manager/$buildingId/branding'
+    | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
+    | '/admin/buildings/$buildingId/danger'
+    | '/admin/buildings/$buildingId/events'
+    | '/admin/buildings/$buildingId/legal'
+    | '/admin/buildings/$buildingId/managers'
+    | '/admin/buildings/$buildingId/neighborhood'
+    | '/admin/buildings/$buildingId/playbook'
+    | '/admin/buildings/$buildingId/pulse'
+    | '/admin/buildings/$buildingId/residents'
     | '/admin/buildings/$buildingId/settings'
     | '/api/public/manifest/$buildingId'
+    | '/admin/buildings/$buildingId'
   id:
     | '__root__'
     | '/'
@@ -409,10 +539,21 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
+    | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
+    | '/admin/buildings/$buildingId/danger'
+    | '/admin/buildings/$buildingId/events'
+    | '/admin/buildings/$buildingId/legal'
+    | '/admin/buildings/$buildingId/managers'
+    | '/admin/buildings/$buildingId/neighborhood'
+    | '/admin/buildings/$buildingId/playbook'
+    | '/admin/buildings/$buildingId/pulse'
+    | '/admin/buildings/$buildingId/residents'
     | '/admin/buildings/$buildingId/settings'
     | '/api/public/manifest/$buildingId'
+    | '/admin/buildings/$buildingId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -647,6 +788,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerBuildingIdBrandingRouteImport
       parentRoute: typeof ManagerBuildingIdRoute
     }
+    '/admin/buildings/$buildingId': {
+      id: '/admin/buildings/$buildingId'
+      path: '/buildings/$buildingId'
+      fullPath: '/admin/buildings/$buildingId'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/buildings/$buildingId/': {
+      id: '/admin/buildings/$buildingId/'
+      path: '/'
+      fullPath: '/admin/buildings/$buildingId/'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdIndexRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
     '/api/public/manifest/$buildingId': {
       id: '/api/public/manifest/$buildingId'
       path: '/api/public/manifest/$buildingId'
@@ -656,33 +811,137 @@ declare module '@tanstack/react-router' {
     }
     '/admin/buildings/$buildingId/settings': {
       id: '/admin/buildings/$buildingId/settings'
-      path: '/buildings/$buildingId/settings'
+      path: '/settings'
       fullPath: '/admin/buildings/$buildingId/settings'
       preLoaderRoute: typeof AdminBuildingsBuildingIdSettingsRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/residents': {
+      id: '/admin/buildings/$buildingId/residents'
+      path: '/residents'
+      fullPath: '/admin/buildings/$buildingId/residents'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdResidentsRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/pulse': {
+      id: '/admin/buildings/$buildingId/pulse'
+      path: '/pulse'
+      fullPath: '/admin/buildings/$buildingId/pulse'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdPulseRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/playbook': {
+      id: '/admin/buildings/$buildingId/playbook'
+      path: '/playbook'
+      fullPath: '/admin/buildings/$buildingId/playbook'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdPlaybookRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/neighborhood': {
+      id: '/admin/buildings/$buildingId/neighborhood'
+      path: '/neighborhood'
+      fullPath: '/admin/buildings/$buildingId/neighborhood'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdNeighborhoodRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/managers': {
+      id: '/admin/buildings/$buildingId/managers'
+      path: '/managers'
+      fullPath: '/admin/buildings/$buildingId/managers'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdManagersRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/legal': {
+      id: '/admin/buildings/$buildingId/legal'
+      path: '/legal'
+      fullPath: '/admin/buildings/$buildingId/legal'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdLegalRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/events': {
+      id: '/admin/buildings/$buildingId/events'
+      path: '/events'
+      fullPath: '/admin/buildings/$buildingId/events'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdEventsRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/danger': {
+      id: '/admin/buildings/$buildingId/danger'
+      path: '/danger'
+      fullPath: '/admin/buildings/$buildingId/danger'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdDangerRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
     }
     '/admin/buildings/$buildingId/branding': {
       id: '/admin/buildings/$buildingId/branding'
-      path: '/buildings/$buildingId/branding'
+      path: '/branding'
       fullPath: '/admin/buildings/$buildingId/branding'
       preLoaderRoute: typeof AdminBuildingsBuildingIdBrandingRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
+    }
+    '/admin/buildings/$buildingId/analytics': {
+      id: '/admin/buildings/$buildingId/analytics'
+      path: '/analytics'
+      fullPath: '/admin/buildings/$buildingId/analytics'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdAnalyticsRouteImport
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
     }
   }
 }
 
+interface AdminBuildingsBuildingIdRouteChildren {
+  AdminBuildingsBuildingIdAnalyticsRoute: typeof AdminBuildingsBuildingIdAnalyticsRoute
+  AdminBuildingsBuildingIdBrandingRoute: typeof AdminBuildingsBuildingIdBrandingRoute
+  AdminBuildingsBuildingIdDangerRoute: typeof AdminBuildingsBuildingIdDangerRoute
+  AdminBuildingsBuildingIdEventsRoute: typeof AdminBuildingsBuildingIdEventsRoute
+  AdminBuildingsBuildingIdLegalRoute: typeof AdminBuildingsBuildingIdLegalRoute
+  AdminBuildingsBuildingIdManagersRoute: typeof AdminBuildingsBuildingIdManagersRoute
+  AdminBuildingsBuildingIdNeighborhoodRoute: typeof AdminBuildingsBuildingIdNeighborhoodRoute
+  AdminBuildingsBuildingIdPlaybookRoute: typeof AdminBuildingsBuildingIdPlaybookRoute
+  AdminBuildingsBuildingIdPulseRoute: typeof AdminBuildingsBuildingIdPulseRoute
+  AdminBuildingsBuildingIdResidentsRoute: typeof AdminBuildingsBuildingIdResidentsRoute
+  AdminBuildingsBuildingIdSettingsRoute: typeof AdminBuildingsBuildingIdSettingsRoute
+  AdminBuildingsBuildingIdIndexRoute: typeof AdminBuildingsBuildingIdIndexRoute
+}
+
+const AdminBuildingsBuildingIdRouteChildren: AdminBuildingsBuildingIdRouteChildren =
+  {
+    AdminBuildingsBuildingIdAnalyticsRoute:
+      AdminBuildingsBuildingIdAnalyticsRoute,
+    AdminBuildingsBuildingIdBrandingRoute:
+      AdminBuildingsBuildingIdBrandingRoute,
+    AdminBuildingsBuildingIdDangerRoute: AdminBuildingsBuildingIdDangerRoute,
+    AdminBuildingsBuildingIdEventsRoute: AdminBuildingsBuildingIdEventsRoute,
+    AdminBuildingsBuildingIdLegalRoute: AdminBuildingsBuildingIdLegalRoute,
+    AdminBuildingsBuildingIdManagersRoute:
+      AdminBuildingsBuildingIdManagersRoute,
+    AdminBuildingsBuildingIdNeighborhoodRoute:
+      AdminBuildingsBuildingIdNeighborhoodRoute,
+    AdminBuildingsBuildingIdPlaybookRoute:
+      AdminBuildingsBuildingIdPlaybookRoute,
+    AdminBuildingsBuildingIdPulseRoute: AdminBuildingsBuildingIdPulseRoute,
+    AdminBuildingsBuildingIdResidentsRoute:
+      AdminBuildingsBuildingIdResidentsRoute,
+    AdminBuildingsBuildingIdSettingsRoute:
+      AdminBuildingsBuildingIdSettingsRoute,
+    AdminBuildingsBuildingIdIndexRoute: AdminBuildingsBuildingIdIndexRoute,
+  }
+
+const AdminBuildingsBuildingIdRouteWithChildren =
+  AdminBuildingsBuildingIdRoute._addFileChildren(
+    AdminBuildingsBuildingIdRouteChildren,
+  )
+
 interface AdminRouteChildren {
   AdminLegalRoute: typeof AdminLegalRoute
   AdminTemplatesRoute: typeof AdminTemplatesRoute
-  AdminBuildingsBuildingIdBrandingRoute: typeof AdminBuildingsBuildingIdBrandingRoute
-  AdminBuildingsBuildingIdSettingsRoute: typeof AdminBuildingsBuildingIdSettingsRoute
+  AdminBuildingsBuildingIdRoute: typeof AdminBuildingsBuildingIdRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLegalRoute: AdminLegalRoute,
   AdminTemplatesRoute: AdminTemplatesRoute,
-  AdminBuildingsBuildingIdBrandingRoute: AdminBuildingsBuildingIdBrandingRoute,
-  AdminBuildingsBuildingIdSettingsRoute: AdminBuildingsBuildingIdSettingsRoute,
+  AdminBuildingsBuildingIdRoute: AdminBuildingsBuildingIdRouteWithChildren,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
