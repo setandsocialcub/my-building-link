@@ -294,8 +294,10 @@ function ProfileCreationCard({ building }: { building: Building }) {
     e.preventDefault();
     setError(null);
     if (!firstName.trim()) return setError("Please enter your first name.");
-    if (password.length < 8)
-      return setError("Password must be at least 8 characters.");
+    const emailErr = validateEmail(email);
+    if (emailErr) return setError(emailErr);
+    const pwErr = validatePassword(password, "signup");
+    if (pwErr) return setError(pwErr);
 
     setBusy(true);
     const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
@@ -309,7 +311,7 @@ function ProfileCreationCard({ building }: { building: Building }) {
 
     if (signUpErr) {
       setBusy(false);
-      setError(signUpErr.message);
+      setError(friendlyAuthError(signUpErr, "signup"));
       return;
     }
 
