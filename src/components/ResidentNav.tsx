@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Home,
@@ -9,7 +9,9 @@ import {
   Megaphone,
   ShoppingBag,
   User,
+  LogOut,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useBuildingSettings, isFeatureEnabled } from "@/hooks/use-building-settings";
