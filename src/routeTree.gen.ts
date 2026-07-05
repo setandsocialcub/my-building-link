@@ -38,6 +38,7 @@ import { Route as BuildingBuildingIdRouteImport } from './routes/building.$build
 import { Route as AdminTemplatesRouteImport } from './routes/admin.templates'
 import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
+import { Route as AdminBuildingsBuildingIdRouteImport } from './routes/admin.buildings.$buildingId'
 import { Route as ApiPublicManifestBuildingIdRouteImport } from './routes/api/public/manifest.$buildingId'
 import { Route as AdminBuildingsBuildingIdSettingsRouteImport } from './routes/admin.buildings.$buildingId.settings'
 import { Route as AdminBuildingsBuildingIdBrandingRouteImport } from './routes/admin.buildings.$buildingId.branding'
@@ -188,6 +189,12 @@ const ManagerBuildingIdBrandingRoute =
     path: '/branding',
     getParentRoute: () => ManagerBuildingIdRoute,
   } as any)
+const AdminBuildingsBuildingIdRoute =
+  AdminBuildingsBuildingIdRouteImport.update({
+    id: '/buildings/$buildingId',
+    path: '/buildings/$buildingId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const ApiPublicManifestBuildingIdRoute =
   ApiPublicManifestBuildingIdRouteImport.update({
     id: '/api/public/manifest/$buildingId',
@@ -196,15 +203,15 @@ const ApiPublicManifestBuildingIdRoute =
   } as any)
 const AdminBuildingsBuildingIdSettingsRoute =
   AdminBuildingsBuildingIdSettingsRouteImport.update({
-    id: '/buildings/$buildingId/settings',
-    path: '/buildings/$buildingId/settings',
-    getParentRoute: () => AdminRoute,
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
   } as any)
 const AdminBuildingsBuildingIdBrandingRoute =
   AdminBuildingsBuildingIdBrandingRouteImport.update({
-    id: '/buildings/$buildingId/branding',
-    path: '/buildings/$buildingId/branding',
-    getParentRoute: () => AdminRoute,
+    id: '/branding',
+    path: '/branding',
+    getParentRoute: () => AdminBuildingsBuildingIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -236,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
@@ -270,6 +278,7 @@ export interface FileRoutesByTo {
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
@@ -305,6 +314,7 @@ export interface FileRoutesById {
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/settings': typeof AdminBuildingsBuildingIdSettingsRoute
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
@@ -409,6 +421,7 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/settings'
@@ -647,6 +660,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerBuildingIdBrandingRouteImport
       parentRoute: typeof ManagerBuildingIdRoute
     }
+    '/admin/buildings/$buildingId': {
+      id: '/admin/buildings/$buildingId'
+      path: '/buildings/$buildingId'
+      fullPath: '/admin/buildings/$buildingId'
+      preLoaderRoute: typeof AdminBuildingsBuildingIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/public/manifest/$buildingId': {
       id: '/api/public/manifest/$buildingId'
       path: '/api/public/manifest/$buildingId'
@@ -656,33 +676,49 @@ declare module '@tanstack/react-router' {
     }
     '/admin/buildings/$buildingId/settings': {
       id: '/admin/buildings/$buildingId/settings'
-      path: '/buildings/$buildingId/settings'
+      path: '/settings'
       fullPath: '/admin/buildings/$buildingId/settings'
       preLoaderRoute: typeof AdminBuildingsBuildingIdSettingsRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
     }
     '/admin/buildings/$buildingId/branding': {
       id: '/admin/buildings/$buildingId/branding'
-      path: '/buildings/$buildingId/branding'
+      path: '/branding'
       fullPath: '/admin/buildings/$buildingId/branding'
       preLoaderRoute: typeof AdminBuildingsBuildingIdBrandingRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof AdminBuildingsBuildingIdRoute
     }
   }
 }
 
+interface AdminBuildingsBuildingIdRouteChildren {
+  AdminBuildingsBuildingIdBrandingRoute: typeof AdminBuildingsBuildingIdBrandingRoute
+  AdminBuildingsBuildingIdSettingsRoute: typeof AdminBuildingsBuildingIdSettingsRoute
+}
+
+const AdminBuildingsBuildingIdRouteChildren: AdminBuildingsBuildingIdRouteChildren =
+  {
+    AdminBuildingsBuildingIdBrandingRoute:
+      AdminBuildingsBuildingIdBrandingRoute,
+    AdminBuildingsBuildingIdSettingsRoute:
+      AdminBuildingsBuildingIdSettingsRoute,
+  }
+
+const AdminBuildingsBuildingIdRouteWithChildren =
+  AdminBuildingsBuildingIdRoute._addFileChildren(
+    AdminBuildingsBuildingIdRouteChildren,
+  )
+
 interface AdminRouteChildren {
   AdminLegalRoute: typeof AdminLegalRoute
   AdminTemplatesRoute: typeof AdminTemplatesRoute
-  AdminBuildingsBuildingIdBrandingRoute: typeof AdminBuildingsBuildingIdBrandingRoute
-  AdminBuildingsBuildingIdSettingsRoute: typeof AdminBuildingsBuildingIdSettingsRoute
+  AdminBuildingsBuildingIdRoute: typeof AdminBuildingsBuildingIdRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLegalRoute: AdminLegalRoute,
   AdminTemplatesRoute: AdminTemplatesRoute,
-  AdminBuildingsBuildingIdBrandingRoute: AdminBuildingsBuildingIdBrandingRoute,
-  AdminBuildingsBuildingIdSettingsRoute: AdminBuildingsBuildingIdSettingsRoute,
+  AdminBuildingsBuildingIdRoute: AdminBuildingsBuildingIdRouteWithChildren,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
