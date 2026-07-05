@@ -160,8 +160,9 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
   const load = async () => {
     const { data, error: qErr } = await (supabase as any)
       .from("buildings")
-      .select("id, name, city, access_code, created_at, template_id")
+      .select("id, name, city, access_code, community_id, created_at, template_id")
       .order("created_at", { ascending: false });
+
     if (qErr || !data) return;
 
     const buildingIds = (data as any[]).map((b) => b.id);
