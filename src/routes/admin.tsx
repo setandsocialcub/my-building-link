@@ -422,12 +422,21 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                       <Button
                         size="sm"
                         variant="ghost"
+                        onClick={() => setQrBuilding(b)}
+                        className="gap-1.5"
+                      >
+                        <QrCode className="h-3.5 w-3.5" /> QR
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={() => copy(b.access_code)}
                         className="gap-1.5"
                       >
                         <Copy className="h-3.5 w-3.5" />
                         Resident
                       </Button>
+
                       {b.manager_code && (
                         <Button
                           size="sm"
