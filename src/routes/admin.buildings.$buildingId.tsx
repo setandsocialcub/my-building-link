@@ -137,12 +137,7 @@ function BuildingAdminLayout() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-card/70 backdrop-blur sticky top-0 z-20">
         <div className="mx-auto max-w-[1400px] px-4 h-14 flex items-center gap-3">
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" /> Buildings
-          </Link>
+          <RoleAwareBackButton role="admin" />
           <span className="text-muted-foreground/40">/</span>
           <div className="flex items-center gap-2 min-w-0">
             <Building2 className="h-4 w-4 text-primary shrink-0" />
