@@ -1678,16 +1678,25 @@ export type Database = {
           accepted_privacy_version: number | null
           accepted_terms_at: string | null
           accepted_terms_version: number | null
+          avatar_path: string | null
+          bio: string | null
           building_id: string
+          company: string | null
+          cover_path: string | null
           created_at: string
+          favorite_local_spots: string[]
           first_name: string
           id: string
           interest_tags: string[]
           is_visible: boolean
           job_title: string | null
+          languages: string[]
           last_active_at: string
           last_name: string | null
+          pets: string[]
           privacy_level: Database["public"]["Enums"]["privacy_level"]
+          professional_skills: string[]
+          social_links: Json
           user_id: string
         }
         Insert: {
@@ -1695,16 +1704,25 @@ export type Database = {
           accepted_privacy_version?: number | null
           accepted_terms_at?: string | null
           accepted_terms_version?: number | null
+          avatar_path?: string | null
+          bio?: string | null
           building_id: string
+          company?: string | null
+          cover_path?: string | null
           created_at?: string
+          favorite_local_spots?: string[]
           first_name: string
           id?: string
           interest_tags?: string[]
           is_visible?: boolean
           job_title?: string | null
+          languages?: string[]
           last_active_at?: string
           last_name?: string | null
+          pets?: string[]
           privacy_level?: Database["public"]["Enums"]["privacy_level"]
+          professional_skills?: string[]
+          social_links?: Json
           user_id: string
         }
         Update: {
@@ -1712,16 +1730,25 @@ export type Database = {
           accepted_privacy_version?: number | null
           accepted_terms_at?: string | null
           accepted_terms_version?: number | null
+          avatar_path?: string | null
+          bio?: string | null
           building_id?: string
+          company?: string | null
+          cover_path?: string | null
           created_at?: string
+          favorite_local_spots?: string[]
           first_name?: string
           id?: string
           interest_tags?: string[]
           is_visible?: boolean
           job_title?: string | null
+          languages?: string[]
           last_active_at?: string
           last_name?: string | null
+          pets?: string[]
           privacy_level?: Database["public"]["Enums"]["privacy_level"]
+          professional_skills?: string[]
+          social_links?: Json
           user_id?: string
         }
         Relationships: [
