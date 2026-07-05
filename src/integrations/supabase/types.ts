@@ -174,6 +174,53 @@ export type Database = {
           },
         ]
       }
+      building_playbook_items: {
+        Row: {
+          building_id: string
+          category: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          description: string | null
+          id: string
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          building_id: string
+          category?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          building_id?: string
+          category?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "building_playbook_items_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       building_settings: {
         Row: {
           allow_resident_circle_creation: boolean
@@ -335,27 +382,63 @@ export type Database = {
       buildings: {
         Row: {
           access_code: string
+          address: string | null
+          amenities: string[]
+          archived_at: string | null
           city: string
+          community_intro: string | null
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
+          description: string | null
+          floor_count: number | null
           id: string
           name: string
+          property_type: string | null
+          status: string
           template_id: string | null
+          unit_count: number | null
+          website: string | null
         }
         Insert: {
           access_code?: string
+          address?: string | null
+          amenities?: string[]
+          archived_at?: string | null
           city: string
+          community_intro?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
+          description?: string | null
+          floor_count?: number | null
           id?: string
           name: string
+          property_type?: string | null
+          status?: string
           template_id?: string | null
+          unit_count?: number | null
+          website?: string | null
         }
         Update: {
           access_code?: string
+          address?: string | null
+          amenities?: string[]
+          archived_at?: string | null
           city?: string
+          community_intro?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
+          description?: string | null
+          floor_count?: number | null
           id?: string
           name?: string
+          property_type?: string | null
+          status?: string
           template_id?: string | null
+          unit_count?: number | null
+          website?: string | null
         }
         Relationships: [
           {
@@ -978,6 +1061,35 @@ export type Database = {
         }
         Relationships: []
       }
+      manager_permissions: {
+        Row: {
+          granted_at: string
+          id: string
+          manager_id: string
+          permission: string
+        }
+        Insert: {
+          granted_at?: string
+          id?: string
+          manager_id: string
+          permission: string
+        }
+        Update: {
+          granted_at?: string
+          id?: string
+          manager_id?: string
+          permission?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_permissions_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "property_managers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_listings: {
         Row: {
           building_id: string
@@ -1131,6 +1243,59 @@ export type Database = {
           },
         ]
       }
+      neighborhood_places: {
+        Row: {
+          address: string | null
+          building_id: string
+          category: string | null
+          created_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          notes: string | null
+          order_index: number
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          address?: string | null
+          building_id: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          notes?: string | null
+          order_index?: number
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          address?: string | null
+          building_id?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          notes?: string | null
+          order_index?: number
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "neighborhood_places_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           building_id: string
@@ -1201,6 +1366,7 @@ export type Database = {
         Row: {
           building_id: string
           created_at: string
+          disabled_at: string | null
           id: string
           manager_code: string | null
           name: string
@@ -1209,6 +1375,7 @@ export type Database = {
         Insert: {
           building_id: string
           created_at?: string
+          disabled_at?: string | null
           id?: string
           manager_code?: string | null
           name?: string
@@ -1217,6 +1384,7 @@ export type Database = {
         Update: {
           building_id?: string
           created_at?: string
+          disabled_at?: string | null
           id?: string
           manager_code?: string | null
           name?: string
@@ -1318,6 +1486,47 @@ export type Database = {
           },
         ]
       }
+      resident_invites: {
+        Row: {
+          accepted_at: string | null
+          building_id: string
+          created_at: string
+          email: string | null
+          expires_at: string | null
+          id: string
+          invite_code: string
+          invited_by: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          building_id: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code: string
+          invited_by?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          building_id?: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          invited_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_invites_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resident_profiles: {
         Row: {
           accepted_privacy_at: string | null
@@ -1376,6 +1585,65 @@ export type Database = {
             columns: ["building_id"]
             isOneToOne: false
             referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resident_suspensions: {
+        Row: {
+          building_id: string
+          id: string
+          lifted_at: string | null
+          reason: string | null
+          resident_id: string
+          suspended_at: string
+          suspended_by: string | null
+        }
+        Insert: {
+          building_id: string
+          id?: string
+          lifted_at?: string | null
+          reason?: string | null
+          resident_id: string
+          suspended_at?: string
+          suspended_by?: string | null
+        }
+        Update: {
+          building_id?: string
+          id?: string
+          lifted_at?: string | null
+          reason?: string | null
+          resident_id?: string
+          suspended_at?: string
+          suspended_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resident_suspensions_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_suspensions_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_suspensions_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resident_suspensions_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
           },
         ]
