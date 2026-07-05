@@ -4,12 +4,19 @@ export type BrandingFields = {
   custom_tagline: string | null; // legacy alias retained for backwards compat
   logo_url: string | null;
   hero_image_url: string | null;
+  cover_image_url: string | null;
   community_icon_url: string | null;
   app_icon_url: string | null;
   splash_screen_image_url: string | null;
+  favicon_url: string | null;
+  login_screen_image_url: string | null;
+  playbook_cover_image_url: string | null;
+  email_logo_url: string | null;
   primary_color: string | null;
   secondary_color: string | null;
   accent_color: string | null;
+  email_primary_color: string | null;
+  email_accent_color: string | null;
   welcome_message: string | null;
   homepage_headline: string | null;
   homepage_subheadline: string | null;
@@ -18,6 +25,7 @@ export type BrandingFields = {
   custom_domain: string | null;
   enable_powered_by_footer: boolean | null;
 };
+
 
 export type BuildingBranding = BrandingFields & {
   id: string;
