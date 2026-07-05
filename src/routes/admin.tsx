@@ -259,6 +259,8 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
 
 
   const copy = (code: string) => navigator.clipboard.writeText(code);
+  const [qrBuilding, setQrBuilding] = useState<Building | null>(null);
+
 
   return (
     <main className="min-h-screen bg-background">
