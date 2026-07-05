@@ -1,6 +1,15 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate } from "lucide-react";
+import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,12 +45,14 @@ type Building = {
   name: string;
   city: string;
   access_code: string;
+  community_id: string;
   created_at: string;
   template_id?: string | null;
   template_name?: string | null;
   manager_code?: string | null;
   active_residents?: number;
 };
+
 
 type Template = { id: string; template_name: string; template_description: string | null };
 
@@ -149,8 +160,9 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
   const load = async () => {
     const { data, error: qErr } = await (supabase as any)
       .from("buildings")
-      .select("id, name, city, access_code, created_at, template_id")
+      .select("id, name, city, access_code, community_id, created_at, template_id")
       .order("created_at", { ascending: false });
+
     if (qErr || !data) return;
 
     const buildingIds = (data as any[]).map((b) => b.id);
@@ -247,6 +259,8 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
 
 
   const copy = (code: string) => navigator.clipboard.writeText(code);
+  const [qrBuilding, setQrBuilding] = useState<Building | null>(null);
+
 
   return (
     <main className="min-h-screen bg-background">
@@ -337,18 +351,21 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
               <TableRow>
                 <TableHead className="pl-6">Name</TableHead>
                 <TableHead>City</TableHead>
+                <TableHead>Community ID</TableHead>
                 <TableHead>Resident Code</TableHead>
                 <TableHead>Manager Code</TableHead>
-                <TableHead className="text-center">Active Residents</TableHead>
+                <TableHead className="text-center">Residents</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="pr-6 text-right">Actions</TableHead>
+
               </TableRow>
             </TableHeader>
             <TableBody>
               {buildings.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
+
                     className="text-center text-muted-foreground py-10"
                   >
                     No buildings yet. Create your first one above.
@@ -374,10 +391,16 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
 
                     <TableCell>{b.city}</TableCell>
                     <TableCell>
+                      <code className="px-2 py-1 rounded-md bg-accent/40 font-mono text-xs tracking-wider">
+                        {b.community_id}
+                      </code>
+                    </TableCell>
+                    <TableCell>
                       <code className="px-2 py-1 rounded-md bg-muted font-mono text-sm tracking-widest">
                         {b.access_code}
                       </code>
                     </TableCell>
+
                     <TableCell>
                       {b.manager_code ? (
                         <code className="px-2 py-1 rounded-md bg-primary/10 text-primary font-mono text-sm tracking-widest">
@@ -399,12 +422,21 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                       <Button
                         size="sm"
                         variant="ghost"
+                        onClick={() => setQrBuilding(b)}
+                        className="gap-1.5"
+                      >
+                        <QrCode className="h-3.5 w-3.5" /> QR
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={() => copy(b.access_code)}
                         className="gap-1.5"
                       >
                         <Copy className="h-3.5 w-3.5" />
                         Resident
                       </Button>
+
                       {b.manager_code && (
                         <Button
                           size="sm"
@@ -445,6 +477,40 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
           </Table>
         </section>
       </div>
+
+      <Dialog open={!!qrBuilding} onOpenChange={(o) => !o && setQrBuilding(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{qrBuilding?.name}</DialogTitle>
+            <DialogDescription>
+              Scan to open the resident join page for this building.
+            </DialogDescription>
+          </DialogHeader>
+          {qrBuilding && (
+            <div className="flex flex-col items-center gap-4 py-2">
+              <div className="rounded-xl bg-white p-4 border border-border">
+                <QRCodeSVG
+                  value={`${typeof window !== "undefined" ? window.location.origin : ""}/join?code=${qrBuilding.access_code}`}
+                  size={220}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <div className="text-center space-y-1">
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">Community ID</div>
+                <code className="px-2 py-1 rounded-md bg-accent/40 font-mono text-sm tracking-wider">
+                  {qrBuilding.community_id}
+                </code>
+                <div className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">Resident Code</div>
+                <code className="px-2 py-1 rounded-md bg-muted font-mono text-sm tracking-widest">
+                  {qrBuilding.access_code}
+                </code>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
+
   );
 }

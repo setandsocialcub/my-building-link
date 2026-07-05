@@ -454,6 +454,7 @@ export type Database = {
           amenities: string[]
           archived_at: string | null
           city: string
+          community_id: string
           community_intro: string | null
           contact_email: string | null
           contact_phone: string | null
@@ -474,6 +475,7 @@ export type Database = {
           amenities?: string[]
           archived_at?: string | null
           city: string
+          community_id?: string
           community_intro?: string | null
           contact_email?: string | null
           contact_phone?: string | null
@@ -494,6 +496,7 @@ export type Database = {
           amenities?: string[]
           archived_at?: string | null
           city?: string
+          community_id?: string
           community_intro?: string | null
           contact_email?: string | null
           contact_phone?: string | null
@@ -1949,6 +1952,7 @@ export type Database = {
       claim_manager_code: { Args: { _code: string }; Returns: string }
       current_resident_id: { Args: { _building_id: string }; Returns: string }
       generate_building_access_code: { Args: never; Returns: string }
+      generate_community_id: { Args: never; Returns: string }
       generate_manager_access_code: { Args: never; Returns: string }
       get_building_info: {
         Args: { _building_id: string }
