@@ -2,9 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, KeyRound, Shield, ArrowRight } from "lucide-react";
 import { LegalFooter } from "@/components/LegalFooter";
 import { InstallHeroBanner } from "@/components/InstallHeroBanner";
-import { HummingbirdMascot } from "@/components/HummingbirdMascot";
-import { BotanicalBackground } from "@/components/BotanicalBackground";
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,19 +19,15 @@ export const Route = createFileRoute("/")({
 
 function LandingChooser() {
   return (
-    <main className="relative min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4 py-12 overflow-hidden">
-      <BotanicalBackground />
-      <HummingbirdMascot />
-
-      <div className="relative w-full max-w-2xl">
-        <div className="mb-8 oonah-enter" style={{ animationDelay: "80ms" }}>
+    <main className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-2xl">
+        <div className="mb-8">
           <InstallHeroBanner />
         </div>
-        <div className="text-center mb-12 oonah-enter" style={{ animationDelay: "160ms" }}>
-
+        <div className="text-center mb-12">
           <div
             data-oonah-logo
-            className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-5 oonah-logo-pop"
+            className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-5"
           >
             <Building2 className="h-7 w-7" />
           </div>
@@ -49,8 +42,7 @@ function LandingChooser() {
         <div className="space-y-4">
           <Link
             to="/resident-access"
-            className="group oonah-enter oonah-card block rounded-2xl border border-border bg-card p-6 shadow-sm hover:border-primary hover:shadow-md transition-all"
-            style={{ animationDelay: "260ms" }}
+            className="group block rounded-2xl border border-border bg-card p-6 shadow-sm hover:border-primary hover:shadow-md transition-colors"
           >
             <div className="flex items-center gap-5">
               <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary grid place-items-center flex-shrink-0">
@@ -64,14 +56,13 @@ function LandingChooser() {
                   Enter your building's access code to join your community.
                 </p>
               </div>
-              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary flex-shrink-0" />
             </div>
           </Link>
 
           <Link
             to="/manager-auth"
-            className="group oonah-enter oonah-card block rounded-2xl border border-border bg-card p-6 shadow-sm hover:border-primary hover:shadow-md transition-all"
-            style={{ animationDelay: "340ms" }}
+            className="group block rounded-2xl border border-border bg-card p-6 shadow-sm hover:border-primary hover:shadow-md transition-colors"
           >
             <div className="flex items-center gap-5">
               <div className="h-12 w-12 rounded-xl bg-muted text-foreground grid place-items-center flex-shrink-0">
@@ -85,12 +76,12 @@ function LandingChooser() {
                   Sign in or create a manager account to run your building.
                 </p>
               </div>
-              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary flex-shrink-0" />
             </div>
           </Link>
         </div>
 
-        <div className="mt-16 text-center oonah-enter" style={{ animationDelay: "440ms" }}>
+        <div className="mt-16 text-center">
           <Link
             to="/super-admin-login"
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
