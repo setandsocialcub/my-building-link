@@ -270,6 +270,17 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
 
   const resetField = (field: Field) => update(field, "");
 
+  // Effective values used by the live preview (draft on top of published branding)
+  const previewBranding = useMemo(() => {
+    const overlay: any = { ...(branding ?? {}) };
+    FIELDS.forEach((k) => {
+      const v = draft[k]?.trim();
+      if (v) overlay[k] = v;
+      else if (v === "") overlay[k] = null;
+    });
+    return overlay as BuildingBranding;
+  }, [draft, branding]);
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -284,17 +295,6 @@ export function BrandingEditor({ buildingId }: { buildingId: string }) {
   const draftUpdatedAt = branding?.draft_updated_at
     ? new Date(branding.draft_updated_at).toLocaleString()
     : null;
-
-  // Effective values used by the live preview (draft on top of published branding)
-  const previewBranding = useMemo(() => {
-    const overlay: any = { ...(branding ?? {}) };
-    FIELDS.forEach((k) => {
-      const v = draft[k]?.trim();
-      if (v) overlay[k] = v;
-      else if (v === "") overlay[k] = null;
-    });
-    return overlay as BuildingBranding;
-  }, [draft, branding]);
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
