@@ -266,7 +266,7 @@ function CodeView({
                   <span className="text-muted-foreground">.</span>
                 </p>
               </div>
-              <ProfileCreationCard building={building} />
+              <ProfileCreationCard building={building} accessCode={code} />
             </>
           )}
         </div>
