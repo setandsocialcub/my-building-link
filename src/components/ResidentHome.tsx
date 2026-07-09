@@ -28,6 +28,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CIRCLE_CATEGORIES, categoryLabel } from "@/lib/circle-categories";
 import heroImg from "@/assets/home-hero.jpg";
 import { useBranding } from "@/components/BrandingProvider";
+import { useIndustryTerms } from "@/hooks/use-industry-terms";
 import { brandingValue } from "@/lib/branding";
 import { PoweredByFooter } from "@/components/PoweredByFooter";
 
