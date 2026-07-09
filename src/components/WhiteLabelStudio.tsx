@@ -356,6 +356,9 @@ export function WhiteLabelStudio({
         <TabsContent value="domain" className="mt-6">
           <DomainPanel customDomain={customDomain} />
         </TabsContent>
+        <TabsContent value="simulator" className="mt-6">
+          <BrandSimulator buildingId={buildingId} role={role} />
+        </TabsContent>
       </Tabs>
     </div>
   );
