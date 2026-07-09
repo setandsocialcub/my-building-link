@@ -223,24 +223,23 @@ function DeviceFrame({
       : "rounded-[36px] border-[12px] border-neutral-900 bg-neutral-900 shadow-2xl";
 
   return (
-    <div ref={containerRef} className="w-full overflow-hidden">
+    <div ref={containerRef} className="w-full">
       <div
-        className="mx-auto relative"
+        className={`mx-auto overflow-hidden ${chrome}`}
         style={{ width: width * scale, height: framedHeight }}
       >
-        <div className={`overflow-hidden ${chrome}`}>
-          <div
-            style={{
-              width,
-              height,
-              transform: `scale(${scale})`,
-              transformOrigin: "top left",
-            }}
-          >
-            {children}
-          </div>
+        <div
+          style={{
+            width,
+            height,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        >
+          {children}
         </div>
       </div>
     </div>
   );
 }
+
