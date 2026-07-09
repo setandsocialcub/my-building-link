@@ -42,6 +42,8 @@ export function useBranding() {
 export function BrandingProvider({ children }: { children: ReactNode }) {
   const [branding, setBranding] = useState<BuildingBranding | null>(null);
   const [buildingId, setBuildingId] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
+  const [industry, setIndustry] = useState<IndustryType | null>(null);
   const [previewDraft, setPreviewDraftState] = useState<Partial<BrandingFields> | null>(null);
 
   const resolveBuildingId = async (): Promise<string | null> => {
