@@ -41,6 +41,44 @@ function ResidentAccessPage() {
   const { code: codeFromUrl } = Route.useSearch();
   const initialCode = (codeFromUrl ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 7);
   const [view, setView] = useState<View>(initialCode ? "code" : "choice");
+  const [resuming, setResuming] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+
+      const pendingJoin = getPendingResidentJoin(data.user);
+      if (!pendingJoin) return;
+
+      setResuming(true);
+      try {
+        const joined = await joinBuildingProfile(pendingJoin);
+        if (!cancelled) {
+          navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+        }
+      } catch {
+        if (!cancelled) setResuming(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  if (resuming) {
+    return (
+      <main className="min-h-screen grid place-items-center bg-gradient-to-br from-background via-background to-muted px-4 py-12 text-muted-foreground">
+        <span className="inline-flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" /> Finishing your building access…
+        </span>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4 py-12">
