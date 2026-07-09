@@ -329,9 +329,9 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
     }
 
     const { error: insErr } = await supabase.rpc("join_building_as_resident", {
-      _access_code: building.access_code ?? "",
+      _access_code: accessCode,
       _first_name: firstName.trim(),
-      _job_title: jobTitle.trim() || null,
+      _job_title: jobTitle.trim() || undefined,
       _interest_tags: interests,
     });
 
