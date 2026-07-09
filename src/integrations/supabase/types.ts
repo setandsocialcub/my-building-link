@@ -331,6 +331,7 @@ export type Database = {
           enable_ai_matching: boolean
           enable_circles: boolean
           enable_community_board: boolean
+          enable_community_voice: boolean
           enable_concierge: boolean
           enable_conversations: boolean
           enable_experiences: boolean
@@ -351,6 +352,7 @@ export type Database = {
           enable_ai_matching?: boolean
           enable_circles?: boolean
           enable_community_board?: boolean
+          enable_community_voice?: boolean
           enable_concierge?: boolean
           enable_conversations?: boolean
           enable_experiences?: boolean
@@ -371,6 +373,7 @@ export type Database = {
           enable_ai_matching?: boolean
           enable_circles?: boolean
           enable_community_board?: boolean
+          enable_community_voice?: boolean
           enable_concierge?: boolean
           enable_conversations?: boolean
           enable_experiences?: boolean
@@ -862,6 +865,121 @@ export type Database = {
             columns: ["portfolio_template_id"]
             isOneToOne: false
             referencedRelation: "building_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_voice_submissions: {
+        Row: {
+          assigned_manager_id: string | null
+          attachment_urls: string[]
+          building_id: string
+          category: string | null
+          created_at: string
+          description: string
+          first_viewed_at: string | null
+          id: string
+          is_anonymous: boolean
+          priority: Database["public"]["Enums"]["community_voice_priority"]
+          recognized_staff_name: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["community_voice_status"]
+          subject: string
+          submission_type: Database["public"]["Enums"]["community_voice_type"]
+          submitter_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_manager_id?: string | null
+          attachment_urls?: string[]
+          building_id: string
+          category?: string | null
+          created_at?: string
+          description: string
+          first_viewed_at?: string | null
+          id?: string
+          is_anonymous?: boolean
+          priority?: Database["public"]["Enums"]["community_voice_priority"]
+          recognized_staff_name?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["community_voice_status"]
+          subject: string
+          submission_type: Database["public"]["Enums"]["community_voice_type"]
+          submitter_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_manager_id?: string | null
+          attachment_urls?: string[]
+          building_id?: string
+          category?: string | null
+          created_at?: string
+          description?: string
+          first_viewed_at?: string | null
+          id?: string
+          is_anonymous?: boolean
+          priority?: Database["public"]["Enums"]["community_voice_priority"]
+          recognized_staff_name?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["community_voice_status"]
+          subject?: string
+          submission_type?: Database["public"]["Enums"]["community_voice_type"]
+          submitter_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_voice_submissions_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_voice_updates: {
+        Row: {
+          author_id: string | null
+          author_role: string
+          body: string
+          created_at: string
+          id: string
+          new_status:
+            | Database["public"]["Enums"]["community_voice_status"]
+            | null
+          submission_id: string
+          visible_to_resident: boolean
+        }
+        Insert: {
+          author_id?: string | null
+          author_role: string
+          body: string
+          created_at?: string
+          id?: string
+          new_status?:
+            | Database["public"]["Enums"]["community_voice_status"]
+            | null
+          submission_id: string
+          visible_to_resident?: boolean
+        }
+        Update: {
+          author_id?: string | null
+          author_role?: string
+          body?: string
+          created_at?: string
+          id?: string
+          new_status?:
+            | Database["public"]["Enums"]["community_voice_status"]
+            | null
+          submission_id?: string
+          visible_to_resident?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_voice_updates_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "community_voice_submissions"
             referencedColumns: ["id"]
           },
         ]
@@ -2141,6 +2259,21 @@ export type Database = {
     }
     Enums: {
       app_role: "admin"
+      community_voice_priority: "general" | "low" | "medium" | "high" | "urgent"
+      community_voice_status:
+        | "received"
+        | "viewed"
+        | "in_progress"
+        | "resolved"
+        | "closed"
+      community_voice_type:
+        | "concern"
+        | "safety"
+        | "maintenance"
+        | "improvement"
+        | "event_suggestion"
+        | "recognition"
+        | "general_feedback"
       industry_type:
         | "luxury_residential"
         | "multifamily"
@@ -2280,6 +2413,23 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin"],
+      community_voice_priority: ["general", "low", "medium", "high", "urgent"],
+      community_voice_status: [
+        "received",
+        "viewed",
+        "in_progress",
+        "resolved",
+        "closed",
+      ],
+      community_voice_type: [
+        "concern",
+        "safety",
+        "maintenance",
+        "improvement",
+        "event_suggestion",
+        "recognition",
+        "general_feedback",
+      ],
       industry_type: [
         "luxury_residential",
         "multifamily",
