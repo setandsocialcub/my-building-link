@@ -39,6 +39,7 @@ import { Route as BuildingBuildingIdRouteImport } from './routes/building.$build
 import { Route as AdminTemplatesRouteImport } from './routes/admin.templates'
 import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
+import { Route as ManagerBuildingIdCommunityVoiceRouteImport } from './routes/manager.$buildingId.community-voice'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
 import { Route as AdminBuildingsBuildingIdRouteImport } from './routes/admin.buildings.$buildingId'
 import { Route as AdminBuildingsBuildingIdIndexRouteImport } from './routes/admin.buildings.$buildingId.index'
@@ -205,6 +206,12 @@ const AdminClientsRoute = AdminClientsRouteImport.update({
   path: '/clients',
   getParentRoute: () => AdminRoute,
 } as any)
+const ManagerBuildingIdCommunityVoiceRoute =
+  ManagerBuildingIdCommunityVoiceRouteImport.update({
+    id: '/community-voice',
+    path: '/community-voice',
+    getParentRoute: () => ManagerBuildingIdRoute,
+  } as any)
 const ManagerBuildingIdBrandingRoute =
   ManagerBuildingIdBrandingRouteImport.update({
     id: '/branding',
@@ -329,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
@@ -375,6 +383,7 @@ export interface FileRoutesByTo {
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
@@ -423,6 +432,7 @@ export interface FileRoutesById {
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
+  '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/pulse/$buildingId'
     | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
+    | '/manager/$buildingId/community-voice'
     | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/danger'
@@ -518,6 +529,7 @@ export interface FileRouteTypes {
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
     | '/manager/$buildingId/branding'
+    | '/manager/$buildingId/community-voice'
     | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/danger'
@@ -565,6 +577,7 @@ export interface FileRouteTypes {
     | '/pulse/$buildingId'
     | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
+    | '/manager/$buildingId/community-voice'
     | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/danger'
@@ -820,6 +833,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminClientsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/manager/$buildingId/community-voice': {
+      id: '/manager/$buildingId/community-voice'
+      path: '/community-voice'
+      fullPath: '/manager/$buildingId/community-voice'
+      preLoaderRoute: typeof ManagerBuildingIdCommunityVoiceRouteImport
+      parentRoute: typeof ManagerBuildingIdRoute
+    }
     '/manager/$buildingId/branding': {
       id: '/manager/$buildingId/branding'
       path: '/branding'
@@ -999,10 +1019,12 @@ const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
 
 interface ManagerBuildingIdRouteChildren {
   ManagerBuildingIdBrandingRoute: typeof ManagerBuildingIdBrandingRoute
+  ManagerBuildingIdCommunityVoiceRoute: typeof ManagerBuildingIdCommunityVoiceRoute
 }
 
 const ManagerBuildingIdRouteChildren: ManagerBuildingIdRouteChildren = {
   ManagerBuildingIdBrandingRoute: ManagerBuildingIdBrandingRoute,
+  ManagerBuildingIdCommunityVoiceRoute: ManagerBuildingIdCommunityVoiceRoute,
 }
 
 const ManagerBuildingIdRouteWithChildren =
