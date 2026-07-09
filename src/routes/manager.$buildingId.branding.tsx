@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { BrandingEditor } from "@/components/BrandingEditor";
+import { WhiteLabelStudio } from "@/components/WhiteLabelStudio";
 
 export const Route = createFileRoute("/manager/$buildingId/branding")({
   head: () => ({
