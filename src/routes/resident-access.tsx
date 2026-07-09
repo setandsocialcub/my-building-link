@@ -328,12 +328,11 @@ function ProfileCreationCard({ building }: { building: Building }) {
       return;
     }
 
-    const { error: insErr } = await supabase.from("resident_profiles").insert({
-      user_id: userId,
-      building_id: building.id,
-      first_name: firstName.trim(),
-      job_title: jobTitle.trim() || null,
-      interest_tags: interests,
+    const { error: insErr } = await supabase.rpc("join_building_as_resident", {
+      _access_code: building.access_code ?? "",
+      _first_name: firstName.trim(),
+      _job_title: jobTitle.trim() || null,
+      _interest_tags: interests,
     });
 
     setBusy(false);
