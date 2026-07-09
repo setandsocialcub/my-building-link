@@ -2284,6 +2284,24 @@ export type Database = {
         Args: { _building_id: string }
         Returns: boolean
       }
+      join_building_as_resident: {
+        Args: {
+          _accepted_privacy_at?: string
+          _accepted_privacy_version?: string
+          _accepted_terms_at?: string
+          _accepted_terms_version?: string
+          _access_code: string
+          _first_name: string
+          _interest_tags?: string[]
+          _job_title?: string
+          _last_name?: string
+          _privacy_level?: string
+        }
+        Returns: {
+          building_id: string
+          profile_id: string
+        }[]
+      }
       lookup_building_by_code: {
         Args: { _code: string }
         Returns: {
