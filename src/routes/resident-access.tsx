@@ -98,7 +98,7 @@ function ResidentAccessPage() {
             prefilled={Boolean(initialCode)}
           />
         )}
-        {view === "login" && <LoginView onBack={() => setView("choice")} />}
+        {view === "login" && <LoginView onBack={() => setView("choice")} invitationCode={initialCode} />}
       </div>
     </main>
   );
@@ -188,10 +188,28 @@ function normalizeCode(raw: string): string {
   return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
 }
 
-function getPendingResidentJoin(user: { user_metadata?: Record<string, unknown> } | null): ResidentJoinParams | null {
+function getMetadataFirstName(user: { user_metadata?: Record<string, unknown> } | null): string {
+  const metadata = user?.user_metadata ?? {};
+  const firstName = metadata.first_name;
+  if (typeof firstName === "string" && firstName.trim()) return firstName.trim();
+  const fullName = metadata.full_name ?? metadata.name;
+  if (typeof fullName === "string" && fullName.trim()) return fullName.trim().split(/\s+/)[0] ?? "";
+  return "";
+}
+
+function getPendingResidentJoin(
+  user: { user_metadata?: Record<string, unknown> } | null,
+  fallbackAccessCode?: string,
+): ResidentJoinParams | null {
   const metadata = user?.user_metadata ?? {};
   const pending = metadata.pending_resident_join;
-  if (!pending || typeof pending !== "object") return null;
+  if (!pending || typeof pending !== "object") {
+    const accessCode = fallbackAccessCode ? normalizeCode(fallbackAccessCode) : "";
+    const firstName = getMetadataFirstName(user);
+    return accessCode && firstName
+      ? { accessCode, firstName, interestTags: [] }
+      : null;
+  }
 
   const record = pending as Record<string, unknown>;
   const accessCode = typeof record.access_code === "string" ? normalizeCode(record.access_code) : "";
@@ -201,7 +219,13 @@ function getPendingResidentJoin(user: { user_metadata?: Record<string, unknown> 
     ? record.interest_tags.filter((tag): tag is string => typeof tag === "string")
     : [];
 
-  if (!accessCode || !firstName) return null;
+  if (!accessCode || !firstName) {
+    const fallbackCode = fallbackAccessCode ? normalizeCode(fallbackAccessCode) : "";
+    const fallbackName = getMetadataFirstName(user);
+    return fallbackCode && fallbackName
+      ? { accessCode: fallbackCode, firstName: fallbackName, interestTags: [] }
+      : null;
+  }
   return { accessCode, firstName, jobTitle: jobTitle || undefined, interestTags };
 }
 
@@ -222,8 +246,11 @@ async function joinBuildingProfile({ accessCode, firstName, jobTitle, interestTa
   return data as { profile_id: string; building_id: string };
 }
 
-async function completePendingResidentJoin(user: { user_metadata?: Record<string, unknown> } | null) {
-  const pendingJoin = getPendingResidentJoin(user);
+async function completePendingResidentJoin(
+  user: { user_metadata?: Record<string, unknown> } | null,
+  fallbackAccessCode?: string,
+) {
+  const pendingJoin = getPendingResidentJoin(user, fallbackAccessCode);
   if (!pendingJoin) return null;
   return joinBuildingProfile(pendingJoin);
 }
@@ -555,7 +582,7 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
 /* Login path                                                                 */
 /* -------------------------------------------------------------------------- */
 
-function LoginView({ onBack }: { onBack: () => void }) {
+function LoginView({ onBack, invitationCode }: { onBack: () => void; invitationCode?: string }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -594,7 +621,7 @@ function LoginView({ onBack }: { onBack: () => void }) {
     }
     if (!profile) {
       try {
-        const joined = await completePendingResidentJoin(data.user);
+        const joined = await completePendingResidentJoin(data.user, invitationCode);
         setBusy(false);
         if (joined) {
           navigate({
