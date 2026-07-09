@@ -119,6 +119,7 @@ export type Database = {
           playbook_cover_image_url: string | null
           primary_color: string | null
           published_at: string | null
+          published_version: number
           pwa_description: string | null
           pwa_install_prompt: string | null
           secondary_color: string | null
@@ -163,6 +164,7 @@ export type Database = {
           playbook_cover_image_url?: string | null
           primary_color?: string | null
           published_at?: string | null
+          published_version?: number
           pwa_description?: string | null
           pwa_install_prompt?: string | null
           secondary_color?: string | null
@@ -207,6 +209,7 @@ export type Database = {
           playbook_cover_image_url?: string | null
           primary_color?: string | null
           published_at?: string | null
+          published_version?: number
           pwa_description?: string | null
           pwa_install_prompt?: string | null
           secondary_color?: string | null
@@ -2115,6 +2118,10 @@ export type Database = {
         }[]
       }
       profile_visibility: { Args: { _profile_id: string }; Returns: string }
+      publish_building_branding: {
+        Args: { _building_id: string }
+        Returns: string
+      }
       regenerate_building_access_code: {
         Args: { _building_id: string }
         Returns: string
