@@ -269,10 +269,36 @@ function CodeView({
   const [building, setBuilding] = useState<Building | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const trimmedCode = code.trim().toUpperCase();
+  const codeIsComplete = /^[A-Z]{3}-[0-9]{3}$/.test(trimmedCode);
+
+  const verifyCode = async () => {
+    if (!codeIsComplete) {
+      setError("Enter your full 6-character code (e.g. ABC-123).");
+      return;
+    }
+    setChecking(true);
+    setError(null);
+    const { data, error: qErr } = await supabase
+      .rpc("lookup_building_by_code", { _code: trimmedCode })
+      .maybeSingle();
+    setChecking(false);
+    if (qErr) {
+      setError("Couldn't verify the code. Try again.");
+      setBuilding(null);
+      return;
+    }
+    if (!data) {
+      setError("This code didn't match any building.");
+      setBuilding(null);
+      return;
+    }
+    setBuilding(data as Building);
+  };
+
   // Live validation once the full AAA-NNN code is entered
   useEffect(() => {
-    const trimmed = code.trim().toUpperCase();
-    if (!/^[A-Z]{3}-[0-9]{3}$/.test(trimmed)) {
+    if (!codeIsComplete) {
       setBuilding(null);
       setError(null);
       return;
@@ -281,7 +307,7 @@ function CodeView({
     setChecking(true);
     setError(null);
     supabase
-      .rpc("lookup_building_by_code", { _code: trimmed })
+      .rpc("lookup_building_by_code", { _code: trimmedCode })
       .maybeSingle()
       .then(({ data, error: qErr }) => {
         if (cancelled) return;
@@ -301,7 +327,7 @@ function CodeView({
     return () => {
       cancelled = true;
     };
-  }, [code]);
+  }, [trimmedCode, codeIsComplete]);
 
   return (
     <div>
@@ -325,7 +351,11 @@ function CodeView({
         </p>
       </div>
 
-      <div
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!building) void verifyCode();
+        }}
         className={cn(
           "rounded-2xl border bg-card p-6 shadow-sm transition-all",
           prefilled
@@ -352,7 +382,17 @@ function CodeView({
           )}
           {!checking && error && <span className="text-destructive">{error}</span>}
         </div>
-      </div>
+
+        {!building && (
+          <Button
+            type="submit"
+            disabled={!codeIsComplete || checking}
+            className="mt-4 w-full h-11"
+          >
+            {checking ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue"}
+          </Button>
+        )}
+      </form>
 
       {/* Success banner + sliding profile card */}
       <div
@@ -385,6 +425,7 @@ function CodeView({
     </div>
   );
 }
+
 
 function ProfileCreationCard({ building, accessCode }: { building: Building; accessCode: string }) {
   const navigate = useNavigate();
