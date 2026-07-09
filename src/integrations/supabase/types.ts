@@ -2287,9 +2287,9 @@ export type Database = {
       join_building_as_resident: {
         Args: {
           _accepted_privacy_at?: string
-          _accepted_privacy_version?: string
+          _accepted_privacy_version?: number
           _accepted_terms_at?: string
-          _accepted_terms_version?: string
+          _accepted_terms_version?: number
           _access_code: string
           _first_name: string
           _interest_tags?: string[]
