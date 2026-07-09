@@ -275,7 +275,7 @@ function CodeView({
   );
 }
 
-function ProfileCreationCard({ building }: { building: Building }) {
+function ProfileCreationCard({ building, accessCode }: { building: Building; accessCode: string }) {
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
