@@ -70,16 +70,27 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   const load = async (bid: string | null) => {
     if (!bid) {
       setBranding(null);
+      setClientId(null);
+      setIndustry(null);
       applyEffective(null, previewDraft);
       return;
     }
-    const { data } = await (supabase as any)
-      .from("building_branding")
-      .select("*")
-      .eq("building_id", bid)
-      .maybeSingle();
-    const b = (data as BuildingBranding | null) ?? null;
+    const [{ data: brandingData }, { data: bldg }] = await Promise.all([
+      (supabase as any)
+        .from("building_branding")
+        .select("*")
+        .eq("building_id", bid)
+        .maybeSingle(),
+      (supabase as any)
+        .from("buildings")
+        .select("client_id, industry_type")
+        .eq("id", bid)
+        .maybeSingle(),
+    ]);
+    const b = (brandingData as BuildingBranding | null) ?? null;
     setBranding(b);
+    setClientId((bldg?.client_id as string | null) ?? null);
+    setIndustry((bldg?.industry_type as IndustryType | null) ?? null);
     applyEffective(b, previewDraft);
   };
 
