@@ -195,7 +195,21 @@ export function WhiteLabelStudio({
             >
               <Globe2 className="h-4 w-4" /> Open live preview
             </Button>
+            <Button
+              size="sm"
+              onClick={publishBrand}
+              disabled={publishing}
+              className="gap-1.5"
+            >
+              {publishing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Rocket className="h-4 w-4" />
+              )}
+              {publishedAt ? "Republish brand" : "Publish brand"}
+            </Button>
           </div>
+
         </div>
       </div>
 
