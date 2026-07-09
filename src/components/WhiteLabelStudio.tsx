@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import {
   Building2,
   Globe2,
+  Laptop,
   Loader2,
   Palette,
   Rocket,
