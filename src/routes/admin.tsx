@@ -278,16 +278,24 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link to="/admin/templates">
-                <LayoutTemplate className="h-4 w-4" /> Templates
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link to="/admin/legal">
-                <FileText className="h-4 w-4" /> Legal
-              </Link>
-            </Button>
+            <Link
+              to="/admin/clients"
+              className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}
+            >
+              <Users className="h-4 w-4" /> Clients
+            </Link>
+            <Link
+              to="/admin/templates"
+              className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}
+            >
+              <LayoutTemplate className="h-4 w-4" /> Templates
+            </Link>
+            <Link
+              to="/admin/legal"
+              className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}
+            >
+              <FileText className="h-4 w-4" /> Legal
+            </Link>
             <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
               <LogOut className="h-4 w-4" /> Sign out
             </Button>
