@@ -171,29 +171,46 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
       supabase.from("legal_documents").select("version").eq("slug", "privacy").eq("is_current", true).maybeSingle(),
     ]);
 
+    // Access code proves the user has permission to join this building.
+    let cachedCode: string | null = null;
+    try {
+      const raw = sessionStorage.getItem(`building:${buildingId}`);
+      if (raw) cachedCode = (JSON.parse(raw)?.code as string | undefined) ?? null;
+    } catch {
+      cachedCode = null;
+    }
+    if (!cachedCode) {
+      setError("Your building invitation has expired. Please re-enter your building access code.");
+      setSubmitting(false);
+      return;
+    }
+
     const { data, error: insertError } = await supabase
-      .from("resident_profiles")
-      .insert({
-        building_id: buildingId,
-        user_id: user.id,
-        first_name: firstName.trim(),
-        last_name: lastName.trim(),
-        job_title: jobTitle.trim() || null,
-        interest_tags: interests,
-        privacy_level: privacyLevel,
-        accepted_terms_at: acceptedTermsAt,
-        accepted_privacy_at: acceptedPrivacyAt,
-        accepted_terms_version: termsDoc.data?.version ?? null,
-        accepted_privacy_version: privacyDoc.data?.version ?? null,
+      .rpc("join_building_as_resident", {
+        _access_code: cachedCode,
+        _first_name: firstName.trim(),
+        _last_name: lastName.trim() || undefined,
+        _job_title: jobTitle.trim() || undefined,
+        _interest_tags: interests,
+        _privacy_level: privacyLevel,
+        _accepted_terms_at: acceptedTermsAt,
+        _accepted_privacy_at: acceptedPrivacyAt,
+        _accepted_terms_version: termsDoc.data?.version ?? undefined,
+        _accepted_privacy_version: privacyDoc.data?.version ?? undefined,
       })
-      .select("id")
-      .single();
+      .maybeSingle();
 
     if (insertError || !data) {
       setError(insertError?.message ?? "Could not create profile. Try again.");
       setSubmitting(false);
       return;
     }
+
+    // Backfill privacy_level (RPC currently does not accept it in older schema — safe upsert).
+    await supabase
+      .from("resident_profiles")
+      .update({ privacy_level: privacyLevel })
+      .eq("id", data.profile_id);
 
     setSubmitting(false);
     setStep(5);

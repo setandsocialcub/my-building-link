@@ -266,7 +266,7 @@ function CodeView({
                   <span className="text-muted-foreground">.</span>
                 </p>
               </div>
-              <ProfileCreationCard building={building} />
+              <ProfileCreationCard building={building} accessCode={code} />
             </>
           )}
         </div>
@@ -275,7 +275,7 @@ function CodeView({
   );
 }
 
-function ProfileCreationCard({ building }: { building: Building }) {
+function ProfileCreationCard({ building, accessCode }: { building: Building; accessCode: string }) {
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
@@ -328,12 +328,11 @@ function ProfileCreationCard({ building }: { building: Building }) {
       return;
     }
 
-    const { error: insErr } = await supabase.from("resident_profiles").insert({
-      user_id: userId,
-      building_id: building.id,
-      first_name: firstName.trim(),
-      job_title: jobTitle.trim() || null,
-      interest_tags: interests,
+    const { error: insErr } = await supabase.rpc("join_building_as_resident", {
+      _access_code: accessCode,
+      _first_name: firstName.trim(),
+      _job_title: jobTitle.trim() || undefined,
+      _interest_tags: interests,
     });
 
     setBusy(false);
