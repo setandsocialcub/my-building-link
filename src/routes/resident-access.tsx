@@ -631,6 +631,10 @@ function LoginView({ onBack, invitationCode }: { onBack: () => void; invitationC
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const googleRedirectTo =
+    typeof window !== "undefined" && invitationCode
+      ? `${window.location.origin}/resident-access?code=${encodeURIComponent(invitationCode)}`
+      : undefined;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -709,7 +713,7 @@ function LoginView({ onBack, invitationCode }: { onBack: () => void; invitationC
         onSubmit={onSubmit}
         className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
       >
-        <GoogleSignInButton />
+        <GoogleSignInButton redirectTo={googleRedirectTo} />
         <AuthDivider />
         <div className="space-y-1.5">
           <Label htmlFor="login-email">Email</Label>
