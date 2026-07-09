@@ -153,6 +153,8 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       value={{
         branding,
         buildingId,
+        clientId,
+        industry,
         refresh,
         previewing: !!previewDraft,
         setPreviewDraft,
