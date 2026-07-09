@@ -76,6 +76,7 @@ export function WhiteLabelStudio({
   const [buildingName, setBuildingName] = useState("");
   const [customDomain, setCustomDomain] = useState<string | null>(null);
   const [publishedAt, setPublishedAt] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
