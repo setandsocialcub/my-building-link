@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import {
   Building2,
   Globe2,
+  Laptop,
   Loader2,
   Palette,
   Rocket,
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/tabs";
 
 import { BrandingEditor } from "@/components/BrandingEditor";
+import { BrandSimulator } from "@/components/BrandSimulator";
 import { useBranding } from "@/components/BrandingProvider";
 import {
   COMMUNITY_VOICES,
@@ -325,6 +327,9 @@ export function WhiteLabelStudio({
           <TabsTrigger value="emails">Emails</TabsTrigger>
           <TabsTrigger value="legal">Legal</TabsTrigger>
           <TabsTrigger value="domain">Domain</TabsTrigger>
+          <TabsTrigger value="simulator" className="gap-1.5">
+            <Laptop className="h-3.5 w-3.5" /> Simulator
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="identity" className="mt-6">
@@ -350,6 +355,9 @@ export function WhiteLabelStudio({
         </TabsContent>
         <TabsContent value="domain" className="mt-6">
           <DomainPanel customDomain={customDomain} />
+        </TabsContent>
+        <TabsContent value="simulator" className="mt-6">
+          <BrandSimulator buildingId={buildingId} role={role} />
         </TabsContent>
       </Tabs>
     </div>
