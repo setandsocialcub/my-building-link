@@ -76,6 +76,7 @@ export function WhiteLabelStudio({
   const [buildingName, setBuildingName] = useState("");
   const [customDomain, setCustomDomain] = useState<string | null>(null);
   const [publishedAt, setPublishedAt] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -157,6 +158,95 @@ export function WhiteLabelStudio({
     }
   };
 
+  /**
+   * Publish Brand — flips this building's branding from draft to live and
+   * cascades the change across every branded surface:
+   *  - Stamps `published_at` + bumps `published_version` server-side.
+   *  - Cache-busts the PWA manifest <link> so iOS/Android pick up the new
+   *    name / icon / theme color the next time the page is opened.
+   *  - Cache-busts the favicon <link> so the browser tab reflects new icons.
+   *  - Broadcasts `branding:changed` so BrandingProvider, login screen,
+   *    email preview, and the live simulator refetch immediately.
+   *  - Best-effort clears service worker caches so the app shell picks up
+   *    the new theme without a hard reload.
+   *  - Refreshes the BrandingProvider so admin UI reflects the new state.
+   */
+  const publishBrand = async () => {
+    setPublishing(true);
+    try {
+      const { data, error } = await (supabase as any).rpc("publish_building_branding", {
+        _building_id: buildingId,
+      });
+      if (error) throw error;
+      const ts = (data as string | null) ?? new Date().toISOString();
+      setPublishedAt(ts);
+
+      if (typeof window !== "undefined") {
+        const v = Date.now();
+
+        // 1) Rebind PWA manifest so installed shells re-read name/icons/theme
+        const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+        if (manifest) {
+          const url = new URL(
+            `/api/public/manifest/${buildingId}`,
+            window.location.origin,
+          );
+          url.searchParams.set("v", String(v));
+          manifest.href = url.toString();
+        }
+
+        // 2) Cache-bust favicon + apple-touch-icon
+        document
+          .querySelectorAll<HTMLLinkElement>('link[rel~="icon"], link[rel="apple-touch-icon"]')
+          .forEach((l) => {
+            try {
+              const u = new URL(l.href, window.location.origin);
+              u.searchParams.set("v", String(v));
+              l.href = u.toString();
+            } catch {
+              /* ignore */
+            }
+          });
+
+        // 3) Broadcast so every subscriber (login screen, simulator iframe,
+        //    email preview, BrandingProvider) refetches its copy.
+        window.dispatchEvent(
+          new CustomEvent("branding:changed", {
+            detail: { buildingId, publishedAt: ts, version: v },
+          }),
+        );
+
+        // 4) Best-effort clear any service worker caches so the app shell
+        //    reflects new theme/colors on next navigation. Safe no-op when
+        //    no SW is registered.
+        if ("caches" in window) {
+          try {
+            const keys = await caches.keys();
+            await Promise.allSettled(keys.map((k) => caches.delete(k)));
+          } catch {
+            /* ignore */
+          }
+        }
+        if ("serviceWorker" in navigator) {
+          try {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.allSettled(regs.map((r) => r.update()));
+          } catch {
+            /* ignore */
+          }
+        }
+      }
+
+      void refresh();
+      toast.success("Brand published. Residents will see updates on next open.");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not publish brand");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground py-8">
@@ -195,7 +285,21 @@ export function WhiteLabelStudio({
             >
               <Globe2 className="h-4 w-4" /> Open live preview
             </Button>
+            <Button
+              size="sm"
+              onClick={publishBrand}
+              disabled={publishing}
+              className="gap-1.5"
+            >
+              {publishing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Rocket className="h-4 w-4" />
+              )}
+              {publishedAt ? "Republish brand" : "Publish brand"}
+            </Button>
           </div>
+
         </div>
       </div>
 
