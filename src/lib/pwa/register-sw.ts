@@ -49,10 +49,37 @@ async function unregisterMatching() {
   }
 }
 
+async function clearAppCaches() {
+  try {
+    if (!("caches" in window)) return;
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => caches.delete(key)));
+  } catch {
+    // ignore
+  }
+}
+
+async function cleanRefusedContext() {
+  await Promise.all([unregisterMatching(), clearAppCaches()]);
+
+  // If an old app-shell worker controlled this preview load, one automatic
+  // reload swaps the page back to the network bundle without asking users for
+  // a hard refresh. Guarded to avoid loops.
+  try {
+    const key = "oonah-sw-preview-cleaned";
+    if (navigator.serviceWorker.controller && sessionStorage.getItem(key) !== "1") {
+      sessionStorage.setItem(key, "1");
+      window.location.reload();
+    }
+  } catch {
+    // ignore
+  }
+}
+
 export function registerServiceWorker() {
   if (isRefusedContext()) {
     if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
-      void unregisterMatching();
+      void cleanRefusedContext();
     }
     return;
   }

@@ -30,6 +30,7 @@ import { Route as CommunityStandardsRouteImport } from './routes/community-stand
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PulseBuildingIdRouteImport } from './routes/pulse.$buildingId'
 import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$buildingId'
 import { Route as MessagesConnectionIdRouteImport } from './routes/messages.$connectionId'
@@ -39,6 +40,7 @@ import { Route as BuildingBuildingIdRouteImport } from './routes/building.$build
 import { Route as AdminTemplatesRouteImport } from './routes/admin.templates'
 import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
+import { Route as ManagerBuildingIdIndexRouteImport } from './routes/manager.$buildingId.index'
 import { Route as ManagerBuildingIdCommunityVoiceRouteImport } from './routes/manager.$buildingId.community-voice'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
 import { Route as AdminBuildingsBuildingIdRouteImport } from './routes/admin.buildings.$buildingId'
@@ -161,6 +163,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const PulseBuildingIdRoute = PulseBuildingIdRouteImport.update({
   id: '/pulse/$buildingId',
   path: '/pulse/$buildingId',
@@ -205,6 +212,11 @@ const AdminClientsRoute = AdminClientsRouteImport.update({
   id: '/clients',
   path: '/clients',
   getParentRoute: () => AdminRoute,
+} as any)
+const ManagerBuildingIdIndexRoute = ManagerBuildingIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ManagerBuildingIdRoute,
 } as any)
 const ManagerBuildingIdCommunityVoiceRoute =
   ManagerBuildingIdCommunityVoiceRouteImport.update({
@@ -334,9 +346,11 @@ export interface FileRoutesByFullPath {
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
+  '/manager/$buildingId/': typeof ManagerBuildingIdIndexRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
@@ -353,7 +367,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
   '/announcements': typeof AnnouncementsRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/community-voice': typeof CommunityVoiceRoute
@@ -378,12 +391,13 @@ export interface FileRoutesByTo {
   '/admin/templates': typeof AdminTemplatesRoute
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
-  '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin': typeof AdminIndexRoute
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
+  '/manager/$buildingId': typeof ManagerBuildingIdIndexRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
@@ -430,9 +444,11 @@ export interface FileRoutesById {
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin/buildings/$buildingId': typeof AdminBuildingsBuildingIdRouteWithChildren
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
+  '/manager/$buildingId/': typeof ManagerBuildingIdIndexRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
   '/admin/buildings/$buildingId/branding': typeof AdminBuildingsBuildingIdBrandingRoute
   '/admin/buildings/$buildingId/danger': typeof AdminBuildingsBuildingIdDangerRoute
@@ -480,9 +496,11 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin/'
     | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
     | '/manager/$buildingId/community-voice'
+    | '/manager/$buildingId/'
     | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/danger'
@@ -499,7 +517,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/announcements'
     | '/community-standards'
     | '/community-voice'
@@ -524,12 +541,13 @@ export interface FileRouteTypes {
     | '/admin/templates'
     | '/building/$buildingId'
     | '/forum/$threadId'
-    | '/manager/$buildingId'
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin'
     | '/manager/$buildingId/branding'
     | '/manager/$buildingId/community-voice'
+    | '/manager/$buildingId'
     | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/danger'
@@ -575,9 +593,11 @@ export interface FileRouteTypes {
     | '/messages/$connectionId'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
+    | '/admin/'
     | '/admin/buildings/$buildingId'
     | '/manager/$buildingId/branding'
     | '/manager/$buildingId/community-voice'
+    | '/manager/$buildingId/'
     | '/admin/buildings/$buildingId/analytics'
     | '/admin/buildings/$buildingId/branding'
     | '/admin/buildings/$buildingId/danger'
@@ -770,6 +790,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/pulse/$buildingId': {
       id: '/pulse/$buildingId'
       path: '/pulse/$buildingId'
@@ -832,6 +859,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/clients'
       preLoaderRoute: typeof AdminClientsRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/manager/$buildingId/': {
+      id: '/manager/$buildingId/'
+      path: '/'
+      fullPath: '/manager/$buildingId/'
+      preLoaderRoute: typeof ManagerBuildingIdIndexRouteImport
+      parentRoute: typeof ManagerBuildingIdRoute
     }
     '/manager/$buildingId/community-voice': {
       id: '/manager/$buildingId/community-voice'
@@ -995,6 +1029,7 @@ interface AdminRouteChildren {
   AdminClientsRoute: typeof AdminClientsRoute
   AdminLegalRoute: typeof AdminLegalRoute
   AdminTemplatesRoute: typeof AdminTemplatesRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AdminBuildingsBuildingIdRoute: typeof AdminBuildingsBuildingIdRouteWithChildren
 }
 
@@ -1002,6 +1037,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminClientsRoute: AdminClientsRoute,
   AdminLegalRoute: AdminLegalRoute,
   AdminTemplatesRoute: AdminTemplatesRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AdminBuildingsBuildingIdRoute: AdminBuildingsBuildingIdRouteWithChildren,
 }
 
@@ -1020,11 +1056,13 @@ const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
 interface ManagerBuildingIdRouteChildren {
   ManagerBuildingIdBrandingRoute: typeof ManagerBuildingIdBrandingRoute
   ManagerBuildingIdCommunityVoiceRoute: typeof ManagerBuildingIdCommunityVoiceRoute
+  ManagerBuildingIdIndexRoute: typeof ManagerBuildingIdIndexRoute
 }
 
 const ManagerBuildingIdRouteChildren: ManagerBuildingIdRouteChildren = {
   ManagerBuildingIdBrandingRoute: ManagerBuildingIdBrandingRoute,
   ManagerBuildingIdCommunityVoiceRoute: ManagerBuildingIdCommunityVoiceRoute,
+  ManagerBuildingIdIndexRoute: ManagerBuildingIdIndexRoute,
 }
 
 const ManagerBuildingIdRouteWithChildren =
@@ -1083,3 +1121,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
