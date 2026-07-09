@@ -23,6 +23,8 @@ type Ctx = {
 const BrandingContext = createContext<Ctx>({
   branding: null,
   buildingId: null,
+  clientId: null,
+  industry: null,
   refresh: async () => {},
   previewing: false,
   setPreviewDraft: () => {},
