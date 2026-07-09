@@ -869,6 +869,50 @@ export type Database = {
           },
         ]
       }
+      community_voice_escalation_config: {
+        Row: {
+          building_id: string
+          created_at: string
+          enabled: boolean
+          high_minutes: number
+          low_minutes: number
+          max_escalations: number
+          medium_minutes: number
+          updated_at: string
+          urgent_minutes: number
+        }
+        Insert: {
+          building_id: string
+          created_at?: string
+          enabled?: boolean
+          high_minutes?: number
+          low_minutes?: number
+          max_escalations?: number
+          medium_minutes?: number
+          updated_at?: string
+          urgent_minutes?: number
+        }
+        Update: {
+          building_id?: string
+          created_at?: string
+          enabled?: boolean
+          high_minutes?: number
+          low_minutes?: number
+          max_escalations?: number
+          medium_minutes?: number
+          updated_at?: string
+          urgent_minutes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_voice_escalation_config_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: true
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_voice_submissions: {
         Row: {
           assigned_manager_id: string | null
@@ -877,12 +921,16 @@ export type Database = {
           category: string | null
           created_at: string
           description: string
+          escalation_level: number
           first_viewed_at: string | null
           id: string
           is_anonymous: boolean
+          last_escalated_at: string | null
           priority: Database["public"]["Enums"]["community_voice_priority"]
           recognized_staff_name: string | null
           resolved_at: string | null
+          sentiment: string | null
+          sentiment_score: number | null
           status: Database["public"]["Enums"]["community_voice_status"]
           subject: string
           submission_type: Database["public"]["Enums"]["community_voice_type"]
@@ -896,12 +944,16 @@ export type Database = {
           category?: string | null
           created_at?: string
           description: string
+          escalation_level?: number
           first_viewed_at?: string | null
           id?: string
           is_anonymous?: boolean
+          last_escalated_at?: string | null
           priority?: Database["public"]["Enums"]["community_voice_priority"]
           recognized_staff_name?: string | null
           resolved_at?: string | null
+          sentiment?: string | null
+          sentiment_score?: number | null
           status?: Database["public"]["Enums"]["community_voice_status"]
           subject: string
           submission_type: Database["public"]["Enums"]["community_voice_type"]
@@ -915,12 +967,16 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string
+          escalation_level?: number
           first_viewed_at?: string | null
           id?: string
           is_anonymous?: boolean
+          last_escalated_at?: string | null
           priority?: Database["public"]["Enums"]["community_voice_priority"]
           recognized_staff_name?: string | null
           resolved_at?: string | null
+          sentiment?: string | null
+          sentiment_score?: number | null
           status?: Database["public"]["Enums"]["community_voice_status"]
           subject?: string
           submission_type?: Database["public"]["Enums"]["community_voice_type"]
@@ -2189,6 +2245,7 @@ export type Database = {
       channel_building: { Args: { _channel_id: string }; Returns: string }
       claim_manager_code: { Args: { _code: string }; Returns: string }
       current_resident_id: { Args: { _building_id: string }; Returns: string }
+      escalate_stale_voice_submissions: { Args: never; Returns: number }
       generate_building_access_code: { Args: never; Returns: string }
       generate_community_id: { Args: never; Returns: string }
       generate_manager_access_code: { Args: never; Returns: string }
