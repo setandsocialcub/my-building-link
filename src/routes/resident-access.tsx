@@ -393,8 +393,19 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
   const [interests, setInterests] = useState<string[]>([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled) setSignedInEmail(data.user?.email ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const toggle = (tag: string) =>
     setInterests((prev) =>
@@ -405,10 +416,6 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
     e.preventDefault();
     setError(null);
     if (!firstName.trim()) return setError("Please enter your first name.");
-    const emailErr = validateEmail(email);
-    if (emailErr) return setError(emailErr);
-    const pwErr = validatePassword(password, "signup");
-    if (pwErr) return setError(pwErr);
 
     setBusy(true);
 
@@ -432,6 +439,17 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
       return;
     }
 
+    const emailErr = validateEmail(email);
+    if (emailErr) {
+      setBusy(false);
+      return setError(emailErr);
+    }
+    const pwErr = validatePassword(password, "signup");
+    if (pwErr) {
+      setBusy(false);
+      return setError(pwErr);
+    }
+
     const emailRedirect = new URL("/resident-access", window.location.origin);
     emailRedirect.searchParams.set("code", accessCode);
 
@@ -453,6 +471,23 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
     });
 
     if (signUpErr) {
+      if (/already registered|user already exists|already been registered/i.test(signUpErr.message)) {
+        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (!signInErr && signInData.user) {
+          try {
+            const joined = await joinBuildingProfile(joinParams);
+            setBusy(false);
+            navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+          } catch (joinErr) {
+            setBusy(false);
+            setError(joinErr instanceof Error ? joinErr.message : "Could not create your resident profile. Please try again.");
+          }
+          return;
+        }
+      }
       setBusy(false);
       setError(friendlyAuthError(signUpErr, "signup"));
       return;
@@ -540,30 +575,38 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
 
       <div className="h-px bg-border" />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="signup-email">Email</Label>
-        <Input
-          id="signup-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-          required
-        />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="signup-password">Password</Label>
-        <Input
-          id="signup-password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={8}
-          autoComplete="new-password"
-          required
-        />
-        <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-      </div>
+      {signedInEmail ? (
+        <p className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+          Signed in as <span className="font-medium text-foreground">{signedInEmail}</span>. We&apos;ll connect this account to the building.
+        </p>
+      ) : (
+        <>
+          <div className="space-y-1.5">
+            <Label htmlFor="signup-email">Email</Label>
+            <Input
+              id="signup-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="signup-password">Password</Label>
+            <Input
+              id="signup-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+              autoComplete="new-password"
+              required
+            />
+            <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+          </div>
+        </>
+      )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
