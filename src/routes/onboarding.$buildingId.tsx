@@ -195,8 +195,8 @@ function OnboardingPage({ buildingId, user }: { buildingId: string; user: User }
         _privacy_level: privacyLevel,
         _accepted_terms_at: acceptedTermsAt,
         _accepted_privacy_at: acceptedPrivacyAt,
-        _accepted_terms_version: termsDoc.data?.version != null ? String(termsDoc.data.version) : undefined,
-        _accepted_privacy_version: privacyDoc.data?.version != null ? String(privacyDoc.data.version) : undefined,
+        _accepted_terms_version: termsDoc.data?.version ?? undefined,
+        _accepted_privacy_version: privacyDoc.data?.version ?? undefined,
       })
       .maybeSingle();
 
