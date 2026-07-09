@@ -137,11 +137,57 @@ const INTEREST_TAGS = [
 ] as const;
 
 type Building = { id: string; name: string; city: string };
+type ResidentJoinParams = {
+  accessCode: string;
+  firstName: string;
+  jobTitle?: string;
+  interestTags: string[];
+};
 
 function normalizeCode(raw: string): string {
   const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
   if (cleaned.length <= 3) return cleaned;
   return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+}
+
+function getPendingResidentJoin(user: { user_metadata?: Record<string, unknown> } | null): ResidentJoinParams | null {
+  const metadata = user?.user_metadata ?? {};
+  const pending = metadata.pending_resident_join;
+  if (!pending || typeof pending !== "object") return null;
+
+  const record = pending as Record<string, unknown>;
+  const accessCode = typeof record.access_code === "string" ? normalizeCode(record.access_code) : "";
+  const firstName = typeof record.first_name === "string" ? record.first_name.trim() : "";
+  const jobTitle = typeof record.job_title === "string" ? record.job_title.trim() : "";
+  const interestTags = Array.isArray(record.interest_tags)
+    ? record.interest_tags.filter((tag): tag is string => typeof tag === "string")
+    : [];
+
+  if (!accessCode || !firstName) return null;
+  return { accessCode, firstName, jobTitle: jobTitle || undefined, interestTags };
+}
+
+async function joinBuildingProfile({ accessCode, firstName, jobTitle, interestTags }: ResidentJoinParams) {
+  const { data, error } = await supabase
+    .rpc("join_building_as_resident", {
+      _access_code: accessCode,
+      _first_name: firstName,
+      _job_title: jobTitle,
+      _interest_tags: interestTags,
+    })
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Could not create your resident profile. Please try again.");
+  }
+
+  return data as { profile_id: string; building_id: string };
+}
+
+async function completePendingResidentJoin(user: { user_metadata?: Record<string, unknown> } | null) {
+  const pendingJoin = getPendingResidentJoin(user);
+  if (!pendingJoin) return null;
+  return joinBuildingProfile(pendingJoin);
 }
 
 function CodeView({
@@ -300,12 +346,44 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
     if (pwErr) return setError(pwErr);
 
     setBusy(true);
+
+    const joinParams: ResidentJoinParams = {
+      accessCode,
+      firstName: firstName.trim(),
+      jobTitle: jobTitle.trim() || undefined,
+      interestTags: interests,
+    };
+
+    const { data: existingAuth } = await supabase.auth.getUser();
+    if (existingAuth.user) {
+      try {
+        const joined = await joinBuildingProfile(joinParams);
+        setBusy(false);
+        navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+      } catch (joinErr) {
+        setBusy(false);
+        setError(joinErr instanceof Error ? joinErr.message : "Could not create your resident profile. Please try again.");
+      }
+      return;
+    }
+
+    const emailRedirect = new URL("/resident-access", window.location.origin);
+    emailRedirect.searchParams.set("code", accessCode);
+
     const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/building/${building.id}`,
-        data: { first_name: firstName.trim() },
+        emailRedirectTo: emailRedirect.toString(),
+        data: {
+          first_name: firstName.trim(),
+          pending_resident_join: {
+            access_code: accessCode,
+            first_name: firstName.trim(),
+            job_title: jobTitle.trim() || undefined,
+            interest_tags: interests,
+          },
+        },
       },
     });
 
@@ -315,33 +393,23 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
       return;
     }
 
-    // Ensure we have a session before inserting (auto-confirm is on).
-    let userId = signUpData.user?.id;
-    if (!userId) {
-      const { data: u } = await supabase.auth.getUser();
-      userId = u.user?.id;
-    }
-    if (!userId) {
-      // Account created but needs email confirmation.
+    // If email confirmation is required, the profile is created after their first sign-in.
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!signUpData.user || !sessionData.session) {
       setBusy(false);
-      setError("Check your email to confirm your account, then sign in.");
+      setError("Check your email to confirm your account, then sign in. Your building invite will be ready to finish automatically.");
       return;
     }
 
-    const { error: insErr } = await supabase.rpc("join_building_as_resident", {
-      _access_code: accessCode,
-      _first_name: firstName.trim(),
-      _job_title: jobTitle.trim() || undefined,
-      _interest_tags: interests,
-    });
-
-    setBusy(false);
-    if (insErr) {
-      setError(insErr.message);
+    try {
+      const joined = await joinBuildingProfile(joinParams);
+      setBusy(false);
+      navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+    } catch (joinErr) {
+      setBusy(false);
+      setError(joinErr instanceof Error ? joinErr.message : "Could not create your resident profile. Please try again.");
       return;
     }
-
-    navigate({ to: "/building/$buildingId", params: { buildingId: building.id } });
   };
 
   return (
@@ -487,7 +555,22 @@ function LoginView({ onBack }: { onBack: () => void }) {
       return;
     }
     if (!profile) {
-      setError("This account isn't linked to a building yet. Ask your property manager for an invitation code.");
+      try {
+        const joined = await completePendingResidentJoin(data.user);
+        setBusy(false);
+        if (joined) {
+          navigate({
+            to: "/building/$buildingId",
+            params: { buildingId: joined.building_id },
+          });
+          return;
+        }
+      } catch (joinErr) {
+        setBusy(false);
+        setError(joinErr instanceof Error ? joinErr.message : "Could not finish joining your building. Please re-enter your invitation code.");
+        return;
+      }
+      setError("Enter your invitation code to finish joining your building.");
       return;
     }
     navigate({
