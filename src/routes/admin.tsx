@@ -448,27 +448,27 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                           Manager
                         </Button>
                       )}
-                      <Button asChild size="sm" variant="outline" className="gap-1.5">
-                        <Link to="/pulse/$buildingId" params={{ buildingId: b.id }}>
-                          <Activity className="h-3.5 w-3.5" /> Pulse
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm" variant="outline" className="gap-1.5">
-                        <Link
-                          to="/admin/buildings/$buildingId/branding"
-                          params={{ buildingId: b.id }}
-                        >
-                          <Sparkles className="h-3.5 w-3.5" /> Branding
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm" variant="outline" className="gap-1.5">
-                        <Link
-                          to="/admin/buildings/$buildingId/settings"
-                          params={{ buildingId: b.id }}
-                        >
-                          <Settings className="h-3.5 w-3.5" /> Settings
-                        </Link>
-                      </Button>
+                      <Link
+                        to="/pulse/$buildingId"
+                        params={{ buildingId: b.id }}
+                        className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-1.5"}
+                      >
+                        <Activity className="h-3.5 w-3.5" /> Pulse
+                      </Link>
+                      <Link
+                        to="/admin/buildings/$buildingId/branding"
+                        params={{ buildingId: b.id }}
+                        className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-1.5"}
+                      >
+                        <Sparkles className="h-3.5 w-3.5" /> Branding
+                      </Link>
+                      <Link
+                        to="/admin/buildings/$buildingId/settings"
+                        params={{ buildingId: b.id }}
+                        className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-1.5"}
+                      >
+                        <Settings className="h-3.5 w-3.5" /> Settings
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))
