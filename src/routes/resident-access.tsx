@@ -41,6 +41,44 @@ function ResidentAccessPage() {
   const { code: codeFromUrl } = Route.useSearch();
   const initialCode = (codeFromUrl ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 7);
   const [view, setView] = useState<View>(initialCode ? "code" : "choice");
+  const [resuming, setResuming] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+
+      const pendingJoin = getPendingResidentJoin(data.user);
+      if (!pendingJoin) return;
+
+      setResuming(true);
+      try {
+        const joined = await joinBuildingProfile(pendingJoin);
+        if (!cancelled) {
+          navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+        }
+      } catch {
+        if (!cancelled) setResuming(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  if (resuming) {
+    return (
+      <main className="min-h-screen grid place-items-center bg-gradient-to-br from-background via-background to-muted px-4 py-12 text-muted-foreground">
+        <span className="inline-flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" /> Finishing your building access…
+        </span>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center px-4 py-12">
@@ -60,7 +98,7 @@ function ResidentAccessPage() {
             prefilled={Boolean(initialCode)}
           />
         )}
-        {view === "login" && <LoginView onBack={() => setView("choice")} />}
+        {view === "login" && <LoginView onBack={() => setView("choice")} invitationCode={initialCode} />}
       </div>
     </main>
   );
@@ -137,11 +175,84 @@ const INTEREST_TAGS = [
 ] as const;
 
 type Building = { id: string; name: string; city: string };
+type ResidentJoinParams = {
+  accessCode: string;
+  firstName: string;
+  jobTitle?: string;
+  interestTags: string[];
+};
 
 function normalizeCode(raw: string): string {
   const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
   if (cleaned.length <= 3) return cleaned;
   return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+}
+
+function getMetadataFirstName(user: { user_metadata?: Record<string, unknown> } | null): string {
+  const metadata = user?.user_metadata ?? {};
+  const firstName = metadata.first_name;
+  if (typeof firstName === "string" && firstName.trim()) return firstName.trim();
+  const fullName = metadata.full_name ?? metadata.name;
+  if (typeof fullName === "string" && fullName.trim()) return fullName.trim().split(/\s+/)[0] ?? "";
+  return "";
+}
+
+function getPendingResidentJoin(
+  user: { user_metadata?: Record<string, unknown> } | null,
+  fallbackAccessCode?: string,
+): ResidentJoinParams | null {
+  const metadata = user?.user_metadata ?? {};
+  const pending = metadata.pending_resident_join;
+  if (!pending || typeof pending !== "object") {
+    const accessCode = fallbackAccessCode ? normalizeCode(fallbackAccessCode) : "";
+    const firstName = getMetadataFirstName(user);
+    return accessCode && firstName
+      ? { accessCode, firstName, interestTags: [] }
+      : null;
+  }
+
+  const record = pending as Record<string, unknown>;
+  const accessCode = typeof record.access_code === "string" ? normalizeCode(record.access_code) : "";
+  const firstName = typeof record.first_name === "string" ? record.first_name.trim() : "";
+  const jobTitle = typeof record.job_title === "string" ? record.job_title.trim() : "";
+  const interestTags = Array.isArray(record.interest_tags)
+    ? record.interest_tags.filter((tag): tag is string => typeof tag === "string")
+    : [];
+
+  if (!accessCode || !firstName) {
+    const fallbackCode = fallbackAccessCode ? normalizeCode(fallbackAccessCode) : "";
+    const fallbackName = getMetadataFirstName(user);
+    return fallbackCode && fallbackName
+      ? { accessCode: fallbackCode, firstName: fallbackName, interestTags: [] }
+      : null;
+  }
+  return { accessCode, firstName, jobTitle: jobTitle || undefined, interestTags };
+}
+
+async function joinBuildingProfile({ accessCode, firstName, jobTitle, interestTags }: ResidentJoinParams) {
+  const { data, error } = await supabase
+    .rpc("join_building_as_resident", {
+      _access_code: accessCode,
+      _first_name: firstName,
+      _job_title: jobTitle,
+      _interest_tags: interestTags,
+    })
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Could not create your resident profile. Please try again.");
+  }
+
+  return data as { profile_id: string; building_id: string };
+}
+
+async function completePendingResidentJoin(
+  user: { user_metadata?: Record<string, unknown> } | null,
+  fallbackAccessCode?: string,
+) {
+  const pendingJoin = getPendingResidentJoin(user, fallbackAccessCode);
+  if (!pendingJoin) return null;
+  return joinBuildingProfile(pendingJoin);
 }
 
 function CodeView({
@@ -282,8 +393,19 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
   const [interests, setInterests] = useState<string[]>([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled) setSignedInEmail(data.user?.email ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const toggle = (tag: string) =>
     setInterests((prev) =>
@@ -294,54 +416,100 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
     e.preventDefault();
     setError(null);
     if (!firstName.trim()) return setError("Please enter your first name.");
-    const emailErr = validateEmail(email);
-    if (emailErr) return setError(emailErr);
-    const pwErr = validatePassword(password, "signup");
-    if (pwErr) return setError(pwErr);
 
     setBusy(true);
+
+    const joinParams: ResidentJoinParams = {
+      accessCode,
+      firstName: firstName.trim(),
+      jobTitle: jobTitle.trim() || undefined,
+      interestTags: interests,
+    };
+
+    const { data: existingAuth } = await supabase.auth.getUser();
+    if (existingAuth.user) {
+      try {
+        const joined = await joinBuildingProfile(joinParams);
+        setBusy(false);
+        navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+      } catch (joinErr) {
+        setBusy(false);
+        setError(joinErr instanceof Error ? joinErr.message : "Could not create your resident profile. Please try again.");
+      }
+      return;
+    }
+
+    const emailErr = validateEmail(email);
+    if (emailErr) {
+      setBusy(false);
+      return setError(emailErr);
+    }
+    const pwErr = validatePassword(password, "signup");
+    if (pwErr) {
+      setBusy(false);
+      return setError(pwErr);
+    }
+
+    const emailRedirect = new URL("/resident-access", window.location.origin);
+    emailRedirect.searchParams.set("code", accessCode);
+
     const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/building/${building.id}`,
-        data: { first_name: firstName.trim() },
+        emailRedirectTo: emailRedirect.toString(),
+        data: {
+          first_name: firstName.trim(),
+          pending_resident_join: {
+            access_code: accessCode,
+            first_name: firstName.trim(),
+            job_title: jobTitle.trim() || undefined,
+            interest_tags: interests,
+          },
+        },
       },
     });
 
     if (signUpErr) {
+      if (/already registered|user already exists|already been registered/i.test(signUpErr.message)) {
+        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (!signInErr && signInData.user) {
+          try {
+            const joined = await joinBuildingProfile(joinParams);
+            setBusy(false);
+            navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+          } catch (joinErr) {
+            setBusy(false);
+            setError(joinErr instanceof Error ? joinErr.message : "Could not create your resident profile. Please try again.");
+          }
+          return;
+        }
+      }
       setBusy(false);
       setError(friendlyAuthError(signUpErr, "signup"));
       return;
     }
 
-    // Ensure we have a session before inserting (auto-confirm is on).
-    let userId = signUpData.user?.id;
-    if (!userId) {
-      const { data: u } = await supabase.auth.getUser();
-      userId = u.user?.id;
-    }
-    if (!userId) {
-      // Account created but needs email confirmation.
+    // If email confirmation is required, the profile is created after their first sign-in.
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!signUpData.user || !sessionData.session) {
       setBusy(false);
-      setError("Check your email to confirm your account, then sign in.");
+      setError("Check your email to confirm your account, then sign in. Your building invite will be ready to finish automatically.");
       return;
     }
 
-    const { error: insErr } = await supabase.rpc("join_building_as_resident", {
-      _access_code: accessCode,
-      _first_name: firstName.trim(),
-      _job_title: jobTitle.trim() || undefined,
-      _interest_tags: interests,
-    });
-
-    setBusy(false);
-    if (insErr) {
-      setError(insErr.message);
+    try {
+      const joined = await joinBuildingProfile(joinParams);
+      setBusy(false);
+      navigate({ to: "/building/$buildingId", params: { buildingId: joined.building_id } });
+    } catch (joinErr) {
+      setBusy(false);
+      setError(joinErr instanceof Error ? joinErr.message : "Could not create your resident profile. Please try again.");
       return;
     }
-
-    navigate({ to: "/building/$buildingId", params: { buildingId: building.id } });
   };
 
   return (
@@ -407,30 +575,38 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
 
       <div className="h-px bg-border" />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="signup-email">Email</Label>
-        <Input
-          id="signup-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-          required
-        />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="signup-password">Password</Label>
-        <Input
-          id="signup-password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={8}
-          autoComplete="new-password"
-          required
-        />
-        <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-      </div>
+      {signedInEmail ? (
+        <p className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+          Signed in as <span className="font-medium text-foreground">{signedInEmail}</span>. We&apos;ll connect this account to the building.
+        </p>
+      ) : (
+        <>
+          <div className="space-y-1.5">
+            <Label htmlFor="signup-email">Email</Label>
+            <Input
+              id="signup-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="signup-password">Password</Label>
+            <Input
+              id="signup-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+              autoComplete="new-password"
+              required
+            />
+            <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+          </div>
+        </>
+      )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
@@ -449,12 +625,16 @@ function ProfileCreationCard({ building, accessCode }: { building: Building; acc
 /* Login path                                                                 */
 /* -------------------------------------------------------------------------- */
 
-function LoginView({ onBack }: { onBack: () => void }) {
+function LoginView({ onBack, invitationCode }: { onBack: () => void; invitationCode?: string }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const googleRedirectTo =
+    typeof window !== "undefined" && invitationCode
+      ? `${window.location.origin}/resident-access?code=${encodeURIComponent(invitationCode)}`
+      : undefined;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -487,7 +667,22 @@ function LoginView({ onBack }: { onBack: () => void }) {
       return;
     }
     if (!profile) {
-      setError("This account isn't linked to a building yet. Ask your property manager for an invitation code.");
+      try {
+        const joined = await completePendingResidentJoin(data.user, invitationCode);
+        setBusy(false);
+        if (joined) {
+          navigate({
+            to: "/building/$buildingId",
+            params: { buildingId: joined.building_id },
+          });
+          return;
+        }
+      } catch (joinErr) {
+        setBusy(false);
+        setError(joinErr instanceof Error ? joinErr.message : "Could not finish joining your building. Please re-enter your invitation code.");
+        return;
+      }
+      setError("Enter your invitation code to finish joining your building.");
       return;
     }
     navigate({
@@ -518,7 +713,7 @@ function LoginView({ onBack }: { onBack: () => void }) {
         onSubmit={onSubmit}
         className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
       >
-        <GoogleSignInButton />
+        <GoogleSignInButton redirectTo={googleRedirectTo} />
         <AuthDivider />
         <div className="space-y-1.5">
           <Label htmlFor="login-email">Email</Label>
