@@ -6,10 +6,13 @@ import {
   type BrandingFields,
   type BuildingBranding,
 } from "@/lib/branding";
+import type { IndustryType } from "@/lib/industry";
 
 type Ctx = {
   branding: BuildingBranding | null;
   buildingId: string | null;
+  clientId: string | null;
+  industry: IndustryType | null;
   refresh: () => Promise<void>;
   /** True when the current viewer is previewing an unpublished draft locally. */
   previewing: boolean;
