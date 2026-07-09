@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate, QrCode } from "lucide-react";
+import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate, QrCode, Users } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
