@@ -326,6 +326,9 @@ export function WhiteLabelStudio({
           <TabsTrigger value="emails">Emails</TabsTrigger>
           <TabsTrigger value="legal">Legal</TabsTrigger>
           <TabsTrigger value="domain">Domain</TabsTrigger>
+          <TabsTrigger value="simulator" className="gap-1.5">
+            <Laptop className="h-3.5 w-3.5" /> Simulator
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="identity" className="mt-6">
