@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/tabs";
 
 import { BrandingEditor } from "@/components/BrandingEditor";
+import { BrandSimulator } from "@/components/BrandSimulator";
 import { useBranding } from "@/components/BrandingProvider";
 import {
   COMMUNITY_VOICES,
