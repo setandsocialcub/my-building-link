@@ -359,10 +359,20 @@ function ManagerDashboard() {
               <div className="text-xs text-muted-foreground">Property Manager</div>
             </div>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button asChild variant="outline" size="sm" className="gap-1.5">
               <Link to="/manager/$buildingId/community-voice" params={{ buildingId }}>
                 <HeartHandshake className="h-3.5 w-3.5" /> Community Voice
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link to="/manager/$buildingId/community-intelligence" params={{ buildingId }}>
+                <TrendingUp className="h-3.5 w-3.5" /> Intelligence
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link to="/manager/$buildingId/recognition" params={{ buildingId }}>
+                <Sparkles className="h-3.5 w-3.5" /> Recognition
               </Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="gap-1.5">
