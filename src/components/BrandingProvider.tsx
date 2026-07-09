@@ -6,10 +6,13 @@ import {
   type BrandingFields,
   type BuildingBranding,
 } from "@/lib/branding";
+import type { IndustryType } from "@/lib/industry";
 
 type Ctx = {
   branding: BuildingBranding | null;
   buildingId: string | null;
+  clientId: string | null;
+  industry: IndustryType | null;
   refresh: () => Promise<void>;
   /** True when the current viewer is previewing an unpublished draft locally. */
   previewing: boolean;
@@ -20,6 +23,8 @@ type Ctx = {
 const BrandingContext = createContext<Ctx>({
   branding: null,
   buildingId: null,
+  clientId: null,
+  industry: null,
   refresh: async () => {},
   previewing: false,
   setPreviewDraft: () => {},
@@ -37,6 +42,8 @@ export function useBranding() {
 export function BrandingProvider({ children }: { children: ReactNode }) {
   const [branding, setBranding] = useState<BuildingBranding | null>(null);
   const [buildingId, setBuildingId] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
+  const [industry, setIndustry] = useState<IndustryType | null>(null);
   const [previewDraft, setPreviewDraftState] = useState<Partial<BrandingFields> | null>(null);
 
   const resolveBuildingId = async (): Promise<string | null> => {
@@ -63,16 +70,27 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   const load = async (bid: string | null) => {
     if (!bid) {
       setBranding(null);
+      setClientId(null);
+      setIndustry(null);
       applyEffective(null, previewDraft);
       return;
     }
-    const { data } = await (supabase as any)
-      .from("building_branding")
-      .select("*")
-      .eq("building_id", bid)
-      .maybeSingle();
-    const b = (data as BuildingBranding | null) ?? null;
+    const [{ data: brandingData }, { data: bldg }] = await Promise.all([
+      (supabase as any)
+        .from("building_branding")
+        .select("*")
+        .eq("building_id", bid)
+        .maybeSingle(),
+      (supabase as any)
+        .from("buildings")
+        .select("client_id, industry_type")
+        .eq("id", bid)
+        .maybeSingle(),
+    ]);
+    const b = (brandingData as BuildingBranding | null) ?? null;
     setBranding(b);
+    setClientId((bldg?.client_id as string | null) ?? null);
+    setIndustry((bldg?.industry_type as IndustryType | null) ?? null);
     applyEffective(b, previewDraft);
   };
 
@@ -135,6 +153,8 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       value={{
         branding,
         buildingId,
+        clientId,
+        industry,
         refresh,
         previewing: !!previewDraft,
         setPreviewDraft,

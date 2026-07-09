@@ -88,19 +88,26 @@ export type Database = {
           app_icon_url: string | null
           app_name: string | null
           app_short_name: string | null
+          border_radius: string | null
           building_id: string
+          button_style: string | null
           community_icon_url: string | null
           community_name: string | null
           community_tagline: string | null
+          community_voice: string | null
           cover_image_url: string | null
           created_at: string
           custom_domain: string | null
+          custom_login_button_label: string | null
           custom_tagline: string | null
           draft: Json | null
           draft_updated_at: string | null
           email_accent_color: string | null
+          email_footer_text: string | null
           email_logo_url: string | null
           email_primary_color: string | null
+          email_reply_to: string | null
+          email_sender_name: string | null
           enable_powered_by_footer: boolean
           favicon_url: string | null
           hero_image_url: string | null
@@ -112,8 +119,11 @@ export type Database = {
           playbook_cover_image_url: string | null
           primary_color: string | null
           published_at: string | null
+          pwa_description: string | null
+          pwa_install_prompt: string | null
           secondary_color: string | null
           splash_screen_image_url: string | null
+          typography_preset: string | null
           updated_at: string
           welcome_message: string | null
         }
@@ -122,19 +132,26 @@ export type Database = {
           app_icon_url?: string | null
           app_name?: string | null
           app_short_name?: string | null
+          border_radius?: string | null
           building_id: string
+          button_style?: string | null
           community_icon_url?: string | null
           community_name?: string | null
           community_tagline?: string | null
+          community_voice?: string | null
           cover_image_url?: string | null
           created_at?: string
           custom_domain?: string | null
+          custom_login_button_label?: string | null
           custom_tagline?: string | null
           draft?: Json | null
           draft_updated_at?: string | null
           email_accent_color?: string | null
+          email_footer_text?: string | null
           email_logo_url?: string | null
           email_primary_color?: string | null
+          email_reply_to?: string | null
+          email_sender_name?: string | null
           enable_powered_by_footer?: boolean
           favicon_url?: string | null
           hero_image_url?: string | null
@@ -146,8 +163,11 @@ export type Database = {
           playbook_cover_image_url?: string | null
           primary_color?: string | null
           published_at?: string | null
+          pwa_description?: string | null
+          pwa_install_prompt?: string | null
           secondary_color?: string | null
           splash_screen_image_url?: string | null
+          typography_preset?: string | null
           updated_at?: string
           welcome_message?: string | null
         }
@@ -156,19 +176,26 @@ export type Database = {
           app_icon_url?: string | null
           app_name?: string | null
           app_short_name?: string | null
+          border_radius?: string | null
           building_id?: string
+          button_style?: string | null
           community_icon_url?: string | null
           community_name?: string | null
           community_tagline?: string | null
+          community_voice?: string | null
           cover_image_url?: string | null
           created_at?: string
           custom_domain?: string | null
+          custom_login_button_label?: string | null
           custom_tagline?: string | null
           draft?: Json | null
           draft_updated_at?: string | null
           email_accent_color?: string | null
+          email_footer_text?: string | null
           email_logo_url?: string | null
           email_primary_color?: string | null
+          email_reply_to?: string | null
+          email_sender_name?: string | null
           enable_powered_by_footer?: boolean
           favicon_url?: string | null
           hero_image_url?: string | null
@@ -180,8 +207,11 @@ export type Database = {
           playbook_cover_image_url?: string | null
           primary_color?: string | null
           published_at?: string | null
+          pwa_description?: string | null
+          pwa_install_prompt?: string | null
           secondary_color?: string | null
           splash_screen_image_url?: string | null
+          typography_preset?: string | null
           updated_at?: string
           welcome_message?: string | null
         }
@@ -413,39 +443,62 @@ export type Database = {
       }
       building_templates: {
         Row: {
+          branding: Json
+          client_id: string | null
           created_at: string
           enabled_features: Json
           homepage_priority: Json
           id: string
+          industry_type: Database["public"]["Enums"]["industry_type"] | null
           is_system: boolean
+          legal_defaults: Json
+          notification_defaults: Json
           recommended_circles: Json
           template_description: string | null
           template_name: string
           updated_at: string
         }
         Insert: {
+          branding?: Json
+          client_id?: string | null
           created_at?: string
           enabled_features?: Json
           homepage_priority?: Json
           id?: string
+          industry_type?: Database["public"]["Enums"]["industry_type"] | null
           is_system?: boolean
+          legal_defaults?: Json
+          notification_defaults?: Json
           recommended_circles?: Json
           template_description?: string | null
           template_name: string
           updated_at?: string
         }
         Update: {
+          branding?: Json
+          client_id?: string | null
           created_at?: string
           enabled_features?: Json
           homepage_priority?: Json
           id?: string
+          industry_type?: Database["public"]["Enums"]["industry_type"] | null
           is_system?: boolean
+          legal_defaults?: Json
+          notification_defaults?: Json
           recommended_circles?: Json
           template_description?: string | null
           template_name?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "building_templates_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       buildings: {
         Row: {
@@ -454,6 +507,7 @@ export type Database = {
           amenities: string[]
           archived_at: string | null
           city: string
+          client_id: string | null
           community_id: string
           community_intro: string | null
           contact_email: string | null
@@ -462,6 +516,7 @@ export type Database = {
           description: string | null
           floor_count: number | null
           id: string
+          industry_type: Database["public"]["Enums"]["industry_type"]
           name: string
           property_type: string | null
           status: string
@@ -475,6 +530,7 @@ export type Database = {
           amenities?: string[]
           archived_at?: string | null
           city: string
+          client_id?: string | null
           community_id?: string
           community_intro?: string | null
           contact_email?: string | null
@@ -483,6 +539,7 @@ export type Database = {
           description?: string | null
           floor_count?: number | null
           id?: string
+          industry_type?: Database["public"]["Enums"]["industry_type"]
           name: string
           property_type?: string | null
           status?: string
@@ -496,6 +553,7 @@ export type Database = {
           amenities?: string[]
           archived_at?: string | null
           city?: string
+          client_id?: string | null
           community_id?: string
           community_intro?: string | null
           contact_email?: string | null
@@ -504,6 +562,7 @@ export type Database = {
           description?: string | null
           floor_count?: number | null
           id?: string
+          industry_type?: Database["public"]["Enums"]["industry_type"]
           name?: string
           property_type?: string | null
           status?: string
@@ -512,6 +571,13 @@ export type Database = {
           website?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "buildings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "buildings_template_id_fkey"
             columns: ["template_id"]
@@ -746,6 +812,53 @@ export type Database = {
             columns: ["circle_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          id: string
+          industry_type: Database["public"]["Enums"]["industry_type"]
+          logo_url: string | null
+          name: string
+          portfolio_template_id: string | null
+          primary_color: string | null
+          slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          industry_type?: Database["public"]["Enums"]["industry_type"]
+          logo_url?: string | null
+          name: string
+          portfolio_template_id?: string | null
+          primary_color?: string | null
+          slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          industry_type?: Database["public"]["Enums"]["industry_type"]
+          logo_url?: string | null
+          name?: string
+          portfolio_template_id?: string | null
+          primary_color?: string | null
+          slug?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_portfolio_template_fk"
+            columns: ["portfolio_template_id"]
+            isOneToOne: false
+            referencedRelation: "building_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -1939,6 +2052,10 @@ export type Database = {
       }
     }
     Functions: {
+      apply_portfolio_template: {
+        Args: { _building_id: string; _template_id: string }
+        Returns: undefined
+      }
       apply_template_to_building: {
         Args: { _building_id: string; _template_id: string }
         Returns: undefined
@@ -2017,6 +2134,16 @@ export type Database = {
     }
     Enums: {
       app_role: "admin"
+      industry_type:
+        | "luxury_residential"
+        | "multifamily"
+        | "boutique_hotel"
+        | "branded_residence"
+        | "student_housing"
+        | "senior_living"
+        | "corporate_housing"
+        | "private_club"
+        | "mixed_use"
       privacy_level: "public" | "introduction_only" | "circle_only" | "limited"
     }
     CompositeTypes: {
@@ -2146,6 +2273,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin"],
+      industry_type: [
+        "luxury_residential",
+        "multifamily",
+        "boutique_hotel",
+        "branded_residence",
+        "student_housing",
+        "senior_living",
+        "corporate_housing",
+        "private_club",
+        "mixed_use",
+      ],
       privacy_level: ["public", "introduction_only", "circle_only", "limited"],
     },
   },

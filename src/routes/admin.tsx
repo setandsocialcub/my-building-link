@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate, QrCode } from "lucide-react";
+import { Copy, Plus, LogOut, Settings, Activity, FileText, Sparkles, LayoutTemplate, QrCode, Users } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -278,16 +278,24 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link to="/admin/templates">
-                <LayoutTemplate className="h-4 w-4" /> Templates
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link to="/admin/legal">
-                <FileText className="h-4 w-4" /> Legal
-              </Link>
-            </Button>
+            <Link
+              to="/admin/clients"
+              className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}
+            >
+              <Users className="h-4 w-4" /> Clients
+            </Link>
+            <Link
+              to="/admin/templates"
+              className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}
+            >
+              <LayoutTemplate className="h-4 w-4" /> Templates
+            </Link>
+            <Link
+              to="/admin/legal"
+              className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-2"}
+            >
+              <FileText className="h-4 w-4" /> Legal
+            </Link>
             <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
               <LogOut className="h-4 w-4" /> Sign out
             </Button>
@@ -448,27 +456,27 @@ function AdminPage({ onSignOut }: { onSignOut: () => void }) {
                           Manager
                         </Button>
                       )}
-                      <Button asChild size="sm" variant="outline" className="gap-1.5">
-                        <Link to="/pulse/$buildingId" params={{ buildingId: b.id }}>
-                          <Activity className="h-3.5 w-3.5" /> Pulse
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm" variant="outline" className="gap-1.5">
-                        <Link
-                          to="/admin/buildings/$buildingId/branding"
-                          params={{ buildingId: b.id }}
-                        >
-                          <Sparkles className="h-3.5 w-3.5" /> Branding
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm" variant="outline" className="gap-1.5">
-                        <Link
-                          to="/admin/buildings/$buildingId/settings"
-                          params={{ buildingId: b.id }}
-                        >
-                          <Settings className="h-3.5 w-3.5" /> Settings
-                        </Link>
-                      </Button>
+                      <Link
+                        to="/pulse/$buildingId"
+                        params={{ buildingId: b.id }}
+                        className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-1.5"}
+                      >
+                        <Activity className="h-3.5 w-3.5" /> Pulse
+                      </Link>
+                      <Link
+                        to="/admin/buildings/$buildingId/branding"
+                        params={{ buildingId: b.id }}
+                        className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-1.5"}
+                      >
+                        <Sparkles className="h-3.5 w-3.5" /> Branding
+                      </Link>
+                      <Link
+                        to="/admin/buildings/$buildingId/settings"
+                        params={{ buildingId: b.id }}
+                        className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-1.5"}
+                      >
+                        <Settings className="h-3.5 w-3.5" /> Settings
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))

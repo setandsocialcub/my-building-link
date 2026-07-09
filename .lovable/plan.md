@@ -1,87 +1,87 @@
-## Sprint 2 — Super Admin Building Administration
 
-Turn each building into a full workspace. Building name becomes a link to a new **Building Administration** page with a left sidebar and 12 sections, styled like Linear/Notion/Stripe (dense, neutral surfaces, subtle borders, mono/sans pairing, keyboard-friendly).
+# OONAH 2.0 — Hospitality OS Foundation
 
-### Route architecture
+This is a major release. Rather than ship all four workstreams shallowly, I'll deliver them in a coordinated Phase 1 that gets the core architecture, the visible White Label Studio, and the enterprise hierarchy in place — with clear stubs where deeper work (email templating pipelines, live CDN cache-busting, custom-domain SSL orchestration) is handed off to platform primitives (Lovable Cloud, DNS UI, existing email-domain tools) instead of reinvented.
 
-New nested route tree under `_authenticated` (admin-gated at page level, matching the existing `admin.tsx` role check pattern):
+## What ships in Phase 1
 
+### 1. Fix the broken buttons (Day-1 unblocker)
+The Branding and Settings buttons on the admin buildings list don't navigate. Root cause: shadcn `Button asChild` wraps the TanStack `<Link>` in a Radix `Slot`, and on some renders the Slot merges refs but the underlying anchor's `onClick` short-circuits. Replacement: render the anchor natively via `<Link>` with `buttonVariants({ variant, size })` classes — same look, real anchor, works with cmd-click and preload. Applied everywhere `Button asChild` wraps a `Link` in `admin.tsx` and any other admin surfaces with the same pattern.
+
+### 2. Data model — Clients + Industry + Portfolio Templates
+One migration:
+- New `public.clients` table: organization above buildings (id, name, slug, industry_type, portfolio_template_id, created_at). `buildings.client_id` FK added (nullable — existing rows stay independent).
+- New enum `public.industry_type`: `luxury_residential | multifamily | boutique_hotel | branded_residence | student_housing | senior_living | corporate_housing | private_club | mixed_use`. Added to `buildings.industry_type` (default `luxury_residential`) and `clients.industry_type`.
+- Extend existing `public.building_templates` into portfolio templates: adds `client_id`, `branding` JSONB (colors/logos/typography defaults), `legal_defaults` JSONB, `notification_defaults` JSONB. Existing `enabled_features` behavior preserved.
+- New RPC `public.apply_portfolio_template(_building_id, _template_id)`: copies template branding into `building_branding` only for fields the building hasn't overridden (null-preserving merge), calls existing `apply_template_to_building` for feature flags.
+- RLS: clients readable by admins + managers of any building in the client; portfolio templates readable inside the client scope. Full GRANTs on every new table.
+
+### 3. Industry Mode terminology
+New `src/lib/industry.ts` — pure function map keyed by `industry_type`:
+```ts
+terminology(industry): { resident, residents, community, manager, dashboard, welcomeVerb }
 ```
-src/routes/
-  admin.buildings.$buildingId.tsx              → layout: sidebar + <Outlet/>
-  admin.buildings.$buildingId.index.tsx        → Building Information (default)
-  admin.buildings.$buildingId.branding.tsx     → (exists — keep)
-  admin.buildings.$buildingId.settings.tsx     → (exists — keep, moved into sidebar)
-  admin.buildings.$buildingId.playbook.tsx     → Community Playbook™
-  admin.buildings.$buildingId.pulse.tsx        → embeds /pulse view
-  admin.buildings.$buildingId.managers.tsx
-  admin.buildings.$buildingId.residents.tsx
-  admin.buildings.$buildingId.events.tsx
-  admin.buildings.$buildingId.analytics.tsx
-  admin.buildings.$buildingId.neighborhood.tsx
-  admin.buildings.$buildingId.legal.tsx
-  admin.buildings.$buildingId.danger.tsx       → Delete / Archive
-```
+New `useIndustryTerms()` hook reads the current building's industry from `BrandingProvider` context (extended to fetch industry alongside branding). Swap hardcoded "Resident" / "Community" strings in the highest-visibility surfaces (nav labels, welcome headline, discover empty state, manager dashboard header) to the term map. Not a full string audit — targeted to the ~20 user-visible strings that matter.
 
-In `admin.tsx`, make the building name a `<Link to="/admin/buildings/$buildingId">`.
-
-### Database (single migration)
-
-Extend `buildings` with the info fields (all nullable, safe defaults):
-`address text, description text, property_type text, unit_count int, floor_count int, amenities text[], contact_email text, contact_phone text, website text, community_intro text, archived_at timestamptz, status text default 'active'`.
-
-New tables:
-- `manager_permissions` (manager_id, permission text) — permission enum: `manage_residents`, `manage_events`, `manage_playbook`, `manage_branding`, `manage_settings`, `manage_legal`. Managers get all by default via seeding.
-- `resident_suspensions` (resident_id, reason, suspended_by, suspended_at, lifted_at)
-- `resident_invites` (building_id, email, invite_code, invited_by, accepted_at, expires_at)
-- `neighborhood_places` (building_id, name, category, address, notes, url, lat, lng, order_index)
-
-Adds `disabled_at timestamptz` to `property_managers`. All new tables: full GRANT block, RLS enabled, policies scoped to `has_role('admin')` OR `is_manager_of_building()` where appropriate.
-
-### Building Administration layout
+### 4. White Label Studio (rebuild `BrandingEditor.tsx`)
+Turn the current 967-line single-panel form into a tabbed studio matching the Shopify/Webflow shape:
 
 ```text
-┌─ Header: ← Buildings   ·   {Building name}   {status badge}   Sign out
-├─ Sidebar (240px)                       Main
-│  Information                           <Outlet/>
-│  Branding
-│  Community Playbook
-│  Community Pulse
-│  Managers
-│  Residents
-│  Events
-│  Analytics
-│  Neighborhood Guide
-│  Legal Documents
-│  Settings
-│  ───
-│  Danger zone
+┌─────────────────────────────────────────────────────────┐
+│  White Label Studio            [Preview ▾]  [Publish]   │
+├──────────┬──────────────────────────────────────────────┤
+│ Identity │  Panel content (form)     │ Live Preview     │
+│ Appear.  │                           │ ┌──────────────┐ │
+│ Login    │                           │ │  Device      │ │
+│ Emails   │                           │ │  simulator   │ │
+│ PWA      │                           │ │  (desktop /  │ │
+│ Legal    │                           │ │   tablet /   │ │
+│ Voice    │                           │ │   mobile)    │ │
+│ Domain   │                           │ └──────────────┘ │
+└──────────┴──────────────────────────────────────────────┘
 ```
 
-Enterprise chrome: `bg-background`, sidebar `bg-card border-r`, active row `bg-muted text-foreground`, section headers `text-xs uppercase tracking-wider text-muted-foreground`, dense tables, quiet secondary buttons.
+Tabs:
+- **Identity** — Company / Community / Building name, tagline, welcome headline, description, logo/secondary/icon/favicon/splash/mobile-app-icon uploads (all existing branding fields already stored — this reorganizes UI).
+- **Appearance** — primary/secondary/accent, border radius, button style (rounded/sharp/pill), typography preset (Serif Editorial / Sans Modern / Humanist), light/dark toggle. Radius/typography/button-style are new columns on `building_branding` (adds 4 fields).
+- **Login** — resident/manager/admin login image, welcome copy, custom button label (new field), forgot-password copy.
+- **Emails** — sender name, reply-to, from-address preview, footer text, signature. Storage only in Phase 1; wiring into actual email templates deferred to Phase 2 (needs `email_domain--setup_email_infra`).
+- **PWA** — app name, short name, theme color, install prompt copy, description. Feeds existing `/api/public/manifest/:buildingId` route.
+- **Legal** — links to existing building_legal_documents editor (not rebuilt).
+- **Voice** — tone dropdown (Luxury/Professional/Warm/Boutique/Playful/Corporate/Family/Hospitality). Stored as `community_voice` — used later to seed notification/email copy.
+- **Domain** — DNS instruction card that opens Lovable's Project Settings → Domains flow (does NOT reimplement DNS/SSL).
 
-### Section scope (each is one route file)
+**Live Preview panel** — right-side iframe-style card that renders a scaled miniature of the resident home using the current draft branding (via existing `setPreviewDraft` in BrandingProvider). Device toggle switches container width (390 / 820 / 1280). No new iframe — a scaled div with pointer-events:none is enough and avoids cross-frame branding sync.
 
-- **Information** — form for every field listed in the brief; amenities as tag input; save via single `update buildings`.
-- **Branding** — reuse existing `BrandingEditor`.
-- **Community Playbook™** — checklist of onboarding milestones per building (uses existing template + editable overrides); ship the UI scaffold + completion percentage read-out.
-- **Community Pulse** — embed the existing `/pulse/$buildingId` component.
-- **Managers** — table of managers with Add (issues invite code), Disable/Enable, Remove, Permissions dropdown (checkbox list writing `manager_permissions`).
-- **Residents** — searchable/filterable table; row actions: view profile, suspend (writes `resident_suspensions`), remove (delete profile); "Invite residents" panel that generates `resident_invites` rows with codes.
-- **Events** — list events for the building with status filter; create/edit/cancel actions using existing `events` table.
-- **Analytics** — cards for Residents, Events, Circle Activity, Playbook Completion, Pulse average, Engagement (7d active), Belonging Score™, Community Health™ (composite formulas defined in `src/lib/pulse-analytics.ts` extension). Uses `supabase--read_query`-style client queries.
-- **Neighborhood Guide** — CRUD list of places for the building.
-- **Legal Documents** — per-building overrides of `legal_documents` (reuses existing admin legal UI, scoped to building).
-- **Settings** — reuse existing settings page.
-- **Danger zone** — Archive (sets `status='archived'`, `archived_at=now()`) and Delete (hard delete with double-confirm typing building name).
+**Publish Brand** button — writes draft → published columns (existing `published_at` timestamp), triggers `window.dispatchEvent(new Event("branding:changed"))` (BrandingProvider already listens), regenerates manifest URL (already dynamic), shows success toast. Cache-busting/CDN refresh is a no-op comment — Lovable serves fresh HTML with revalidation headers.
 
-### Technical notes
+### 5. Super Admin — Clients hierarchy UI (minimum viable)
+- `/admin` gets a "Clients" section above buildings: list clients with building counts, "New client" dialog (name + industry).
+- Building create flow gains an optional "Belongs to client" dropdown + "Apply portfolio template" action.
+- Portfolio template editor at `/admin/clients/$clientId/template` — reuses BrandingEditor UI in "template mode" (writes to `building_templates.branding` JSON instead of `building_branding`).
 
-- All data access via the browser `supabase` client under RLS (admin role passes `has_role`).
-- Belonging Score™ = weighted composite of accepted introductions per resident, circle memberships, event RSVP rate, message activity — computed client-side from existing tables; formula documented inline.
-- Community Health™ = 0–100 rollup of Belonging + Pulse + 30d engagement.
-- Keep changes UI-first: no edge functions, no new server fns.
+## What's explicitly deferred to Phase 2
 
-### Out of scope (call out to user)
+- Email template pipeline wired to `email_domain--scaffold_transactional_email` (needs domain first).
+- SMS branding (no SMS provider connected).
+- Push notification white-labeling in installed PWAs beyond manifest name.
+- Full string audit for terminology (Phase 1 covers headers/nav/welcome only).
+- Manager-facing brand studio (Phase 1 exposes it to admins; managers see the existing simpler editor).
+- Custom domain automation beyond linking to Lovable's DNS flow.
 
-- Real-time collab cursors, bulk CSV import/export, and email delivery for invites — invites generate codes only in this sprint.
+## Technical notes
+
+- All new/modified `public` tables get GRANTs in the same migration.
+- `BrandingProvider` extended once to also load `client` and `industry_type`; no other providers added.
+- No new npm packages required. Existing shadcn Tabs + form primitives cover the studio UI.
+- Route additions: `/admin/clients`, `/admin/clients/$clientId`, `/admin/clients/$clientId/template`. Existing branding route reused.
+- Server functions: `applyPortfolioTemplate` (createServerFn + requireSupabaseAuth + admin-role check) wraps the RPC.
+
+## Order of work in this pass
+1. Migration (clients, industry_type, portfolio template extension, new branding fields, RPC).
+2. Fix broken buttons.
+3. `src/lib/industry.ts` + `useIndustryTerms` + swap high-visibility strings.
+4. Rebuild BrandingEditor as tabbed studio with live preview + Publish.
+5. `/admin/clients` routes and building↔client assignment.
+
+Ship, then follow up on Phase 2 (emails, deeper terminology, manager studio).

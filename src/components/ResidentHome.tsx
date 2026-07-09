@@ -28,6 +28,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CIRCLE_CATEGORIES, categoryLabel } from "@/lib/circle-categories";
 import heroImg from "@/assets/home-hero.jpg";
 import { useBranding } from "@/components/BrandingProvider";
+import { useIndustryTerms } from "@/hooks/use-industry-terms";
 import { brandingValue } from "@/lib/branding";
 import { PoweredByFooter } from "@/components/PoweredByFooter";
 
@@ -486,6 +487,7 @@ export function ResidentHome({
 
 function WelcomeHero({ firstName, buildingName }: { firstName: string; buildingName?: string }) {
   const { branding } = useBranding();
+  const terms = useIndustryTerms();
   const hour = new Date().getHours();
   const part =
     hour < 5 ? "Good evening" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -516,7 +518,7 @@ function WelcomeHero({ firstName, buildingName }: { firstName: string; buildingN
             {communityName ? ` · ${communityName}` : ""}
           </p>
           <h1 className="font-serif text-4xl sm:text-6xl tracking-tight max-w-3xl leading-[1.05]">
-            {customHeadline ? `${customHeadline}, ${firstName}.` : `Welcome home, ${firstName}.`}
+            {customHeadline ? `${customHeadline}, ${firstName}.` : `${terms.welcome}, ${firstName}.`}
           </h1>
           <p className="mt-4 text-base sm:text-lg text-ivory/90 max-w-xl font-light">
             {subheadline}
