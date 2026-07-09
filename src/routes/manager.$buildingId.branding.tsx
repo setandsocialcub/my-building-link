@@ -94,14 +94,7 @@ function ManagerBrandingPage() {
         </div>
       </header>
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <div className="mb-6">
-          <h1 className="font-serif text-3xl">White label branding</h1>
-          <p className="mt-1 text-muted-foreground">
-            Give your community a fully branded resident experience. Changes apply across the
-            login screen, navigation, dashboard, and PWA install prompt for your residents only.
-          </p>
-        </div>
-        <BrandingEditor buildingId={buildingId} />
+        <WhiteLabelStudio buildingId={buildingId} role="manager" />
       </div>
     </main>
   );
