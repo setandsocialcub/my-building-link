@@ -1734,6 +1734,38 @@ export type Database = {
           },
         ]
       }
+      network_search_events: {
+        Row: {
+          building_id: string
+          category: string | null
+          created_at: string
+          id: string
+          query: string | null
+        }
+        Insert: {
+          building_id: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          query?: string | null
+        }
+        Update: {
+          building_id?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          query?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "network_search_events_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           building_id: string
