@@ -88,6 +88,15 @@ type Neighbor = {
   expert_badges: string[];
 };
 
+type UpcomingEvent = {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  starts_at: string;
+  cover_emoji: string | null;
+};
+
 function ConciergePage() {
   const [buildingId, setBuildingId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
