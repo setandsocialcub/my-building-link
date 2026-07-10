@@ -36,6 +36,7 @@ import {
   type ConciergeCategoryId,
 } from "@/lib/concierge";
 import { cn } from "@/lib/utils";
+import { ConciergeChat } from "@/components/ConciergeChat";
 
 export const Route = createFileRoute("/concierge")({
   head: () => ({
