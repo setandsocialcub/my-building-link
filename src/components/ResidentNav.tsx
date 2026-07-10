@@ -253,11 +253,10 @@ export function ResidentBottomNav() {
       feature: "enable_circles",
     },
     {
-      to: "/discover",
-      label: "Match",
+      to: "/network",
+      label: "Network",
       Icon: Compass,
-      active: pathname === "/discover",
-      feature: "enable_ai_matching",
+      active: pathname.startsWith("/network"),
     },
     {
       to: "/events",
