@@ -252,7 +252,9 @@ function ConciergePage() {
 
   return (
     <ResidentPageShell title="Community Concierge™">
+      <ConciergeChat />
       <div className="space-y-10 pb-10">
+
         {/* Hero */}
         <section
           className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-accent/10 p-6 md:p-10"
