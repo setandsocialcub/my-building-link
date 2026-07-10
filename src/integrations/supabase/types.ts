@@ -1974,23 +1974,41 @@ export type Database = {
           avatar_path: string | null
           bio: string | null
           building_id: string
+          business_email: string | null
+          business_logo_path: string | null
+          business_phone: string | null
+          calendly_url: string | null
+          community_goals: string[]
           company: string | null
           cover_path: string | null
           created_at: string
+          expert_badges: string[]
           favorite_local_spots: string[]
           first_name: string
           id: string
+          industry: string | null
+          instagram_url: string | null
           interest_tags: string[]
           is_visible: boolean
           job_title: string | null
           languages: string[]
           last_active_at: string
           last_name: string | null
+          linkedin_url: string | null
+          network_audience: string
+          network_visible: boolean
           pets: string[]
+          portfolio_url: string | null
           privacy_level: Database["public"]["Enums"]["privacy_level"]
+          professional_category: string | null
           professional_skills: string[]
+          professional_title: string | null
+          service_bio: string | null
+          services_offered: string[]
           social_links: Json
           user_id: string
+          website_url: string | null
+          years_experience: number | null
         }
         Insert: {
           accepted_privacy_at?: string | null
@@ -2000,23 +2018,41 @@ export type Database = {
           avatar_path?: string | null
           bio?: string | null
           building_id: string
+          business_email?: string | null
+          business_logo_path?: string | null
+          business_phone?: string | null
+          calendly_url?: string | null
+          community_goals?: string[]
           company?: string | null
           cover_path?: string | null
           created_at?: string
+          expert_badges?: string[]
           favorite_local_spots?: string[]
           first_name: string
           id?: string
+          industry?: string | null
+          instagram_url?: string | null
           interest_tags?: string[]
           is_visible?: boolean
           job_title?: string | null
           languages?: string[]
           last_active_at?: string
           last_name?: string | null
+          linkedin_url?: string | null
+          network_audience?: string
+          network_visible?: boolean
           pets?: string[]
+          portfolio_url?: string | null
           privacy_level?: Database["public"]["Enums"]["privacy_level"]
+          professional_category?: string | null
           professional_skills?: string[]
+          professional_title?: string | null
+          service_bio?: string | null
+          services_offered?: string[]
           social_links?: Json
           user_id: string
+          website_url?: string | null
+          years_experience?: number | null
         }
         Update: {
           accepted_privacy_at?: string | null
@@ -2026,23 +2062,41 @@ export type Database = {
           avatar_path?: string | null
           bio?: string | null
           building_id?: string
+          business_email?: string | null
+          business_logo_path?: string | null
+          business_phone?: string | null
+          calendly_url?: string | null
+          community_goals?: string[]
           company?: string | null
           cover_path?: string | null
           created_at?: string
+          expert_badges?: string[]
           favorite_local_spots?: string[]
           first_name?: string
           id?: string
+          industry?: string | null
+          instagram_url?: string | null
           interest_tags?: string[]
           is_visible?: boolean
           job_title?: string | null
           languages?: string[]
           last_active_at?: string
           last_name?: string | null
+          linkedin_url?: string | null
+          network_audience?: string
+          network_visible?: boolean
           pets?: string[]
+          portfolio_url?: string | null
           privacy_level?: Database["public"]["Enums"]["privacy_level"]
+          professional_category?: string | null
           professional_skills?: string[]
+          professional_title?: string | null
+          service_bio?: string | null
+          services_offered?: string[]
           social_links?: Json
           user_id?: string
+          website_url?: string | null
+          years_experience?: number | null
         }
         Relationships: [
           {
