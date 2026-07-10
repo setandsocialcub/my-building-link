@@ -775,62 +775,370 @@ function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
   );
 }
 
+type Weather = {
+  label: string;
+  emoji: string;
+  tempHigh: number;
+  tempLow: number;
+  precipMax: number;
+};
+
+const WEATHER_EMOJI: Record<number, { emoji: string; label: string }> = {
+  0: { emoji: "☀️", label: "Sunny" },
+  1: { emoji: "🌤️", label: "Mostly sunny" },
+  2: { emoji: "⛅", label: "Partly cloudy" },
+  3: { emoji: "☁️", label: "Overcast" },
+  45: { emoji: "🌫️", label: "Foggy" },
+  48: { emoji: "🌫️", label: "Foggy" },
+  51: { emoji: "🌦️", label: "Light drizzle" },
+  53: { emoji: "🌦️", label: "Drizzle" },
+  55: { emoji: "🌧️", label: "Heavy drizzle" },
+  61: { emoji: "🌧️", label: "Light rain" },
+  63: { emoji: "🌧️", label: "Rain" },
+  65: { emoji: "🌧️", label: "Heavy rain" },
+  71: { emoji: "🌨️", label: "Light snow" },
+  73: { emoji: "🌨️", label: "Snow" },
+  75: { emoji: "❄️", label: "Heavy snow" },
+  80: { emoji: "🌦️", label: "Rain showers" },
+  81: { emoji: "🌧️", label: "Rain showers" },
+  82: { emoji: "⛈️", label: "Heavy showers" },
+  95: { emoji: "⛈️", label: "Thunderstorms" },
+  96: { emoji: "⛈️", label: "Thunderstorms" },
+  99: { emoji: "⛈️", label: "Severe storms" },
+};
+
+function useWeeklyWeather(city: string): Weather | null {
+  const [weather, setWeather] = useState<Weather | null>(null);
+  useEffect(() => {
+    if (!city) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const geoRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?count=1&name=${encodeURIComponent(city)}`,
+        );
+        const geo = (await geoRes.json()) as {
+          results?: Array<{ latitude: number; longitude: number }>;
+        };
+        const first = geo.results?.[0];
+        if (!first || cancelled) return;
+        const wxRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${first.latitude}&longitude=${first.longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&forecast_days=7&timezone=auto`,
+        );
+        const wx = (await wxRes.json()) as {
+          daily?: {
+            weathercode?: number[];
+            temperature_2m_max?: number[];
+            temperature_2m_min?: number[];
+            precipitation_probability_max?: number[];
+          };
+        };
+        const codes = wx.daily?.weathercode ?? [];
+        const highs = wx.daily?.temperature_2m_max ?? [];
+        const lows = wx.daily?.temperature_2m_min ?? [];
+        const precip = wx.daily?.precipitation_probability_max ?? [];
+        if (!codes.length || cancelled) return;
+        const counts = new Map<number, number>();
+        for (const c of codes) counts.set(c, (counts.get(c) ?? 0) + 1);
+        const dominant = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+        const meta = WEATHER_EMOJI[dominant] ?? { emoji: "🌡️", label: "Mixed weather" };
+        setWeather({
+          label: meta.label,
+          emoji: meta.emoji,
+          tempHigh: Math.round(Math.max(...highs)),
+          tempLow: Math.round(Math.min(...lows)),
+          precipMax: Math.round(Math.max(...precip)),
+        });
+      } catch {
+        // fail silently — the card will hide
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [city]);
+  return weather;
+}
+
+function formatEventWhen(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function weekPick<T>(items: T[]): T | undefined {
+  if (!items.length) return undefined;
+  const week = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  return items[week % items.length];
+}
+
+function isRecent(iso: string, days = 30) {
+  return Date.now() - new Date(iso).getTime() < days * 24 * 60 * 60 * 1000;
+}
+
 function ThisWeekAtHome({
-  picks,
+  greeting,
+  firstName,
+  places,
   perks,
   neighbors,
+  events,
+  city,
 }: {
-  picks: Place[];
+  greeting: string;
+  firstName: string;
+  places: Place[];
   perks: Place[];
   neighbors: Neighbor[];
+  events: UpcomingEvent[];
+  city: string;
 }) {
-  const featured = picks.find((p) => p.is_featured) ?? picks[0];
-  const coffee = picks.find((p) => p.category === "Coffee");
-  const dining = picks.find((p) => p.category === "Restaurants" && p.id !== featured?.id);
-  const wellness = picks.find((p) => p.category === "Fitness" || p.category === "Wellness");
-  const perk = perks[0];
-  const meetNeighbor = neighbors[0];
+  const weather = useWeeklyWeather(city);
 
-  const items: Array<{ icon: string; label: string; body: string | null; href?: string }> = [
-    dining && { icon: "🍽️", label: "Dining spotlight", body: dining.name, href: dining.url ?? undefined },
-    coffee && { icon: "☕", label: "Coffee of the week", body: coffee.name, href: coffee.url ?? undefined },
-    wellness && { icon: "💪", label: "Fitness spotlight", body: wellness.name, href: wellness.url ?? undefined },
-    perk && { icon: "🎁", label: "New resident perk", body: perk.name, href: perk.url ?? undefined },
-    meetNeighbor && {
-      icon: "👋",
-      label: "Meet a neighbor",
-      body: `${meetNeighbor.first_name}${meetNeighbor.professional_title ? " — " + meetNeighbor.professional_title : ""}`,
-      href: "/network",
-    },
-  ].filter(Boolean) as Array<{ icon: string; label: string; body: string; href?: string }>;
+  const featuredEvent = events[0];
+  const newOpenings = places
+    .filter((p) => isRecent(p.created_at, 45))
+    .filter((p) => p.category !== "Perks")
+    .slice(0, 3);
+  const coffeeCandidates = places.filter((p) => p.category === "Coffee");
+  const coffee = coffeeCandidates.find((p) => p.is_featured) ?? weekPick(coffeeCandidates);
+  const petPicks = places.filter((p) => p.category === "Pet Services");
+  const petPick = petPicks.find((p) => p.is_featured) ?? weekPick(petPicks);
+  const fitnessPlaces = places.filter((p) => p.category === "Fitness");
+  const fitnessPlace = fitnessPlaces.find((p) => p.is_featured) ?? weekPick(fitnessPlaces);
+  const fitnessNeighbor = neighbors.find(
+    (n) =>
+      (n.expert_badges ?? []).some((b) => /fitness|wellness/i.test(b)) ||
+      /(trainer|fitness|yoga|pilates|coach)/i.test(n.professional_title ?? "") ||
+      /(Fitness|Wellness|Coaching)/i.test(n.professional_category ?? ""),
+  );
+  const cultural = places
+    .filter((p) => p.category === "Arts & Culture" || p.category === "Entertainment")
+    .slice(0, 3);
+  const newPerk = perks.find((p) => isRecent(p.created_at, 60)) ?? perks[0];
+  const highlightNeighbor =
+    neighbors.find((n) => (n.expert_badges ?? []).length > 0) ?? neighbors[0];
 
-  if (items.length === 0) return null;
+  const today = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
-    <section>
-      <SectionHeader
-        eyebrow="This Week at Home"
-        title="Your weekly briefing"
-        subtitle="Handpicked highlights around your community."
-      />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((it, i) => (
-          <a
-            key={i}
-            href={it.href ?? "#"}
-            target={it.href?.startsWith("http") ? "_blank" : undefined}
-            rel="noreferrer"
-            className="rounded-2xl border border-border bg-card p-4 hover:border-primary/40 transition-colors"
-          >
-            <div className="text-2xl">{it.icon}</div>
-            <div className="mt-2 text-[11px] uppercase tracking-widest text-muted-foreground">
-              {it.label}
+    <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-accent/10 p-6 md:p-10">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="max-w-2xl">
+          <p className="text-xs uppercase tracking-[0.2em] text-primary/80">This Week at Home</p>
+          <h1 className="mt-2 font-serif text-3xl md:text-4xl font-semibold tracking-tight">
+            {greeting}{firstName ? `, ${firstName}` : ""}.
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">{today} · Your weekly community briefing</p>
+        </div>
+        {weather && (
+          <div className="rounded-2xl border border-border/60 bg-card/70 px-4 py-3 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl leading-none">{weather.emoji}</span>
+              <div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">This week</div>
+                <div className="font-medium">
+                  {weather.label} · {weather.tempLow}° – {weather.tempHigh}°
+                </div>
+                {weather.precipMax > 20 && (
+                  <div className="text-xs text-muted-foreground">
+                    ☔ {weather.precipMax}% chance of rain
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="font-medium mt-0.5">{it.body}</div>
-          </a>
-        ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <BriefingCard
+          icon="🎉"
+          eyebrow="Featured event"
+          title={featuredEvent?.title ?? "No events yet this week"}
+          body={
+            featuredEvent
+              ? `${formatEventWhen(featuredEvent.starts_at)}${featuredEvent.location ? " · " + featuredEvent.location : ""}`
+              : "Managers can post upcoming events — check back soon."
+          }
+          href="/events"
+          empty={!featuredEvent}
+          accent
+        />
+
+        <BriefingCard
+          icon="☕"
+          eyebrow="Coffee shop of the week"
+          title={coffee?.name ?? "Coming soon"}
+          body={coffee?.description ?? coffee?.address ?? "Neighbors: recommend your favorite spot."}
+          href={coffee?.url ?? undefined}
+          empty={!coffee}
+        />
+
+        <BriefingCard
+          icon="💪"
+          eyebrow="Fitness spotlight"
+          title={
+            fitnessPlace?.name ??
+            (fitnessNeighbor
+              ? `${fitnessNeighbor.first_name}${fitnessNeighbor.last_name ? " " + fitnessNeighbor.last_name[0] + "." : ""}`
+              : "Move your week")
+          }
+          body={
+            fitnessPlace?.description ??
+            fitnessNeighbor?.professional_title ??
+            "Add a fitness partner or resident trainer to feature them here."
+          }
+          badge={fitnessNeighbor && !fitnessPlace ? "Resident trainer" : undefined}
+          href={fitnessPlace?.url ?? (fitnessNeighbor ? "/network" : undefined)}
+          empty={!fitnessPlace && !fitnessNeighbor}
+        />
+
+        <BriefingCard
+          icon="✨"
+          eyebrow="New openings"
+          title={
+            newOpenings.length > 0
+              ? newOpenings.map((p) => p.name).join(" · ")
+              : "Nothing new — yet"
+          }
+          body={
+            newOpenings.length > 0
+              ? "Recently added by residents and management."
+              : "Fresh discoveries will appear as neighbors add them."
+          }
+          empty={newOpenings.length === 0}
+        />
+
+        <BriefingCard
+          icon="🐶"
+          eyebrow="Pet & family pick"
+          title={petPick?.name ?? "Bring the whole family"}
+          body={
+            petPick?.description ??
+            petPick?.notes ??
+            "Add a pet-friendly spot or family event to feature here."
+          }
+          href={petPick?.url ?? undefined}
+          empty={!petPick}
+        />
+
+        <BriefingCard
+          icon="🎭"
+          eyebrow="Weekend culture picks"
+          title={cultural.length > 0 ? cultural.map((p) => p.name).join(" · ") : "Curated soon"}
+          body={
+            cultural.length > 0
+              ? "Arts, music, and entertainment near you."
+              : "Managers can highlight galleries, shows, and museums."
+          }
+          empty={cultural.length === 0}
+        />
+
+        <BriefingCard
+          icon="🎁"
+          eyebrow="New resident perk"
+          title={newPerk?.name ?? "Perks coming soon"}
+          body={
+            newPerk?.perk_description ??
+            newPerk?.description ??
+            "Building partners will unlock resident-only offers here."
+          }
+          href={newPerk?.url ?? undefined}
+          empty={!newPerk}
+          accent
+        />
+
+        <BriefingCard
+          icon="👋"
+          eyebrow="Meet a neighbor"
+          title={
+            highlightNeighbor
+              ? `${highlightNeighbor.first_name}${highlightNeighbor.last_name ? " " + highlightNeighbor.last_name[0] + "." : ""}`
+              : "Your Community Network™"
+          }
+          body={
+            highlightNeighbor
+              ? highlightNeighbor.professional_title ??
+                highlightNeighbor.service_bio ??
+                (highlightNeighbor.expert_badges ?? []).slice(0, 2).join(" · ") ??
+                "A neighbor to know."
+              : "Opt in to Community Network™ to see who's around you."
+          }
+          href="/network"
+          empty={!highlightNeighbor}
+        />
       </div>
     </section>
+  );
+}
+
+function BriefingCard({
+  icon,
+  eyebrow,
+  title,
+  body,
+  href,
+  badge,
+  empty,
+  accent,
+}: {
+  icon: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  href?: string;
+  badge?: string;
+  empty?: boolean;
+  accent?: boolean;
+}) {
+  const inner = (
+    <div
+      className={cn(
+        "group h-full rounded-2xl border p-4 transition-colors flex flex-col",
+        accent
+          ? "border-primary/30 bg-primary/5 hover:border-primary/60"
+          : "border-border bg-card hover:border-primary/40",
+        empty && "opacity-70",
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <div className="text-2xl">{icon}</div>
+        {badge && (
+          <Badge variant="secondary" className="text-[10px]">
+            {badge}
+          </Badge>
+        )}
+      </div>
+      <div className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
+        {eyebrow}
+      </div>
+      <div className="mt-0.5 font-medium leading-snug line-clamp-2">{title}</div>
+      <div className="mt-1 text-xs text-muted-foreground line-clamp-3">{body}</div>
+    </div>
+  );
+  if (!href || empty) return inner;
+  const external = href.startsWith("http");
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className="block h-full">
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <Link to={href} className="block h-full">
+      {inner}
+    </Link>
   );
 }
 
