@@ -96,6 +96,8 @@ function ConciergePage() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [neighbors, setNeighbors] = useState<Neighbor[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [events, setEvents] = useState<UpcomingEvent[]>([]);
+  const [buildingCity, setBuildingCity] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [activeCat, setActiveCat] = useState<ConciergeCategoryId | "All" | "Favorites">("All");
   const [query, setQuery] = useState("");
