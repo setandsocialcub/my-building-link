@@ -132,7 +132,8 @@ function ConciergePage() {
       setProfileId(profile.id);
       setFirstName(profile.first_name ?? "");
 
-      const [placesRes, favRes, neighborsRes] = await Promise.all([
+      const nowIso = new Date().toISOString();
+      const [placesRes, favRes, neighborsRes, eventsRes, buildingRes] = await Promise.all([
         supabase
           .from("neighborhood_places")
           .select("*")
@@ -152,6 +153,14 @@ function ConciergePage() {
           .eq("building_id", profile.building_id)
           .eq("network_visible", true)
           .neq("user_id", auth.user.id),
+        supabase
+          .from("events")
+          .select("id, title, description, location, starts_at, cover_emoji, status")
+          .eq("building_id", profile.building_id)
+          .gte("starts_at", nowIso)
+          .order("starts_at", { ascending: true })
+          .limit(10),
+        supabase.from("buildings").select("city").eq("id", profile.building_id).maybeSingle(),
       ]);
 
       if (cancelled) return;
@@ -165,6 +174,12 @@ function ConciergePage() {
           .filter((n) => ["everyone", "building"].includes(n.network_audience ?? "everyone"))
           .filter((n) => n.professional_category || (n.expert_badges ?? []).length > 0),
       );
+      setEvents(
+        ((eventsRes.data ?? []) as Array<UpcomingEvent & { status: string }>)
+          .filter((e) => e.status === "published" || e.status === "active")
+          .map(({ status: _s, ...rest }) => rest),
+      );
+      setBuildingCity((buildingRes.data as { city?: string } | null)?.city ?? "");
       setLoading(false);
     })();
     return () => {
