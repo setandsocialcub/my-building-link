@@ -34,6 +34,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PulseBuildingIdRouteImport } from './routes/pulse.$buildingId'
 import { Route as OnboardingBuildingIdRouteImport } from './routes/onboarding.$buildingId'
+import { Route as NetworkEditRouteImport } from './routes/network.edit'
 import { Route as MessagesConnectionIdRouteImport } from './routes/messages.$connectionId'
 import { Route as ManagerBuildingIdRouteImport } from './routes/manager.$buildingId'
 import { Route as ForumThreadIdRouteImport } from './routes/forum.$threadId'
@@ -185,6 +186,11 @@ const OnboardingBuildingIdRoute = OnboardingBuildingIdRouteImport.update({
   id: '/onboarding/$buildingId',
   path: '/onboarding/$buildingId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const NetworkEditRoute = NetworkEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => NetworkRoute,
 } as any)
 const MessagesConnectionIdRoute = MessagesConnectionIdRouteImport.update({
   id: '/$connectionId',
@@ -351,7 +357,7 @@ export interface FileRoutesByFullPath {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
-  '/network': typeof NetworkRoute
+  '/network': typeof NetworkRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -365,6 +371,7 @@ export interface FileRoutesByFullPath {
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
+  '/network/edit': typeof NetworkEditRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -403,7 +410,7 @@ export interface FileRoutesByTo {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
-  '/network': typeof NetworkRoute
+  '/network': typeof NetworkRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -416,6 +423,7 @@ export interface FileRoutesByTo {
   '/building/$buildingId': typeof BuildingBuildingIdRoute
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
+  '/network/edit': typeof NetworkEditRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin': typeof AdminIndexRoute
@@ -455,7 +463,7 @@ export interface FileRoutesById {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
-  '/network': typeof NetworkRoute
+  '/network': typeof NetworkRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/forum/$threadId': typeof ForumThreadIdRoute
   '/manager/$buildingId': typeof ManagerBuildingIdRouteWithChildren
   '/messages/$connectionId': typeof MessagesConnectionIdRoute
+  '/network/edit': typeof NetworkEditRoute
   '/onboarding/$buildingId': typeof OnboardingBuildingIdRoute
   '/pulse/$buildingId': typeof PulseBuildingIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -524,6 +533,7 @@ export interface FileRouteTypes {
     | '/forum/$threadId'
     | '/manager/$buildingId'
     | '/messages/$connectionId'
+    | '/network/edit'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
     | '/admin/'
@@ -575,6 +585,7 @@ export interface FileRouteTypes {
     | '/building/$buildingId'
     | '/forum/$threadId'
     | '/messages/$connectionId'
+    | '/network/edit'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
     | '/admin'
@@ -627,6 +638,7 @@ export interface FileRouteTypes {
     | '/forum/$threadId'
     | '/manager/$buildingId'
     | '/messages/$connectionId'
+    | '/network/edit'
     | '/onboarding/$buildingId'
     | '/pulse/$buildingId'
     | '/admin/'
@@ -667,7 +679,7 @@ export interface RootRouteChildren {
   ManagerAuthRoute: typeof ManagerAuthRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MessagesRoute: typeof MessagesRouteWithChildren
-  NetworkRoute: typeof NetworkRoute
+  NetworkRoute: typeof NetworkRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -856,6 +868,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/onboarding/$buildingId'
       preLoaderRoute: typeof OnboardingBuildingIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/network/edit': {
+      id: '/network/edit'
+      path: '/edit'
+      fullPath: '/network/edit'
+      preLoaderRoute: typeof NetworkEditRouteImport
+      parentRoute: typeof NetworkRoute
     }
     '/messages/$connectionId': {
       id: '/messages/$connectionId'
@@ -1156,6 +1175,17 @@ const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
   MessagesRouteChildren,
 )
 
+interface NetworkRouteChildren {
+  NetworkEditRoute: typeof NetworkEditRoute
+}
+
+const NetworkRouteChildren: NetworkRouteChildren = {
+  NetworkEditRoute: NetworkEditRoute,
+}
+
+const NetworkRouteWithChildren =
+  NetworkRoute._addFileChildren(NetworkRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -1172,7 +1202,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerAuthRoute: ManagerAuthRoute,
   MarketplaceRoute: MarketplaceRoute,
   MessagesRoute: MessagesRouteWithChildren,
-  NetworkRoute: NetworkRoute,
+  NetworkRoute: NetworkRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
