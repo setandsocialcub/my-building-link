@@ -26,6 +26,7 @@ import { Route as ForumRouteImport } from './routes/forum'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ConnectionsRouteImport } from './routes/connections'
+import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as CommunityVoiceRouteImport } from './routes/community-voice'
 import { Route as CommunityStandardsRouteImport } from './routes/community-standards'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
@@ -146,6 +147,11 @@ const DiscoverRoute = DiscoverRouteImport.update({
 const ConnectionsRoute = ConnectionsRouteImport.update({
   id: '/connections',
   path: '/connections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConciergeRoute = ConciergeRouteImport.update({
+  id: '/concierge',
+  path: '/concierge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityVoiceRoute = CommunityVoiceRouteImport.update({
@@ -354,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/announcements': typeof AnnouncementsRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/community-voice': typeof CommunityVoiceRoute
+  '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
@@ -408,6 +415,7 @@ export interface FileRoutesByTo {
   '/announcements': typeof AnnouncementsRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/community-voice': typeof CommunityVoiceRoute
+  '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
@@ -462,6 +470,7 @@ export interface FileRoutesById {
   '/announcements': typeof AnnouncementsRoute
   '/community-standards': typeof CommunityStandardsRoute
   '/community-voice': typeof CommunityVoiceRoute
+  '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
   '/discover': typeof DiscoverRoute
   '/events': typeof EventsRoute
@@ -519,6 +528,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/community-standards'
     | '/community-voice'
+    | '/concierge'
     | '/connections'
     | '/discover'
     | '/events'
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/community-standards'
     | '/community-voice'
+    | '/concierge'
     | '/connections'
     | '/discover'
     | '/events'
@@ -626,6 +637,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/community-standards'
     | '/community-voice'
+    | '/concierge'
     | '/connections'
     | '/discover'
     | '/events'
@@ -682,6 +694,7 @@ export interface RootRouteChildren {
   AnnouncementsRoute: typeof AnnouncementsRoute
   CommunityStandardsRoute: typeof CommunityStandardsRoute
   CommunityVoiceRoute: typeof CommunityVoiceRoute
+  ConciergeRoute: typeof ConciergeRoute
   ConnectionsRoute: typeof ConnectionsRoute
   DiscoverRoute: typeof DiscoverRoute
   EventsRoute: typeof EventsRoute
@@ -824,6 +837,13 @@ declare module '@tanstack/react-router' {
       path: '/connections'
       fullPath: '/connections'
       preLoaderRoute: typeof ConnectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/concierge': {
+      id: '/concierge'
+      path: '/concierge'
+      fullPath: '/concierge'
+      preLoaderRoute: typeof ConciergeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/community-voice': {
@@ -1215,6 +1235,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnouncementsRoute: AnnouncementsRoute,
   CommunityStandardsRoute: CommunityStandardsRoute,
   CommunityVoiceRoute: CommunityVoiceRoute,
+  ConciergeRoute: ConciergeRoute,
   ConnectionsRoute: ConnectionsRoute,
   DiscoverRoute: DiscoverRoute,
   EventsRoute: EventsRoute,
