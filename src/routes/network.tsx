@@ -183,7 +183,7 @@ function NetworkPage() {
     if (!q && !category) return;
     const t = setTimeout(() => {
       void supabase.from("network_search_events").insert({
-        building_id: me.buildingId,
+        building_id: me.buildingId!,
         query: q || null,
         category: category ?? null,
       });
