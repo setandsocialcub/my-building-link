@@ -15,6 +15,7 @@ import { Route as ResidentAccessRouteImport } from './routes/resident-access'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as NetworkRouteImport } from './routes/network'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as ManagerAuthRouteImport } from './routes/manager-auth'
@@ -88,6 +89,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NetworkRoute = NetworkRouteImport.update({
+  id: '/network',
+  path: '/network',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/network': typeof NetworkRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -396,6 +403,7 @@ export interface FileRoutesByTo {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/network': typeof NetworkRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -447,6 +455,7 @@ export interface FileRoutesById {
   '/manager-auth': typeof ManagerAuthRoute
   '/marketplace': typeof MarketplaceRoute
   '/messages': typeof MessagesRouteWithChildren
+  '/network': typeof NetworkRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -501,6 +510,7 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/network'
     | '/privacy'
     | '/profile'
     | '/reset-password'
@@ -552,6 +562,7 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/network'
     | '/privacy'
     | '/profile'
     | '/reset-password'
@@ -602,6 +613,7 @@ export interface FileRouteTypes {
     | '/manager-auth'
     | '/marketplace'
     | '/messages'
+    | '/network'
     | '/privacy'
     | '/profile'
     | '/reset-password'
@@ -655,6 +667,7 @@ export interface RootRouteChildren {
   ManagerAuthRoute: typeof ManagerAuthRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MessagesRoute: typeof MessagesRouteWithChildren
+  NetworkRoute: typeof NetworkRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -709,6 +722,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/network': {
+      id: '/network'
+      path: '/network'
+      fullPath: '/network'
+      preLoaderRoute: typeof NetworkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -1152,6 +1172,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManagerAuthRoute: ManagerAuthRoute,
   MarketplaceRoute: MarketplaceRoute,
   MessagesRoute: MessagesRouteWithChildren,
+  NetworkRoute: NetworkRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
