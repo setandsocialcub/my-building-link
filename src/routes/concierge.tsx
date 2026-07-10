@@ -281,33 +281,28 @@ function ConciergePage() {
       <ConciergeChat />
       <div className="space-y-10 pb-10">
 
-        {/* Hero */}
-        <section
-          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-accent/10 p-6 md:p-10"
-        >
-          <div className="max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary/80">Community Concierge™</p>
-            <h1 className="mt-2 font-serif text-3xl md:text-4xl font-semibold tracking-tight">
-              {greeting}{firstName ? `, ${firstName}` : ""}.
-            </h1>
-            <p className="mt-2 text-base text-muted-foreground">
-              Here's what's happening around your community today.
-            </p>
-          </div>
-
-          {featured && (
-            <div className="mt-6 grid gap-4 md:grid-cols-[1fr_auto] items-end">
-              <FeaturedCard place={featured} onFavorite={toggleFavorite} isFav={favorites.has(featured.id)} />
-            </div>
-          )}
-        </section>
-
-        {/* This Week at Home */}
+        {/* This Week at Home — the first screen */}
         <ThisWeekAtHome
-          picks={managementPicks}
+          greeting={greeting}
+          firstName={firstName}
+          places={approvedPlaces}
           perks={perks}
-          neighbors={neighbors.slice(0, 3)}
+          neighbors={neighbors}
+          events={events}
+          city={buildingCity}
         />
+
+        {/* Featured pick */}
+        {featured && (
+          <section>
+            <SectionHeader
+              eyebrow="Featured this week"
+              title={featured.name}
+              subtitle={featured.description ?? featured.notes ?? undefined}
+            />
+            <FeaturedCard place={featured} onFavorite={toggleFavorite} isFav={favorites.has(featured.id)} />
+          </section>
+        )}
 
         {/* Search + submit */}
         <section className="flex flex-wrap items-center gap-3">
