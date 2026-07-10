@@ -1040,6 +1040,35 @@ export type Database = {
           },
         ]
       }
+      concierge_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          place_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          place_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          place_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "concierge_favorites_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhood_places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           addressee_id: string
@@ -1686,13 +1715,31 @@ export type Database = {
           address: string | null
           building_id: string
           category: string | null
+          collections: string[]
           created_at: string
+          description: string | null
+          directions_url: string | null
+          distance_note: string | null
+          featured_until: string | null
           id: string
+          image_url: string | null
+          is_featured: boolean
+          is_perk: boolean
           lat: number | null
           lng: number | null
           name: string
           notes: string | null
           order_index: number
+          perk_description: string | null
+          phone: string | null
+          price_level: number | null
+          reservation_url: string | null
+          resident_recommendation_note: string | null
+          source: string
+          status: string
+          subcategory: string | null
+          submitted_by: string | null
+          tags: string[]
           updated_at: string
           url: string | null
         }
@@ -1700,13 +1747,31 @@ export type Database = {
           address?: string | null
           building_id: string
           category?: string | null
+          collections?: string[]
           created_at?: string
+          description?: string | null
+          directions_url?: string | null
+          distance_note?: string | null
+          featured_until?: string | null
           id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_perk?: boolean
           lat?: number | null
           lng?: number | null
           name: string
           notes?: string | null
           order_index?: number
+          perk_description?: string | null
+          phone?: string | null
+          price_level?: number | null
+          reservation_url?: string | null
+          resident_recommendation_note?: string | null
+          source?: string
+          status?: string
+          subcategory?: string | null
+          submitted_by?: string | null
+          tags?: string[]
           updated_at?: string
           url?: string | null
         }
@@ -1714,13 +1779,31 @@ export type Database = {
           address?: string | null
           building_id?: string
           category?: string | null
+          collections?: string[]
           created_at?: string
+          description?: string | null
+          directions_url?: string | null
+          distance_note?: string | null
+          featured_until?: string | null
           id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_perk?: boolean
           lat?: number | null
           lng?: number | null
           name?: string
           notes?: string | null
           order_index?: number
+          perk_description?: string | null
+          phone?: string | null
+          price_level?: number | null
+          reservation_url?: string | null
+          resident_recommendation_note?: string | null
+          source?: string
+          status?: string
+          subcategory?: string | null
+          submitted_by?: string | null
+          tags?: string[]
           updated_at?: string
           url?: string | null
         }
@@ -1730,6 +1813,27 @@ export type Database = {
             columns: ["building_id"]
             isOneToOne: false
             referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "neighborhood_places_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "neighborhood_places_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "resident_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "neighborhood_places_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "resident_public_profiles"
             referencedColumns: ["id"]
           },
         ]

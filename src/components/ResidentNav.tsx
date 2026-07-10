@@ -136,6 +136,7 @@ export function ResidentSidebarLinks() {
   const all: NavItem[] = [
     { to: "/announcements", label: "Community Updates", icon: "📢", badge: counts.announcementsUnread },
     { to: "/community-voice", label: "Community Voice™", icon: "🗣️" },
+    { to: "/concierge", label: "Community Concierge™", icon: "🛎️", feature: "enable_concierge" },
     { to: "/network", label: "Community Network™", icon: "🌐" },
     { to: "/marketplace", label: "Resident Exchange", icon: "🛒", feature: "enable_resident_exchange" },
     { to: "/groups", label: "Circles", icon: "👥", badge: counts.groupUnread, feature: "enable_circles" },
