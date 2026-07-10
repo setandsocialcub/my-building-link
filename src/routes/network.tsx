@@ -176,6 +176,21 @@ function NetworkPage() {
     });
   }, [profiles, query, category]);
 
+  // Anonymous search logging for Community Intelligence™.
+  useEffect(() => {
+    if (!me?.buildingId) return;
+    const q = query.trim();
+    if (!q && !category) return;
+    const t = setTimeout(() => {
+      void supabase.from("network_search_events").insert({
+        building_id: me.buildingId,
+        query: q || null,
+        category: category ?? null,
+      });
+    }, 900);
+    return () => clearTimeout(t);
+  }, [query, category, me?.buildingId]);
+
   const categoryCounts = useMemo(() => {
     const map: Record<string, number> = {};
     for (const p of profiles) {
