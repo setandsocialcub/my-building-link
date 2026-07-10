@@ -44,6 +44,7 @@ import { Route as AdminLegalRouteImport } from './routes/admin.legal'
 import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as ManagerBuildingIdIndexRouteImport } from './routes/manager.$buildingId.index'
 import { Route as ManagerBuildingIdRecognitionRouteImport } from './routes/manager.$buildingId.recognition'
+import { Route as ManagerBuildingIdNetworkIntelligenceRouteImport } from './routes/manager.$buildingId.network-intelligence'
 import { Route as ManagerBuildingIdCommunityVoiceRouteImport } from './routes/manager.$buildingId.community-voice'
 import { Route as ManagerBuildingIdCommunityIntelligenceRouteImport } from './routes/manager.$buildingId.community-intelligence'
 import { Route as ManagerBuildingIdBrandingRouteImport } from './routes/manager.$buildingId.branding'
@@ -238,6 +239,12 @@ const ManagerBuildingIdRecognitionRoute =
     path: '/recognition',
     getParentRoute: () => ManagerBuildingIdRoute,
   } as any)
+const ManagerBuildingIdNetworkIntelligenceRoute =
+  ManagerBuildingIdNetworkIntelligenceRouteImport.update({
+    id: '/network-intelligence',
+    path: '/network-intelligence',
+    getParentRoute: () => ManagerBuildingIdRoute,
+  } as any)
 const ManagerBuildingIdCommunityVoiceRoute =
   ManagerBuildingIdCommunityVoiceRouteImport.update({
     id: '/community-voice',
@@ -379,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/manager/$buildingId/community-intelligence': typeof ManagerBuildingIdCommunityIntelligenceRoute
   '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
+  '/manager/$buildingId/network-intelligence': typeof ManagerBuildingIdNetworkIntelligenceRoute
   '/manager/$buildingId/recognition': typeof ManagerBuildingIdRecognitionRoute
   '/manager/$buildingId/': typeof ManagerBuildingIdIndexRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
@@ -430,6 +438,7 @@ export interface FileRoutesByTo {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/manager/$buildingId/community-intelligence': typeof ManagerBuildingIdCommunityIntelligenceRoute
   '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
+  '/manager/$buildingId/network-intelligence': typeof ManagerBuildingIdNetworkIntelligenceRoute
   '/manager/$buildingId/recognition': typeof ManagerBuildingIdRecognitionRoute
   '/manager/$buildingId': typeof ManagerBuildingIdIndexRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
@@ -485,6 +494,7 @@ export interface FileRoutesById {
   '/manager/$buildingId/branding': typeof ManagerBuildingIdBrandingRoute
   '/manager/$buildingId/community-intelligence': typeof ManagerBuildingIdCommunityIntelligenceRoute
   '/manager/$buildingId/community-voice': typeof ManagerBuildingIdCommunityVoiceRoute
+  '/manager/$buildingId/network-intelligence': typeof ManagerBuildingIdNetworkIntelligenceRoute
   '/manager/$buildingId/recognition': typeof ManagerBuildingIdRecognitionRoute
   '/manager/$buildingId/': typeof ManagerBuildingIdIndexRoute
   '/admin/buildings/$buildingId/analytics': typeof AdminBuildingsBuildingIdAnalyticsRoute
@@ -541,6 +551,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/manager/$buildingId/community-intelligence'
     | '/manager/$buildingId/community-voice'
+    | '/manager/$buildingId/network-intelligence'
     | '/manager/$buildingId/recognition'
     | '/manager/$buildingId/'
     | '/admin/buildings/$buildingId/analytics'
@@ -592,6 +603,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/manager/$buildingId/community-intelligence'
     | '/manager/$buildingId/community-voice'
+    | '/manager/$buildingId/network-intelligence'
     | '/manager/$buildingId/recognition'
     | '/manager/$buildingId'
     | '/admin/buildings/$buildingId/analytics'
@@ -646,6 +658,7 @@ export interface FileRouteTypes {
     | '/manager/$buildingId/branding'
     | '/manager/$buildingId/community-intelligence'
     | '/manager/$buildingId/community-voice'
+    | '/manager/$buildingId/network-intelligence'
     | '/manager/$buildingId/recognition'
     | '/manager/$buildingId/'
     | '/admin/buildings/$buildingId/analytics'
@@ -939,6 +952,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerBuildingIdRecognitionRouteImport
       parentRoute: typeof ManagerBuildingIdRoute
     }
+    '/manager/$buildingId/network-intelligence': {
+      id: '/manager/$buildingId/network-intelligence'
+      path: '/network-intelligence'
+      fullPath: '/manager/$buildingId/network-intelligence'
+      preLoaderRoute: typeof ManagerBuildingIdNetworkIntelligenceRouteImport
+      parentRoute: typeof ManagerBuildingIdRoute
+    }
     '/manager/$buildingId/community-voice': {
       id: '/manager/$buildingId/community-voice'
       path: '/community-voice'
@@ -1136,6 +1156,7 @@ interface ManagerBuildingIdRouteChildren {
   ManagerBuildingIdBrandingRoute: typeof ManagerBuildingIdBrandingRoute
   ManagerBuildingIdCommunityIntelligenceRoute: typeof ManagerBuildingIdCommunityIntelligenceRoute
   ManagerBuildingIdCommunityVoiceRoute: typeof ManagerBuildingIdCommunityVoiceRoute
+  ManagerBuildingIdNetworkIntelligenceRoute: typeof ManagerBuildingIdNetworkIntelligenceRoute
   ManagerBuildingIdRecognitionRoute: typeof ManagerBuildingIdRecognitionRoute
   ManagerBuildingIdIndexRoute: typeof ManagerBuildingIdIndexRoute
 }
@@ -1145,6 +1166,8 @@ const ManagerBuildingIdRouteChildren: ManagerBuildingIdRouteChildren = {
   ManagerBuildingIdCommunityIntelligenceRoute:
     ManagerBuildingIdCommunityIntelligenceRoute,
   ManagerBuildingIdCommunityVoiceRoute: ManagerBuildingIdCommunityVoiceRoute,
+  ManagerBuildingIdNetworkIntelligenceRoute:
+    ManagerBuildingIdNetworkIntelligenceRoute,
   ManagerBuildingIdRecognitionRoute: ManagerBuildingIdRecognitionRoute,
   ManagerBuildingIdIndexRoute: ManagerBuildingIdIndexRoute,
 }

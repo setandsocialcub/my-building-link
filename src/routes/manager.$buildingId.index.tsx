@@ -371,6 +371,11 @@ function ManagerDashboard() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link to="/manager/$buildingId/network-intelligence" params={{ buildingId }}>
+                <Users className="h-3.5 w-3.5" /> Network
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
               <Link to="/manager/$buildingId/recognition" params={{ buildingId }}>
                 <Sparkles className="h-3.5 w-3.5" /> Recognition
               </Link>
